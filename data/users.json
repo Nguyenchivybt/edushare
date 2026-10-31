@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "password": "123",
+    "fullname": "Quản trị viên Hệ thống",
+    "role": "admin",
+    "createdAt": "2026-10-24"
+  },
+  {
+    "id": 1792813786403,
+    "fullname": "Nguyễn Chí Vỹ",
+    "gender": "Nam",
+    "dob": "2006-01-06",
+    "emailPhone": "nguyenchivybt2006@gmail.com",
+    "school": "Trường Đại học Xây dựng Miền Tây",
+    "faculty": "Khoa Công nghệ",
+    "className": "Kỹ thuật phần mềm",
+    "course": "KP24D01",
+    "username": "nguyenchivyadmin",
+    "password": "Ncv612006@btvn",
+    "role": "admin",
+    "createdAt": "2026-10-24",
+    "favorites": [
+      1793412280668,
+      1792813882482
+    ]
+  }
+]

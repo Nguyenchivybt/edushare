@@ -1,597 +1,379 @@
 const express = require('express');
-const multer = require('multer');
+const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const cors = require('cors');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const dataDir = path.join(__dirname, 'data');
-const uploadDir = path.join(__dirname, 'uploads');
-const usersFile = path.join(dataDir, 'users.json');
-const docsFile = path.join(dataDir, 'documents.json');
-const settingsFile = path.join(dataDir, 'settings.json');
-const otpsFile = path.join(dataDir, 'otps.json');
-const commentsFile = path.join(dataDir, 'comments.json');
+// ==================== KHỞI TẠO THƯ MỤC DỮ LIỆU & UPLOADS ====================
+const DATA_DIR = path.join(__dirname, 'data');
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
 
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-function readData(filePath, defaultData = []) {
+// Tệp dữ liệu JSON
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const DOCS_FILE = path.join(DATA_DIR, 'documents.json');
+const COMMENTS_FILE = path.join(DATA_DIR, 'comments.json');
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
+
+// Hàm đọc / ghi JSON helper
+function readJSON(filePath, defaultData = []) {
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, JSON.stringify(defaultData, null, 2), 'utf-8');
     return defaultData;
   }
   try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const raw = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(raw);
   } catch (err) {
     return defaultData;
   }
 }
 
-function saveData(filePath, data) {
+function writeJSON(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+// Khởi tạo dữ liệu mẫu nếu rỗng
+let users = readJSON(USERS_FILE, [
+  { id: 1, username: 'admin', fullname: 'Quản Trị Viên', role: 'admin', status: 'approved', emailPhone: 'admin@edushare.vn' }
+]);
+let documents = readJSON(DOCS_FILE, []);
+let comments = readJSON(COMMENTS_FILE, []);
+let settings = readJSON(SETTINGS_FILE, { approvalMode: 'manual' });
+
+// ==================== MIDDLEWARE & SERVE STATIC FILES ====================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname));
-app.use('/uploads', express.static(uploadDir));
 
+// Mở quyền truy cập file tĩnh công khai cho giao diện & thư mục uploads
+app.use(express.static(path.join(__dirname)));
+app.use('/uploads', express.static(UPLOADS_DIR));
+
+// Cấu hình Multer để tải tệp lên
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, 'doc-' + uniqueSuffix + ext);
+  }
 });
 const upload = multer({ storage });
 
-// Khởi tạo dữ liệu mặc định
-let sysSettings = readData(settingsFile, { approvalMode: 'manual' });
-
-let usersList = readData(usersFile, []);
-if (usersList.length === 0) {
-  usersList = [
-    {
-      id: 1,
-      fullname: 'Quản trị viên Hệ thống',
-      gender: 'Nam',
-      dob: '2005-12-07',
-      emailPhone: 'admin@edushare.vn',
-      school: 'Trường Đại học Xây dựng Miền Tây',
-      faculty: 'Công nghệ thông tin',
-      major: 'Kỹ thuật phần mềm',
-      className: 'ĐH Kỹ thuật phần mềm',
-      course: 'K15',
-      username: 'admin',
-      password: '123',
-      role: 'admin',
-      status: 'approved',
-      favorites: [],
-      viewHistory: [],
-      downloadHistory: [],
-      createdAt: '2026-01-01'
-    }
-  ];
-  saveData(usersFile, usersList);
-}
-
-let docsList = readData(docsFile, []);
-if (docsList.length === 0) {
-  docsList = [
-    {
-      id: 101,
-      title: 'Giáo trình Lập trình Web nâng cao - ExpressJS & Node.js',
-      type: 'PDF',
-      category: 'Giáo trình',
-      school: 'Trường Đại học Xây dựng Miền Tây',
-      faculty: 'Công nghệ thông tin',
-      major: 'Kỹ thuật phần mềm',
-      course: 'K15',
-      className: 'ĐH KTPM 2023',
-      subject: 'Lập trình Web 2',
-      author: 'ThS. Nguyễn Văn A',
-      authorId: 1,
-      downloads: 42,
-      views: 128,
-      date: '2026-02-15',
-      url: '/uploads/sample-web-doc.pdf',
-      isArticle: false
-    },
-    {
-      id: 102,
-      title: 'Đề thi Mẫu môn Cơ sở dữ liệu - HK1 năm học 2025-2026',
-      type: 'DOCX',
-      category: 'Tài liệu bài thi',
-      school: 'Trường Đại học Xây dựng Miền Tây',
-      faculty: 'Công nghệ thông tin',
-      major: 'Kỹ thuật phần mềm',
-      course: 'K15',
-      className: 'ĐH KTPM 2023',
-      subject: 'Cơ sở dữ liệu',
-      author: 'Quản trị viên Hệ thống',
-      authorId: 1,
-      downloads: 85,
-      views: 210,
-      date: '2026-01-10',
-      url: '/uploads/sample-db-exam.docx',
-      isArticle: false
-    },
-    {
-      id: 103,
-      title: 'Ứng dụng Trí tuệ Nhân tạo trong Đổi mới Phương pháp Giảng dạy Đại học',
-      type: 'LINK',
-      category: 'Bài báo tiêu biểu',
-      school: 'Toàn quốc',
-      faculty: 'Khoa học máy tính',
-      major: 'AI & Data Science',
-      course: 'Tất cả',
-      className: 'Toàn trường',
-      subject: 'Nghiên cứu khoa học',
-      author: 'Tạp chí Khoa học Giáo dục Việt Nam',
-      authorId: 1,
-      downloads: 0,
-      views: 340,
-      date: '2026-03-01',
-      url: 'https://tapchigiaoduc.edu.vn',
-      isArticle: true
-    }
-  ];
-  saveData(docsFile, docsList);
-}
-
-/* ==================== API CẤU HÌNH & AUTH ==================== */
-
-app.get('/api/settings', (req, res) => {
-  res.json(readData(settingsFile, { approvalMode: 'manual' }));
-});
-
-app.post('/api/settings', (req, res) => {
-  const { approvalMode } = req.body;
-  const settings = { approvalMode: approvalMode || 'manual' };
-  saveData(settingsFile, settings);
-  res.json({ message: 'Đã cập nhật chế độ duyệt hệ thống thành công!', settings });
-});
+// ==================== AUTHENTICATION APIs ====================
 
 app.post('/api/register', (req, res) => {
-  const { fullname, gender, dob, emailPhone, school, faculty, major, className, course, role, username, password, confirmPassword } = req.body;
-  let users = readData(usersFile, []);
-  let settings = readData(settingsFile, { approvalMode: 'manual' });
-
-  if (!username || !password || !fullname || !emailPhone) {
-    return res.status(400).json({ message: 'Vui lòng điền đầy đủ các thông tin bắt buộc (*)' });
+  const newUser = req.body;
+  users = readJSON(USERS_FILE);
+  
+  if (users.some(u => u.username === newUser.username)) {
+    return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại!' });
   }
 
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: 'Mật khẩu và Xác nhận mật khẩu không trùng khớp!' });
-  }
-
-  if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-    return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại trên hệ thống!' });
-  }
-
-  if (users.some(u => u.emailPhone.toLowerCase() === emailPhone.toLowerCase())) {
-    return res.status(400).json({ message: 'Email hoặc Số điện thoại này đã được đăng ký!' });
-  }
-
-  if (users.some(u => u.fullname.toLowerCase() === fullname.toLowerCase() && u.dob === dob)) {
-    return res.status(400).json({ message: 'Thông tin Họ tên và Ngày sinh này đã tồn tại trên hệ thống!' });
-  }
-
-  const initialStatus = (settings.approvalMode === 'auto' || role === 'admin') ? 'approved' : 'pending';
-
-  const newUser = {
-    id: Date.now(),
-    fullname,
-    gender: gender || 'Nam',
-    dob: dob || '',
-    emailPhone,
-    school: school || 'Trường Đại học Xây dựng Miền Tây',
-    faculty: faculty || '',
-    major: major || '',
-    className: className || '',
-    course: course || '',
-    username,
-    password,
-    role: role || 'student',
-    status: initialStatus,
-    favorites: [],
-    viewHistory: [],
-    downloadHistory: [],
-    createdAt: new Date().toISOString().split('T')[0]
-  };
+  newUser.id = Date.now();
+  newUser.status = settings.approvalMode === 'auto' ? 'approved' : 'pending';
+  newUser.createdAt = new Date().toLocaleDateString('vi-VN');
+  newUser.favorites = [];
+  newUser.downloadHistory = [];
+  newUser.viewHistory = [];
 
   users.push(newUser);
-  saveData(usersFile, users);
+  writeJSON(USERS_FILE, users);
 
-  const msg = initialStatus === 'approved' 
-    ? 'Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay.' 
-    : 'Đăng ký thành công! Tài khoản của bạn đang CHỜ DUYỆT bởi Admin.';
-
-  res.status(201).json({ message: msg, user: newUser });
+  const msg = newUser.status === 'approved' 
+    ? 'Đăng ký thành công! Bạn có thể đăng nhập ngay.' 
+    : 'Đăng ký thành công! Tài khoản đang chờ Admin phê duyệt.';
+  res.json({ message: msg, user: newUser });
 });
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
-  let users = readData(usersFile, []);
+  users = readJSON(USERS_FILE);
 
-  const user = users.find(u => (u.username === username || u.emailPhone === username) && u.password === password);
+  const user = users.find(u => u.username === username && u.password === password);
   if (!user) {
-    return res.status(401).json({ message: 'Tên đăng nhập / Email / SĐT hoặc mật khẩu không chính xác!' });
+    return res.status(400).json({ message: 'Tài khoản hoặc mật khẩu không đúng!' });
   }
-
   if (user.status === 'pending') {
-    return res.status(403).json({ message: 'Tài khoản của bạn đang CHỜ DUYỆT bởi Admin. Vui lòng liên hệ Quản trị viên!' });
+    return res.status(403).json({ message: 'Tài khoản của bạn đang chờ Admin phê duyệt!' });
   }
 
-  const { password: p, ...userSafe } = user;
-  res.json({ message: 'Đăng nhập thành công!', user: userSafe });
+  res.json({ message: 'Đăng nhập thành công!', user });
 });
-
-/* ==================== QUÊN MẬT KHẨU OTP 3 BƯỚC ==================== */
 
 app.post('/api/forgot-password/send-otp', (req, res) => {
   const { accountInfo } = req.body;
-  if (!accountInfo) return res.status(400).json({ message: 'Vui lòng nhập Tên đăng nhập, Email hoặc SĐT!' });
-
-  let users = readData(usersFile, []);
+  users = readJSON(USERS_FILE);
   const user = users.find(u => u.username === accountInfo || u.emailPhone === accountInfo);
 
   if (!user) {
-    return res.status(404).json({ message: 'Thông tin không tồn tại trên hệ thống. Vui lòng kiểm tra lại!' });
+    return res.status(404).json({ message: 'Không tìm thấy tài khoản hợp lệ!' });
   }
 
-  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresAt = Date.now() + 3 * 60 * 1000;
-
-  let otps = readData(otpsFile, []);
-  otps = otps.filter(o => o.userId !== user.id);
-  otps.push({ userId: user.id, otpCode, expiresAt });
-  saveData(otpsFile, otps);
-
-  res.json({
-    message: `Đã gửi mã xác nhận OTP! (Mã thử nghiệm: ${otpCode})`,
-    userId: user.id,
-    otpDemo: otpCode
-  });
+  res.json({ message: 'Mã OTP thử nghiệm là: 123456', userId: user.id });
 });
 
 app.post('/api/forgot-password/verify-otp', (req, res) => {
-  const { userId, otpCode } = req.body;
-  let otps = readData(otpsFile, []);
-  const record = otps.find(o => o.userId === parseInt(userId));
-
-  if (!record || record.otpCode !== otpCode.trim()) {
-    return res.status(400).json({ message: 'Mã OTP sai, vui lòng nhập lại!' });
+  const { otpCode } = req.body;
+  if (otpCode === '123456') {
+    return res.json({ message: 'Xác thực OTP thành công!' });
   }
-
-  if (Date.now() > record.expiresAt) {
-    return res.status(400).json({ message: 'Mã OTP đã quá hạn! Vui lòng chọn Cấp lại mã.' });
-  }
-
-  res.json({ message: 'Xác nhận mã OTP thành công! Mời bạn tạo mật khẩu mới.' });
+  res.status(400).json({ message: 'Mã OTP không chính xác!' });
 });
 
 app.post('/api/forgot-password/reset-password', (req, res) => {
-  const { userId, otpCode, newPassword, confirmPassword } = req.body;
+  const { userId, otpCode, newPassword } = req.body;
+  if (otpCode !== '123456') return res.status(400).json({ message: 'Mã OTP sai!' });
 
-  if (!newPassword || newPassword !== confirmPassword) {
-    return res.status(400).json({ message: 'Mật khẩu mới và Xác nhận mật khẩu mới không trùng khớp!' });
-  }
-
-  let otps = readData(otpsFile, []);
-  const record = otps.find(o => o.userId === parseInt(userId) && o.otpCode === otpCode.trim());
-
-  if (!record || Date.now() > record.expiresAt) {
-    return res.status(400).json({ message: 'Yêu cầu không hợp lệ hoặc OTP đã quá hạn!' });
-  }
-
-  let users = readData(usersFile, []);
-  const user = users.find(u => u.id === parseInt(userId));
-  if (!user) return res.status(404).json({ message: 'Không tìm thấy tài khoản!' });
-
-  user.password = newPassword;
-  saveData(usersFile, users);
-
-  otps = otps.filter(o => o.userId !== parseInt(userId));
-  saveData(otpsFile, otps);
-
-  res.json({ message: 'Đặt lại mật khẩu mới thành công! Bạn có thể đăng nhập ngay.' });
-});
-
-/* ==================== API THÔNG TIN CÁ NHÂN & THƯ VIỆN ==================== */
-
-app.get('/api/users/profile/:id', (req, res) => {
-  const userId = parseInt(req.params.id);
-  let users = readData(usersFile, []);
-  let docs = readData(docsFile, []);
-
-  const user = users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng!' });
-
-  const { password, ...userSafe } = user;
-
-  const uploadedDocs = docs.filter(d => d.authorId === userId || d.author === user.fullname);
-  const favoriteDocs = docs.filter(d => (user.favorites || []).includes(d.id));
-  const viewHistoryDocs = docs.filter(d => (user.viewHistory || []).includes(d.id));
-  const downloadHistoryDocs = docs.filter(d => (user.downloadHistory || []).includes(d.id));
-
-  res.json({
-    user: userSafe,
-    uploadedDocs,
-    favoriteDocs,
-    viewHistoryDocs,
-    downloadHistoryDocs
-  });
-});
-
-app.post('/api/users/favorites', (req, res) => {
-  const { userId, docId } = req.body;
-  let users = readData(usersFile, []);
-  const user = users.find(u => u.id === parseInt(userId));
-
-  if (!user) return res.status(401).json({ message: 'Vui lòng đăng nhập để thao tác!' });
-
-  if (!user.favorites) user.favorites = [];
-  const index = user.favorites.indexOf(docId);
-
-  let isFav = false;
-  if (index >= 0) {
-    user.favorites.splice(index, 1);
-  } else {
-    user.favorites.push(docId);
-    isFav = true;
-  }
-
-  saveData(usersFile, users);
-  res.json({
-    message: isFav ? 'Đã thêm tài liệu vào Thư viện Yêu Thích!' : 'Đã xóa tài liệu khỏi Yêu Thích!',
-    favorites: user.favorites,
-    isFav
-  });
-});
-
-/* ==================== API ADMIN QUẢN LÝ NGƯỜI DÙNG ==================== */
-
-app.get('/api/users', (req, res) => {
-  let users = readData(usersFile, []);
-  const safeUsers = users.map(({ password, ...rest }) => rest);
-  res.json(safeUsers);
-});
-
-app.post('/api/users/add', (req, res) => {
-  const { fullname, gender, dob, emailPhone, school, faculty, major, className, course, role, status, username, password } = req.body;
-  let users = readData(usersFile, []);
-
-  if (users.some(u => u.username === username)) {
-    return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại!' });
-  }
-
-  const newUser = {
-    id: Date.now(),
-    fullname: fullname || username,
-    gender: gender || 'Nam',
-    dob: dob || '',
-    emailPhone: emailPhone || '',
-    school: school || 'Trường Đại học Xây dựng Miền Tây',
-    faculty: faculty || '',
-    major: major || '',
-    className: className || '',
-    course: course || '',
-    username,
-    password,
-    role: role || 'student',
-    status: status || 'approved',
-    favorites: [],
-    viewHistory: [],
-    downloadHistory: [],
-    createdAt: new Date().toISOString().split('T')[0]
-  };
-
-  users.push(newUser);
-  saveData(usersFile, users);
-  res.status(201).json({ message: 'Admin đã thêm người dùng mới thành công!', user: newUser });
-});
-
-app.patch('/api/users/:id/approve', (req, res) => {
-  const userId = parseInt(req.params.id);
-  let users = readData(usersFile, []);
-  const user = users.find(u => u.id === userId);
-
+  users = readJSON(USERS_FILE);
+  const user = users.find(u => u.id == userId);
   if (user) {
-    user.status = 'approved';
-    saveData(usersFile, users);
-    return res.json({ message: 'Đã duyệt tài khoản thành công!' });
+    user.password = newPassword;
+    writeJSON(USERS_FILE, users);
+    return res.json({ message: 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.' });
   }
-  res.status(404).json({ message: 'Không tìm thấy tài khoản!' });
+  res.status(404).json({ message: 'Lỗi không tìm thấy người dùng!' });
 });
 
-app.delete('/api/users/:id', (req, res) => {
-  const userId = parseInt(req.params.id);
-  let users = readData(usersFile, []);
-  users = users.filter(u => u.id !== userId);
-  saveData(usersFile, users);
-  res.json({ message: 'Đã xóa người dùng thành công!' });
-});
-
-/* ==================== API TÀI LIỆU & BÌNH LUẬN ==================== */
+// ==================== DOCUMENTS APIs ====================
 
 app.get('/api/documents', (req, res) => {
-  res.json(readData(docsFile, []));
+  documents = readJSON(DOCS_FILE);
+  res.json(documents);
 });
 
 app.post('/api/documents', upload.single('file'), (req, res) => {
-  let docs = readData(docsFile, []);
-  const { title, type, category, school, faculty, major, course, className, subject, author, authorId, articleUrl } = req.body;
+  documents = readJSON(DOCS_FILE);
+  const body = req.body;
 
-  let fileUrl = '#';
-  let isArticle = (type === 'LINK');
-
-  if (isArticle) {
-    fileUrl = articleUrl || '#';
+  let fileUrl = '';
+  if (body.type === 'LINK') {
+    fileUrl = body.articleUrl;
   } else if (req.file) {
     fileUrl = `/uploads/${req.file.filename}`;
   }
 
   const newDoc = {
     id: Date.now(),
-    title: title || 'Tài liệu chưa đặt tên',
-    type: type || 'PDF',
-    category: category || 'Giáo trình',
-    school: school || 'Trường Đại học Xây dựng Miền Tây',
-    faculty: faculty || 'Công nghệ thông tin',
-    major: major || 'Kỹ thuật phần mềm',
-    course: course || 'K15',
-    className: className || 'Toàn trường',
-    subject: subject || 'Chung',
-    author: author || 'Thành viên',
-    authorId: parseInt(authorId) || 0,
-    downloads: 0,
-    views: 1,
-    date: new Date().toISOString().split('T')[0],
+    title: body.title,
+    type: body.type,
+    category: body.category,
+    school: body.school,
+    faculty: body.faculty,
+    major: body.major,
+    course: body.course,
+    className: body.className,
+    subject: body.subject,
+    author: body.author || 'Khách',
+    authorId: Number(body.authorId) || 0,
     url: fileUrl,
-    isArticle
+    date: new Date().toLocaleDateString('vi-VN'),
+    views: 0,
+    downloads: 0
   };
 
-  docs.unshift(newDoc);
-  saveData(docsFile, docs);
-  res.status(201).json({ message: 'Tải lên tài liệu thành công!', data: newDoc });
+  documents.unshift(newDoc);
+  writeJSON(DOCS_FILE, documents);
+  res.json({ message: 'Tải lên tài liệu thành công!', document: newDoc });
 });
 
 app.put('/api/documents/:id', (req, res) => {
-  const docId = parseInt(req.params.id);
-  let docs = readData(docsFile, []);
-  const doc = docs.find(d => d.id === docId);
+  const docId = Number(req.params.id);
+  documents = readJSON(DOCS_FILE);
+  const index = documents.findIndex(d => d.id === docId);
 
-  if (!doc) return res.status(404).json({ message: 'Không tìm thấy tài liệu!' });
-
-  const { title, type, category, school, faculty, major, course, className, subject } = req.body;
-
-  if (title) doc.title = title;
-  if (type) doc.type = type;
-  if (category) doc.category = category;
-  if (school) doc.school = school;
-  if (faculty) doc.faculty = faculty;
-  if (major) doc.major = major;
-  if (course) doc.course = course;
-  if (className) doc.className = className;
-  if (subject) doc.subject = subject;
-
-  saveData(docsFile, docs);
-  res.json({ message: 'Cập nhật tài liệu thành công!', data: doc });
+  if (index !== -1) {
+    documents[index] = { ...documents[index], ...req.body };
+    writeJSON(DOCS_FILE, documents);
+    return res.json({ message: 'Cập nhật tài liệu thành công!' });
+  }
+  res.status(404).json({ message: 'Không tìm thấy tài liệu!' });
 });
 
 app.delete('/api/documents/:id', (req, res) => {
-  const docId = parseInt(req.params.id);
-  let docs = readData(docsFile, []);
-  
-  const docIndex = docs.findIndex(d => d.id === docId);
-  if (docIndex < 0) return res.status(404).json({ message: 'Không tìm thấy tài liệu!' });
-
-  const doc = docs[docIndex];
-  if (doc.url && doc.url.startsWith('/uploads/')) {
-    const realFilePath = path.join(__dirname, doc.url);
-    if (fs.existsSync(realFilePath)) {
-      try { fs.unlinkSync(realFilePath); } catch (e) {}
-    }
-  }
-
-  docs.splice(docIndex, 1);
-  saveData(docsFile, docs);
-  res.json({ message: 'Đã xóa tài liệu khỏi hệ thống!' });
-});
-
-app.post('/api/documents/:id/download', (req, res) => {
-  const docId = parseInt(req.params.id);
-  const { userId } = req.body;
-
-  if (!userId) {
-    return res.status(401).json({ message: 'Chưa đăng nhập! Khách chỉ được xem, không thể tải tài liệu xuống.' });
-  }
-
-  let docs = readData(docsFile, []);
-  const doc = docs.find(d => d.id === docId);
-
-  if (doc) {
-    doc.downloads = (doc.downloads || 0) + 1;
-    saveData(docsFile, docs);
-
-    let users = readData(usersFile, []);
-    const user = users.find(u => u.id === parseInt(userId));
-    if (user) {
-      if (!user.downloadHistory) user.downloadHistory = [];
-      if (!user.downloadHistory.includes(docId)) {
-        user.downloadHistory.unshift(docId);
-      }
-      saveData(usersFile, users);
-    }
-
-    return res.json({ message: 'Tải tài liệu thành công!', url: doc.url, downloads: doc.downloads });
-  }
-
-  res.status(404).json({ message: 'Tài liệu không tồn tại!' });
+  const docId = Number(req.params.id);
+  documents = readJSON(DOCS_FILE);
+  documents = documents.filter(d => d.id !== docId);
+  writeJSON(DOCS_FILE, documents);
+  res.json({ message: 'Đã xóa tài liệu!' });
 });
 
 app.post('/api/documents/:id/view', (req, res) => {
-  const docId = parseInt(req.params.id);
+  const docId = Number(req.params.id);
   const { userId } = req.body;
 
-  let docs = readData(docsFile, []);
-  const doc = docs.find(d => d.id === docId);
-
+  documents = readJSON(DOCS_FILE);
+  const doc = documents.find(d => d.id === docId);
   if (doc) {
     doc.views = (doc.views || 0) + 1;
-    saveData(docsFile, docs);
-
-    if (userId) {
-      let users = readData(usersFile, []);
-      const user = users.find(u => u.id === parseInt(userId));
-      if (user) {
-        if (!user.viewHistory) user.viewHistory = [];
-        if (!user.viewHistory.includes(docId)) {
-          user.viewHistory.unshift(docId);
-        }
-        saveData(usersFile, users);
-      }
-    }
-    return res.json({ views: doc.views });
+    writeJSON(DOCS_FILE, documents);
   }
-  res.status(404).json({ message: 'Tài liệu không tồn tại!' });
+
+  if (userId) {
+    users = readJSON(USERS_FILE);
+    const user = users.find(u => u.id == userId);
+    if (user) {
+      if (!user.viewHistory) user.viewHistory = [];
+      if (!user.viewHistory.includes(docId)) user.viewHistory.unshift(docId);
+      writeJSON(USERS_FILE, users);
+    }
+  }
+
+  res.json({ success: true });
 });
 
+app.post('/api/documents/:id/download', (req, res) => {
+  const docId = Number(req.params.id);
+  const { userId } = req.body;
+
+  documents = readJSON(DOCS_FILE);
+  const doc = documents.find(d => d.id === docId);
+  if (doc) {
+    doc.downloads = (doc.downloads || 0) + 1;
+    writeJSON(DOCS_FILE, documents);
+  }
+
+  if (userId) {
+    users = readJSON(USERS_FILE);
+    const user = users.find(u => u.id == userId);
+    if (user) {
+      if (!user.downloadHistory) user.downloadHistory = [];
+      if (!user.downloadHistory.includes(docId)) user.downloadHistory.unshift(docId);
+      writeJSON(USERS_FILE, users);
+    }
+  }
+
+  res.json({ success: true, message: 'Đã ghi nhận lượt tải!' });
+});
+
+// ==================== COMMENTS APIs ====================
+
 app.get('/api/documents/:id/comments', (req, res) => {
-  const docId = parseInt(req.params.id);
-  let comments = readData(commentsFile, []);
+  const docId = Number(req.params.id);
+  comments = readJSON(COMMENTS_FILE);
   const docComments = comments.filter(c => c.docId === docId);
   res.json(docComments);
 });
 
 app.post('/api/documents/:id/comments', (req, res) => {
-  const docId = parseInt(req.params.id);
+  const docId = Number(req.params.id);
   const { userId, userName, rating, content } = req.body;
 
-  if (!userId || !content) {
-    return res.status(400).json({ message: 'Vui lòng điền nội dung bình luận!' });
-  }
-
-  let comments = readData(commentsFile, []);
+  comments = readJSON(COMMENTS_FILE);
   const newComment = {
     id: Date.now(),
     docId,
     userId,
-    userName: userName || 'Thành viên',
-    rating: parseInt(rating) || 5,
+    userName,
+    rating: Number(rating) || 5,
     content,
     createdAt: new Date().toLocaleString('vi-VN')
   };
 
   comments.unshift(newComment);
-  saveData(commentsFile, comments);
-  res.status(201).json({ message: 'Đã gửi bình luận & đánh giá!', comment: newComment });
+  writeJSON(COMMENTS_FILE, comments);
+  res.json({ message: 'Đã gửi bình luận thành công!', comment: newComment });
 });
 
+app.delete('/api/documents/comments/:commentId', (req, res) => {
+  const commentId = Number(req.params.commentId);
+  comments = readJSON(COMMENTS_FILE);
+  comments = comments.filter(c => c.id !== commentId);
+  writeJSON(COMMENTS_FILE, comments);
+  res.json({ message: 'Đã xóa bình luận!' });
+});
+
+// ==================== USER PROFILE & ADMIN APIs ====================
+
+app.get('/api/users/profile/:id', (req, res) => {
+  const userId = Number(req.params.id);
+  users = readJSON(USERS_FILE);
+  documents = readJSON(DOCS_FILE);
+
+  const user = users.find(u => u.id === userId);
+  if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại!' });
+
+  const uploadedDocs = documents.filter(d => d.authorId === userId || d.author === user.fullname);
+  const favoriteDocs = documents.filter(d => (user.favorites || []).includes(d.id));
+  const downloadHistoryDocs = documents.filter(d => (user.downloadHistory || []).includes(d.id));
+  const viewHistoryDocs = documents.filter(d => (user.viewHistory || []).includes(d.id));
+
+  res.json({ user, uploadedDocs, favoriteDocs, downloadHistoryDocs, viewHistoryDocs });
+});
+
+app.post('/api/users/favorites', (req, res) => {
+  const { userId, docId } = req.body;
+  users = readJSON(USERS_FILE);
+  const user = users.find(u => u.id == userId);
+
+  if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại!' });
+
+  if (!user.favorites) user.favorites = [];
+  const index = user.favorites.indexOf(docId);
+
+  let message = '';
+  if (index === -1) {
+    user.favorites.push(docId);
+    message = 'Đã thêm vào danh sách Yêu thích!';
+  } else {
+    user.favorites.splice(index, 1);
+    message = 'Đã xóa khỏi danh sách Yêu thích!';
+  }
+
+  writeJSON(USERS_FILE, users);
+  res.json({ message, favorites: user.favorites });
+});
+
+app.get('/api/users', (req, res) => {
+  users = readJSON(USERS_FILE);
+  res.json(users);
+});
+
+app.patch('/api/users/:id/approve', (req, res) => {
+  const userId = Number(req.params.id);
+  users = readJSON(USERS_FILE);
+  const user = users.find(u => u.id === userId);
+  if (user) {
+    user.status = 'approved';
+    writeJSON(USERS_FILE, users);
+    return res.json({ message: 'Đã duyệt tài khoản!' });
+  }
+  res.status(404).json({ message: 'Không tìm thấy người dùng!' });
+});
+
+app.delete('/api/users/:id', (req, res) => {
+  const userId = Number(req.params.id);
+  users = readJSON(USERS_FILE);
+  users = users.filter(u => u.id !== userId);
+  writeJSON(USERS_FILE, users);
+  res.json({ message: 'Đã xóa người dùng!' });
+});
+
+app.get('/api/settings', (req, res) => {
+  settings = readJSON(SETTINGS_FILE);
+  res.json(settings);
+});
+
+app.post('/api/settings', (req, res) => {
+  settings = { ...settings, ...req.body };
+  writeJSON(SETTINGS_FILE, settings);
+  res.json({ message: 'Đã cập nhật cấu hình hệ thống!' });
+});
+
+// Điều hướng tất cả yêu cầu còn lại về index.html (SPA Fallback)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// ==================== KHỞI CHẠY SERVER ====================
 app.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(`🎓 EduShare Server v2.5 - Running on: http://localhost:${PORT}`);
-  console.log(`====================================================`);
+  console.log(`=================================`);
+  console.log(`🚀 EduShare Server listening on PORT: ${PORT}`);
+  console.log(`=================================`);
 });
