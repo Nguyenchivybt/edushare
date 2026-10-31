@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const nodemailer = require('nodemailer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,13 +15,11 @@ const UPLOADS_DIR = path.join(__dirname, 'uploads');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-// Tệp dữ liệu JSON
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const DOCS_FILE = path.join(DATA_DIR, 'documents.json');
 const COMMENTS_FILE = path.join(DATA_DIR, 'comments.json');
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 
-// Hàm đọc / ghi JSON helper
 function readJSON(filePath, defaultData = []) {
   if (!fs.existsSync(filePath)) {
     fs.writeFileSync(filePath, JSON.stringify(defaultData, null, 2), 'utf-8');
@@ -38,7 +37,6 @@ function writeJSON(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
 }
 
-// Khởi tạo dữ liệu mẫu nếu rỗng
 let users = readJSON(USERS_FILE, [
   { id: 1, username: 'admin', fullname: 'Quản Trị Viên', role: 'admin', status: 'approved', emailPhone: 'admin@edushare.vn' }
 ]);
@@ -46,16 +44,56 @@ let documents = readJSON(DOCS_FILE, []);
 let comments = readJSON(COMMENTS_FILE, []);
 let settings = readJSON(SETTINGS_FILE, { approvalMode: 'manual' });
 
+// ==================== BỘ NHỚ LƯU OTP TẠM THỜI ====================
+const otpStore = {};
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+async function sendOTPEmail(toEmail, otpCode) {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.log(`[DEV MODE] Chưa cấu hình EMAIL_USER/EMAIL_PASS. Mã OTP tự động là: ${otpCode}`);
+    return true;
+  }
+
+  const mailOptions = {
+    from: `"EduShare Support" <${process.env.EMAIL_USER}>`,
+    to: toEmail,
+    subject: '🔑 Mã Xác Thực OTP Khôi Phục Mật Khẩu - EduShare',
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 8px;">
+        <h2 style="color: #2563eb;">🎓 EduShare - Thư Viện Học Liệu Số</h2>
+        <p>Bạn vừa yêu cầu khôi phục mật khẩu tài khoản. Mã OTP của bạn là:</p>
+        <div style="background: #2563eb; color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: 4px; padding: 12px 24px; display: inline-block; border-radius: 6px; margin: 10px 0;">
+          ${otpCode}
+        </div>
+        <p style="color: #ef4444; font-size: 13px;">Mã này có hiệu lực trong <strong>5 phút</strong>. Vui lòng không chia sẻ mã này cho bất kỳ ai.</p>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (err) {
+    console.error('Lỗi gửi email:', err);
+    return false;
+  }
+}
+
 // ==================== MIDDLEWARE & SERVE STATIC FILES ====================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Phục vụ tệp tĩnh công khai cho giao diện & thư mục uploads
 app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-// Cấu hình Multer tải tệp lên
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOADS_DIR),
   filename: (req, file, cb) => {
@@ -107,7 +145,7 @@ app.post('/api/login', (req, res) => {
   res.json({ message: 'Đăng nhập thành công!', user });
 });
 
-app.post('/api/forgot-password/send-otp', (req, res) => {
+app.post('/api/forgot-password/send-otp', async (req, res) => {
   const { accountInfo } = req.body;
   users = readJSON(USERS_FILE);
   const user = users.find(u => u.username === accountInfo || u.emailPhone === accountInfo);
@@ -116,26 +154,63 @@ app.post('/api/forgot-password/send-otp', (req, res) => {
     return res.status(404).json({ message: 'Không tìm thấy tài khoản hợp lệ!' });
   }
 
-  res.json({ message: 'Mã OTP thử nghiệm là: 123456', userId: user.id });
+  const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = Date.now() + 5 * 60 * 1000;
+
+  otpStore[user.id] = {
+    code: generatedOTP,
+    expiresAt: expiresAt,
+    verified: false
+  };
+
+  const isEmail = user.emailPhone && user.emailPhone.includes('@');
+  if (isEmail) {
+    await sendOTPEmail(user.emailPhone, generatedOTP);
+  }
+
+  let responseMsg = 'Mã OTP đã được tạo tự động thành công!';
+  if (!process.env.EMAIL_USER) {
+    responseMsg = `Mã OTP tự động tạo là: ${generatedOTP}`;
+  }
+
+  res.json({ message: responseMsg, userId: user.id });
 });
 
 app.post('/api/forgot-password/verify-otp', (req, res) => {
-  const { otpCode } = req.body;
-  if (otpCode === '123456') {
-    return res.json({ message: 'Xác thực OTP thành công!' });
+  const { userId, otpCode } = req.body;
+  const record = otpStore[userId];
+
+  if (!record) {
+    return res.status(400).json({ message: 'Mã OTP không tồn tại hoặc đã hết hạn!' });
   }
-  res.status(400).json({ message: 'Mã OTP không chính xác!' });
+
+  if (Date.now() > record.expiresAt) {
+    delete otpStore[userId];
+    return res.status(400).json({ message: 'Mã OTP đã hết hạn (quá 5 phút)!' });
+  }
+
+  if (record.code !== otpCode.trim()) {
+    return res.status(400).json({ message: 'Mã OTP không chính xác!' });
+  }
+
+  record.verified = true;
+  res.json({ message: 'Xác thực OTP thành công! Mời nhập mật khẩu mới.' });
 });
 
 app.post('/api/forgot-password/reset-password', (req, res) => {
   const { userId, otpCode, newPassword } = req.body;
-  if (otpCode !== '123456') return res.status(400).json({ message: 'Mã OTP sai!' });
+  const record = otpStore[userId];
+
+  if (!record || !record.verified || record.code !== otpCode.trim()) {
+    return res.status(400).json({ message: 'Yêu cầu xác thực OTP không hợp lệ!' });
+  }
 
   users = readJSON(USERS_FILE);
   const user = users.find(u => u.id == userId);
   if (user) {
     user.password = newPassword;
     writeJSON(USERS_FILE, users);
+    delete otpStore[userId];
     return res.json({ message: 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.' });
   }
   res.status(404).json({ message: 'Lỗi không tìm thấy người dùng!' });
@@ -366,7 +441,6 @@ app.post('/api/settings', (req, res) => {
   res.json({ message: 'Đã cập nhật cấu hình hệ thống!' });
 });
 
-// Xử lý tất cả các route còn lại trả về index.html (SPA Fallback an toàn cho Express v5)
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
