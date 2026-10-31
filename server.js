@@ -51,11 +51,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Mở quyền truy cập file tĩnh công khai cho giao diện & thư mục uploads
+// Phục vụ tệp tĩnh công khai cho giao diện & thư mục uploads
 app.use(express.static(path.join(__dirname)));
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-// Cấu hình Multer để tải tệp lên
+// Cấu hình Multer tải tệp lên
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOADS_DIR),
   filename: (req, file, cb) => {
@@ -366,8 +366,8 @@ app.post('/api/settings', (req, res) => {
   res.json({ message: 'Đã cập nhật cấu hình hệ thống!' });
 });
 
-// Điều hướng tất cả yêu cầu còn lại về index.html (SPA Fallback)
-app.get('*', (req, res) => {
+// Xử lý tất cả các route còn lại trả về index.html (SPA Fallback an toàn cho Express v5)
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
