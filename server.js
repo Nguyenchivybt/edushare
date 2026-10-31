@@ -42,8 +42,8 @@ const UserSchema = new mongoose.Schema({
   major: String,
   course: String,
   className: String,
-  role: { type: String, default: 'student' }, // admin, teacher, student
-  status: { type: String, default: 'approved' }, // approved, pending
+  role: { type: String, default: 'student' },
+  status: { type: String, default: 'approved' },
   createdAt: { type: String, default: () => new Date().toLocaleDateString('vi-VN') },
   favorites: [{ type: String }],
   downloadHistory: [{ type: String }],
@@ -52,7 +52,7 @@ const UserSchema = new mongoose.Schema({
 
 const DocumentSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  type: { type: String, required: true }, // PDF, DOCX, PPTX, Video, Audio, LINK
+  type: { type: String, required: true },
   category: { type: String, default: 'Giáo trình' },
   school: { type: String, default: 'Trường Đại học Xây dựng Miền Tây' },
   faculty: String,
@@ -78,7 +78,7 @@ const CommentSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 const SettingsSchema = new mongoose.Schema({
-  approvalMode: { type: String, default: 'manual' } // manual, auto
+  approvalMode: { type: String, default: 'manual' }
 });
 
 const User = mongoose.model('User', UserSchema);
@@ -165,7 +165,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Helper chuẩn hóa định dạng dữ liệu trả về cho Frontend
 function formatUser(u) {
   if (!u) return null;
   const obj = u.toObject ? u.toObject() : u;
@@ -481,7 +480,7 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// HÀM DUYỆT TÀI KHOẢN (BẮT TẤT CẢ PHƯƠNG THỨC VÀ KIỂU TRUYỀN ID)
+// HÀM DUYỆT TÀI KHOẢN (BẮT TẤT CẢ ROUTE VÀ PHƯƠNG THỨC)
 const handleApproveUser = async (req, res) => {
   try {
     const userId = req.params.id || req.body.id || req.body.userId;
@@ -502,7 +501,7 @@ app.post('/api/users/:id/approve', handleApproveUser);
 app.put('/api/users/:id/approve', handleApproveUser);
 app.post('/api/users/approve', handleApproveUser);
 
-// HÀM XÓA TÀI KHOẢN (BẮT TẤT CẢ PHƯƠNG THỨC VÀ KIỂU TRUYỀN ID)
+// HÀM XÓA TÀI KHOẢN (BẮT TẤT CẢ ROUTE VÀ PHƯƠNG THỨC)
 const handleDeleteUser = async (req, res) => {
   try {
     const userId = req.params.id || req.body.id || req.body.userId;

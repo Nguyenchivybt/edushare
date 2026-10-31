@@ -43,7 +43,7 @@ function switchRole(role) {
     handleLogout();
   } else {
     currentUser = {
-      id: role === 'admin' ? 1 : Date.now(),
+      id: role === 'admin' ? '1' : String(Date.now()),
       username: role,
       fullname: role === 'admin' ? 'Quản Trị Viên' : (role === 'teacher' ? 'Giảng Viên Mẫu' : 'Sinh Viên Mẫu'),
       role: role
@@ -71,14 +71,13 @@ function bindAuthForms() {
       const password = document.getElementById('reg-password').value;
       const confirmPassword = document.getElementById('reg-confirm-password').value;
 
-      // FIX LỖI MẬT KHẨU ĐĂNG KÝ
       if (password.length < 6) {
         alert('⚠️ Mật khẩu phải có độ dài ít nhất 6 ký tự!');
         return;
       }
 
       if (password !== confirmPassword) {
-        alert('❌ Mật khẩu và Xác nhận mật khẩu không trùng khớp! Vui lòng kiểm tra lại.');
+        alert('❌ Mật khẩu và Xác nhận mật khẩu không trùng khớp!');
         return;
       }
 
@@ -94,8 +93,7 @@ function bindAuthForms() {
         className: document.getElementById('reg-class').value,
         role: document.getElementById('reg-role').value,
         username: document.getElementById('reg-username').value,
-        password: password,
-        confirmPassword: confirmPassword
+        password: password
       };
 
       try {
@@ -148,7 +146,7 @@ function bindAuthForms() {
   bindForgotPassword();
 }
 
-/* ==================== QUÊN MẬT KHẨU & TẠO LẠI MẬT KHẨU (FIX BẢO MẬT) ==================== */
+/* ==================== QUÊN MẬT KHẨU & OTP ==================== */
 
 function startOtpTimer() {
   clearInterval(otpTimerInterval);
@@ -257,14 +255,13 @@ function bindForgotPassword() {
       const confirmPassword = document.getElementById('forgot-confirm-password').value;
       const otpCode = document.getElementById('forgot-otp-input').value;
 
-      // FIX LỖI TẠO MẬT KHẨU MỚI
       if (newPassword.length < 6) {
         alert('⚠️ Mật khẩu mới phải có ít nhất 6 ký tự!');
         return;
       }
 
       if (newPassword !== confirmPassword) {
-        alert('❌ Mật khẩu mới và Mật khẩu xác nhận không trùng khớp! Vui lòng nhập lại.');
+        alert('❌ Mật khẩu mới và Mật khẩu xác nhận không trùng khớp!');
         return;
       }
 
@@ -323,7 +320,7 @@ function renderArticles(articles) {
       <span style="background:#ea580c; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;">📰 BÀI BÁO KHOA HỌC</span>
       <h3 style="margin:8px 0; font-size:15px; color:#0f172a;">${art.title}</h3>
       <p style="font-size:12px; color:#475569; margin-bottom:10px;"><strong>Nguồn/Tác giả:</strong> ${art.author}</p>
-      <a href="${art.url}" target="_blank" onclick="recordView(${art.id})" style="color:#2563eb; font-weight:bold; font-size:13px; text-decoration:none;">Xem Bài Báo Chi Tiết ➔</a>
+      <a href="${art.url}" target="_blank" onclick="recordView('${art.id}')" style="color:#2563eb; font-weight:bold; font-size:13px; text-decoration:none;">Xem Bài Báo Chi Tiết ➔</a>
     </div>
   `).join('');
 }
@@ -347,16 +344,16 @@ function renderDocuments(docs) {
     let downloadBtn = '';
 
     const commentBtnText = currentUser ? '💬 Bình luận' : '💬 Xem bình luận';
-    const commentBtn = `<button onclick="openDocDetailsModal(${doc.id})" style="background:#475569; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${commentBtnText}</button>`;
+    const commentBtn = `<button onclick="openDocDetailsModal('${doc.id}')" style="background:#475569; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${commentBtnText}</button>`;
 
     if (currentUser) {
-      favBtn = `<button onclick="toggleFavorite(${doc.id})" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin-right:4px;">⭐ Yêu thích</button>`;
-      downloadBtn = `<button onclick="downloadCheck(${doc.id})" style="background:#16a34a; color:#fff; border:none; padding:6px 14px; border-radius:4px; font-size:13px; font-weight:bold; cursor:pointer;">📥 Tải về</button>`;
+      favBtn = `<button onclick="toggleFavorite('${doc.id}')" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin-right:4px;">⭐ Yêu thích</button>`;
+      downloadBtn = `<button onclick="downloadCheck('${doc.id}')" style="background:#16a34a; color:#fff; border:none; padding:6px 14px; border-radius:4px; font-size:13px; font-weight:bold; cursor:pointer;">📥 Tải về</button>`;
 
-      if (currentUser.role === 'admin' || currentUser.id === doc.authorId || currentUser.fullname === doc.author) {
+      if (currentUser.role === 'admin' || String(currentUser.id) === String(doc.authorId) || currentUser.fullname === doc.author) {
         actionBtns += `
-          <button onclick="openEditDocModal(${doc.id})" style="background:#0284c7; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin-right:4px;">✏️ Sửa</button>
-          <button onclick="deleteDocument(${doc.id})" style="background:#dc2626; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin-right:4px;">🗑️ Xóa</button>
+          <button onclick="openEditDocModal('${doc.id}')" style="background:#0284c7; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin-right:4px;">✏️ Sửa</button>
+          <button onclick="deleteDocument('${doc.id}')" style="background:#dc2626; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin-right:4px;">🗑️ Xóa</button>
         `;
       }
     }
@@ -367,7 +364,7 @@ function renderDocuments(docs) {
           <span style="background:#2563eb; color:#fff; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:4px;">${doc.type}</span>
           <span style="font-size:12px; color:#94a3b8;">📅 ${doc.date}</span>
         </div>
-        <h3 style="margin:10px 0 6px 0; font-size:16px; color:#0f172a; cursor:pointer;" onclick="openDocPreviewModal(${doc.id})">${doc.title}</h3>
+        <h3 style="margin:10px 0 6px 0; font-size:16px; color:#0f172a; cursor:pointer;" onclick="openDocPreviewModal('${doc.id}')">${doc.title}</h3>
         <p style="margin:3px 0; font-size:13px; color:#475569;"><strong>Chuyên mục:</strong> ${doc.category}</p>
         <p style="margin:3px 0; font-size:13px; color:#475569;"><strong>Môn học:</strong> ${doc.subject || 'Tổng hợp'}</p>
         <p style="margin:3px 0; font-size:12px; color:#64748b;"><strong>Đơn vị:</strong> ${doc.faculty || 'Khoa'} - ${doc.className || 'Lớp'}</p>
@@ -375,7 +372,7 @@ function renderDocuments(docs) {
         <p style="margin:3px 0; font-size:12px; color:#94a3b8;">👁️ ${doc.views || 0} lượt xem | 📥 ${doc.downloads || 0} lượt tải</p>
         
         <div style="margin-top:14px; text-align:right; display:flex; justify-content:flex-end; align-items:center; flex-wrap:wrap; gap:4px;">
-          <button onclick="openDocPreviewModal(${doc.id})" style="background:#0284c7; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">👁️ Xem trước</button>
+          <button onclick="openDocPreviewModal('${doc.id}')" style="background:#0284c7; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">👁️ Xem trước</button>
           ${commentBtn}
           ${favBtn}
           ${actionBtns}
@@ -389,7 +386,7 @@ function renderDocuments(docs) {
 /* ==================== TÍNH NĂNG XEM TRƯỚC TỆP ==================== */
 
 async function openDocPreviewModal(docId) {
-  const doc = documentsData.find(d => d.id === docId);
+  const doc = documentsData.find(d => String(d.id) === String(docId));
   if (!doc) return;
 
   recordView(docId);
@@ -436,7 +433,7 @@ async function openDocPreviewModal(docId) {
       `;
     }
   } else {
-    let dlBtn = currentUser ? `<button onclick="downloadCheck(${doc.id})" style="background:#16a34a; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; margin-top:15px; cursor:pointer;">📥 Tải Về Tệp Gốc</button>` : `<p style="color:#ef4444; font-size:13px; margin-top:10px;">🔒 Vui lòng đăng nhập để tải về tệp gốc này.</p>`;
+    let dlBtn = currentUser ? `<button onclick="downloadCheck('${doc.id}')" style="background:#16a34a; color:#fff; border:none; padding:10px 20px; border-radius:6px; font-weight:bold; margin-top:15px; cursor:pointer;">📥 Tải Về Tệp Gốc</button>` : `<p style="color:#ef4444; font-size:13px; margin-top:10px;">🔒 Vui lòng đăng nhập để tải về tệp gốc này.</p>`;
 
     container.innerHTML = `
       <div style="text-align:center; padding:40px; color:#475569;">
@@ -530,11 +527,11 @@ async function exportStatsToExcel() {
   }
 }
 
-/* ==================== BÌNH LUẬN & ĐÁNH GIÁ (CHO KHÁCH XEM) ==================== */
+/* ==================== BÌNH LUẬN & ĐÁNH GIÁ ==================== */
 
 async function openDocDetailsModal(docId) {
   currentActiveDocId = docId;
-  const doc = documentsData.find(d => d.id === docId);
+  const doc = documentsData.find(d => String(d.id) === String(docId));
   if (!doc) return;
 
   recordView(docId);
@@ -596,8 +593,8 @@ async function loadComments(docId) {
 
     container.innerHTML = comments.map(c => {
       let deleteBtn = '';
-      if (currentUser && (currentUser.role === 'admin' || currentUser.id === c.userId || currentUser.fullname === c.userName)) {
-        deleteBtn = `<button onclick="deleteComment(${c.id}, ${docId})" style="background:#ef4444; color:#fff; border:none; padding:2px 6px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">🗑️ Xóa</button>`;
+      if (currentUser && (currentUser.role === 'admin' || String(currentUser.id) === String(c.userId) || currentUser.fullname === c.userName)) {
+        deleteBtn = `<button onclick="deleteComment('${c.id}', '${docId}')" style="background:#ef4444; color:#fff; border:none; padding:2px 6px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold;">🗑️ Xóa</button>`;
       }
 
       return `
@@ -744,7 +741,7 @@ function handleSortChange() {
   } else if (sortType === 'views') {
     sorted.sort((a, b) => (b.views || 0) - (a.views || 0));
   } else {
-    sorted.sort((a, b) => b.id - a.id);
+    sorted.sort((a, b) => String(b.id).localeCompare(String(a.id)));
   }
 
   renderDocuments(sorted);
@@ -759,7 +756,7 @@ async function downloadCheck(docId) {
     return;
   }
 
-  const doc = documentsData.find(d => d.id === docId);
+  const doc = documentsData.find(d => String(d.id) === String(docId));
   if (!doc) return;
 
   try {
@@ -838,11 +835,11 @@ function renderUserProfile(profile) {
   `;
 
   document.getElementById('user-uploaded-docs').innerHTML = profile.uploadedDocs.length > 0 
-    ? profile.uploadedDocs.map(d => `<div class="mini-doc-item"><span>📤 ${d.title} (${d.type})</span><div><button onclick="openEditDocModal(${d.id})">Sửa</button><button onclick="deleteDocument(${d.id})">Xóa</button></div></div>`).join('')
+    ? profile.uploadedDocs.map(d => `<div class="mini-doc-item"><span>📤 ${d.title} (${d.type})</span><div><button onclick="openEditDocModal('${d.id}')">Sửa</button><button onclick="deleteDocument('${d.id}')">Xóa</button></div></div>`).join('')
     : '<p style="color:#64748b;">Bạn chưa đăng tài liệu nào.</p>';
 
   document.getElementById('user-favorite-docs').innerHTML = profile.favoriteDocs.length > 0
-    ? profile.favoriteDocs.map(d => `<div class="mini-doc-item"><span>⭐ ${d.title}</span><button onclick="downloadCheck(${d.id})">Tải về</button></div>`).join('')
+    ? profile.favoriteDocs.map(d => `<div class="mini-doc-item"><span>⭐ ${d.title}</span><button onclick="downloadCheck('${d.id}')">Tải về</button></div>`).join('')
     : '<p style="color:#64748b;">Chưa có tài liệu yêu thích.</p>';
 
   document.getElementById('user-download-docs').innerHTML = profile.downloadHistoryDocs.length > 0 
@@ -911,7 +908,7 @@ async function handleUploadSubmit(e) {
 }
 
 function openEditDocModal(docId) {
-  const doc = documentsData.find(d => d.id === docId);
+  const doc = documentsData.find(d => String(d.id) === String(docId));
   if (!doc) return;
 
   document.getElementById('edit-doc-id').value = doc.id;
@@ -975,7 +972,8 @@ async function loadUsersForAdmin() {
   try {
     const settingsRes = await fetch('/api/settings');
     const settings = await settingsRes.json();
-    document.getElementById('approval-mode-select').value = settings.approvalMode || 'manual';
+    const modeSelect = document.getElementById('approval-mode-select');
+    if (modeSelect) modeSelect.value = settings.approvalMode || 'manual';
 
     const res = await fetch('/api/users');
     const users = await res.json();
@@ -984,7 +982,7 @@ async function loadUsersForAdmin() {
     if (tbody) {
       tbody.innerHTML = users.map(u => `
         <tr>
-          <td>${u.id}</td>
+          <td style="font-size:11px; max-width:100px; overflow:hidden; text-overflow:ellipsis;">${u.id}</td>
           <td><strong>${u.fullname}</strong></td>
           <td>${u.gender || '-'} / ${u.dob || '-'}</td>
           <td>${u.emailPhone || '-'}</td>
@@ -999,8 +997,8 @@ async function loadUsersForAdmin() {
           <td>${u.status === 'approved' ? `<span class="badge-approved">Đã duyệt</span>` : `<span class="badge-pending">Chờ duyệt</span>`}</td>
           <td>
             <div style="display:flex; gap:4px;">
-              ${u.status === 'pending' ? `<button onclick="approveUser(${u.id})" style="background:#16a34a; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Duyệt</button>` : ''}
-              ${u.username !== 'admin' ? `<button onclick="deleteUser(${u.id})" style="background:#dc2626; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Xóa</button>` : '<i>Gốc</i>'}
+              ${u.status === 'pending' ? `<button onclick="approveUser('${u.id}')" style="background:#16a34a; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">Duyệt</button>` : ''}
+              ${u.username !== 'admin' ? `<button onclick="deleteUser('${u.id}')" style="background:#dc2626; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-weight:bold;">Xóa</button>` : '<i>Gốc</i>'}
             </div>
           </td>
         </tr>
@@ -1024,22 +1022,28 @@ async function handleApprovalModeChange(mode) {
 
 async function approveUser(id) {
   try {
-    const res = await fetch(`/api/users/${id}/approve`, { method: 'PATCH' });
-    if (res.ok) {
-      alert('Đã duyệt tài khoản thành công!');
-      loadUsersForAdmin();
-    }
+    const res = await fetch(`/api/users/${id}/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    alert(data.message || 'Đã duyệt tài khoản thành công!');
+    loadUsersForAdmin();
   } catch (err) { alert('Lỗi duyệt tài khoản!'); }
 }
 
 async function deleteUser(id) {
-  if (!confirm('Bạn có chắc muốn xóa người dùng này?')) return;
+  if (!confirm('Bạn có chắc muốn xóa vĩnh viễn người dùng này?')) return;
   try {
-    const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      alert('Đã xóa người dùng!');
-      loadUsersForAdmin();
-    }
+    const res = await fetch(`/api/users/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    const data = await res.json();
+    alert(data.message || 'Đã xóa người dùng!');
+    loadUsersForAdmin();
   } catch (err) { alert('Lỗi xóa người dùng!'); }
 }
 
