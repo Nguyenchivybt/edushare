@@ -1,2 +1,4 @@
 Name User: nguyenchivybt2006_db_user
 Pass: kvLyvRWdLjapFFfs
+mongodb+srv://<db_username>:<db_password>@edushare.novhmdl.mongodb.net/
+Tên đăng nhập: admin   Mật khẩu: adminpassword123

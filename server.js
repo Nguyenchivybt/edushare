@@ -17,11 +17,11 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 
 // ==================== KẾT NỐI CƠ SỞ DỮ LIỆU MONGODB ATLAS ====================
 const MONGODB_URI = process.env.MONGODB_URI || 
-  'mongodb+srv://nguyenchivybt2006_db_user:kvLyVrWdLjapFfFs@edushare.novhmdl.mongodb.net/edushare?retryWrites=true&w=majority';
+  'mongodb+srv://nguyenchivybt2006_db_user:EduShare2026Pass@edushare.novhmdl.mongodb.net/edushare?retryWrites=true&w=majority';
 
 mongoose.connect(MONGODB_URI)
   .then(() => {
-    console.log('✅ Đã kết nối thành công với MongoDB Atlas!');
+    console.log('🟢 Đã kết nối thành công với MongoDB Atlas!');
     initDefaultAdmin();
   })
   .catch(err => {
@@ -481,23 +481,48 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-app.patch('/api/users/:id/approve', async (req, res) => {
+// HÀM DUYỆT TÀI KHOẢN (BẮT TẤT CẢ PHƯƠNG THỨC VÀ KIỂU TRUYỀN ID)
+const handleApproveUser = async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.params.id, { status: 'approved' });
+    const userId = req.params.id || req.body.id || req.body.userId;
+    if (!userId) {
+      return res.status(400).json({ message: 'Không tìm thấy ID người dùng!' });
+    }
+
+    await User.findByIdAndUpdate(userId, { status: 'approved' });
     res.json({ message: 'Đã duyệt tài khoản thành công!' });
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi duyệt tài khoản!' });
+    console.error('Lỗi duyệt tài khoản:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ khi duyệt tài khoản!' });
   }
-});
+};
 
-app.delete('/api/users/:id', async (req, res) => {
+app.patch('/api/users/:id/approve', handleApproveUser);
+app.post('/api/users/:id/approve', handleApproveUser);
+app.put('/api/users/:id/approve', handleApproveUser);
+app.post('/api/users/approve', handleApproveUser);
+
+// HÀM XÓA TÀI KHOẢN (BẮT TẤT CẢ PHƯƠNG THỨC VÀ KIỂU TRUYỀN ID)
+const handleDeleteUser = async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.params.id);
+    const userId = req.params.id || req.body.id || req.body.userId;
+    if (!userId) {
+      return res.status(400).json({ message: 'Không tìm thấy ID người dùng!' });
+    }
+
+    await User.findByIdAndDelete(userId);
     res.json({ message: 'Đã xóa người dùng thành công!' });
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi xóa người dùng!' });
+    console.error('Lỗi xóa người dùng:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ khi xóa người dùng!' });
   }
-});
+};
+
+app.delete('/api/users/:id', handleDeleteUser);
+app.post('/api/users/:id/delete', handleDeleteUser);
+app.post('/api/users/delete', handleDeleteUser);
+
+// ==================== SETTINGS APIs ====================
 
 app.get('/api/settings', async (req, res) => {
   try {
