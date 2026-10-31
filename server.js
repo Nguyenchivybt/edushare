@@ -120,7 +120,7 @@ const transporter = nodemailer.createTransport({
 async function sendOTPEmail(toEmail, otpCode) {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.log(`[DEV TEST MODE] OTP gửi tới ${toEmail} là: ${otpCode}`);
-    return true;
+    return false;
   }
 
   const mailOptions = {
@@ -230,12 +230,20 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/forgot-password/send-otp', async (req, res) => {
   try {
     const { accountInfo } = req.body;
+    if (!accountInfo) {
+      return res.status(400).json({ message: 'Vui lòng nhập Tên đăng nhập, Email hoặc SĐT!' });
+    }
+
+    const queryInfo = accountInfo.trim();
     const user = await User.findOne({
-      $or: [{ username: accountInfo }, { emailPhone: accountInfo }]
+      $or: [
+        { username: queryInfo },
+        { emailPhone: queryInfo }
+      ]
     });
 
     if (!user) {
-      return res.status(404).json({ message: 'Không tìm thấy tài khoản hợp lệ!' });
+      return res.status(404).json({ message: 'Không tìm thấy tài khoản hợp lệ trong hệ thống!' });
     }
 
     const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
@@ -247,18 +255,20 @@ app.post('/api/forgot-password/send-otp', async (req, res) => {
       verified: false
     };
 
-    if (user.emailPhone && user.emailPhone.includes('@')) {
-      await sendOTPEmail(user.emailPhone, generatedOTP);
+    let emailSent = false;
+    if (user.emailPhone && user.emailPhone.includes('@') && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      emailSent = await sendOTPEmail(user.emailPhone, generatedOTP);
     }
 
-    let responseMsg = 'Mã OTP đã được gửi tự động!';
-    if (!process.env.EMAIL_USER) {
-      responseMsg = `Mã OTP tự động tạo là: ${generatedOTP}`;
+    let responseMsg = 'Mã OTP đã được gửi đến email của bạn!';
+    if (!emailSent) {
+      responseMsg = `Mã OTP tạo tự động là: ${generatedOTP}`;
     }
 
     res.json({ message: responseMsg, userId: userIdStr });
   } catch (err) {
-    res.status(500).json({ message: 'Lỗi gửi mã OTP khôi phục!' });
+    console.error('Lỗi send-otp:', err);
+    res.status(500).json({ message: 'Lỗi máy chủ khi xử lý mã OTP!' });
   }
 });
 
