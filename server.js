@@ -4,47 +4,109 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ==================== KHỞI TẠO THƯ MỤC DỮ LIỆU & UPLOADS ====================
-const DATA_DIR = path.join(__dirname, 'data');
+// ==================== THƯ MỤC UPLOADS & LƯU TỆP ====================
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+// ==================== KẾT NỐI CƠ SỞ DỮ LIỆU MONGODB ATLAS ====================
+const MONGODB_URI = process.env.MONGODB_URI || 
+  'mongodb+srv://nguyenchivybt2006_db_user:kvLyVrWdLjapFfFs@edushare.novhmdl.mongodb.net/edushare?retryWrites=true&w=majority';
 
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const DOCS_FILE = path.join(DATA_DIR, 'documents.json');
-const COMMENTS_FILE = path.join(DATA_DIR, 'comments.json');
-const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('✅ Đã kết nối thành công với MongoDB Atlas!');
+    initDefaultAdmin();
+  })
+  .catch(err => {
+    console.error('❌ Lỗi kết nối MongoDB Atlas:', err.message);
+  });
 
-function readJSON(filePath, defaultData = []) {
-  if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, JSON.stringify(defaultData, null, 2), 'utf-8');
-    return defaultData;
-  }
+// ==================== ĐỊNH NGHĨA SCHEMAS & MODELS ====================
+
+const UserSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true, trim: true },
+  password: { type: String, required: true },
+  fullname: { type: String, required: true },
+  gender: { type: String, default: 'Nam' },
+  dob: String,
+  emailPhone: { type: String, trim: true },
+  school: { type: String, default: 'Trường Đại học Xây dựng Miền Tây' },
+  faculty: String,
+  major: String,
+  course: String,
+  className: String,
+  role: { type: String, default: 'student' }, // admin, teacher, student
+  status: { type: String, default: 'approved' }, // approved, pending
+  createdAt: { type: String, default: () => new Date().toLocaleDateString('vi-VN') },
+  favorites: [{ type: String }],
+  downloadHistory: [{ type: String }],
+  viewHistory: [{ type: String }]
+}, { timestamps: true });
+
+const DocumentSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  type: { type: String, required: true }, // PDF, DOCX, PPTX, Video, Audio, LINK
+  category: { type: String, default: 'Giáo trình' },
+  school: { type: String, default: 'Trường Đại học Xây dựng Miền Tây' },
+  faculty: String,
+  major: String,
+  course: String,
+  className: String,
+  subject: String,
+  author: { type: String, default: 'Khách' },
+  authorId: { type: String, default: '0' },
+  url: { type: String, required: true },
+  date: { type: String, default: () => new Date().toLocaleDateString('vi-VN') },
+  views: { type: Number, default: 0 },
+  downloads: { type: Number, default: 0 }
+}, { timestamps: true });
+
+const CommentSchema = new mongoose.Schema({
+  docId: { type: String, required: true },
+  userId: String,
+  userName: String,
+  rating: { type: Number, default: 5 },
+  content: { type: String, required: true },
+  createdAt: { type: String, default: () => new Date().toLocaleString('vi-VN') }
+}, { timestamps: true });
+
+const SettingsSchema = new mongoose.Schema({
+  approvalMode: { type: String, default: 'manual' } // manual, auto
+});
+
+const User = mongoose.model('User', UserSchema);
+const DocumentModel = mongoose.model('Document', DocumentSchema);
+const Comment = mongoose.model('Comment', CommentSchema);
+const Setting = mongoose.model('Setting', SettingsSchema);
+
+// ==================== TẠO TÀI KHOẢN ADMIN MẶC ĐỊNH ====================
+async function initDefaultAdmin() {
   try {
-    const raw = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(raw);
+    const adminExists = await User.findOne({ username: 'admin' });
+    if (!adminExists) {
+      await User.create({
+        username: 'admin',
+        password: 'adminpassword123',
+        fullname: 'Quản Trị Viên',
+        emailPhone: 'admin@edushare.vn',
+        role: 'admin',
+        status: 'approved'
+      });
+      console.log('👤 Đã khởi tạo tài khoản Admin mặc định (username: admin / pass: adminpassword123)');
+    }
   } catch (err) {
-    return defaultData;
+    console.error('Lỗi khởi tạo Admin:', err.message);
   }
 }
 
-function writeJSON(filePath, data) {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-}
-
-let users = readJSON(USERS_FILE, [
-  { id: 1, username: 'admin', fullname: 'Quản Trị Viên', role: 'admin', status: 'approved', emailPhone: 'admin@edushare.vn' }
-]);
-let documents = readJSON(DOCS_FILE, []);
-let comments = readJSON(COMMENTS_FILE, []);
-let settings = readJSON(SETTINGS_FILE, { approvalMode: 'manual' });
-
-// ==================== BỘ NHỚ LƯU OTP TẠM THỜI ====================
+// ==================== BỘ NHỚ OTP TẠM THỜI & EMAIL TRANSPORTER ====================
 const otpStore = {};
 
 const transporter = nodemailer.createTransport({
@@ -57,7 +119,7 @@ const transporter = nodemailer.createTransport({
 
 async function sendOTPEmail(toEmail, otpCode) {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log(`[DEV MODE] Chưa cấu hình EMAIL_USER/EMAIL_PASS. Mã OTP tự động là: ${otpCode}`);
+    console.log(`[DEV TEST MODE] OTP gửi tới ${toEmail} là: ${otpCode}`);
     return true;
   }
 
@@ -72,7 +134,7 @@ async function sendOTPEmail(toEmail, otpCode) {
         <div style="background: #2563eb; color: #ffffff; font-size: 28px; font-weight: bold; letter-spacing: 4px; padding: 12px 24px; display: inline-block; border-radius: 6px; margin: 10px 0;">
           ${otpCode}
         </div>
-        <p style="color: #ef4444; font-size: 13px;">Mã này có hiệu lực trong <strong>5 phút</strong>. Vui lòng không chia sẻ mã này cho bất kỳ ai.</p>
+        <p style="color: #ef4444; font-size: 13px;">Mã có hiệu lực trong <strong>5 phút</strong>. Vui lòng không tiết lộ mã này cho bất kỳ ai.</p>
       </div>
     `
   };
@@ -81,12 +143,12 @@ async function sendOTPEmail(toEmail, otpCode) {
     await transporter.sendMail(mailOptions);
     return true;
   } catch (err) {
-    console.error('Lỗi gửi email:', err);
+    console.error('Lỗi gửi email Nodemailer:', err.message);
     return false;
   }
 }
 
-// ==================== MIDDLEWARE & SERVE STATIC FILES ====================
+// ==================== MIDDLEWARE & STATIC FILES ====================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -98,95 +160,114 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOADS_DIR),
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, 'doc-' + uniqueSuffix + ext);
+    cb(null, 'doc-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
 const upload = multer({ storage });
 
+// Helper chuẩn hóa định dạng dữ liệu trả về cho Frontend
+function formatUser(u) {
+  if (!u) return null;
+  const obj = u.toObject ? u.toObject() : u;
+  obj.id = obj._id.toString();
+  return obj;
+}
+
+function formatDoc(d) {
+  if (!d) return null;
+  const obj = d.toObject ? d.toObject() : d;
+  obj.id = obj._id.toString();
+  return obj;
+}
+
 // ==================== AUTHENTICATION APIs ====================
 
-app.post('/api/register', (req, res) => {
-  const newUser = req.body;
-  users = readJSON(USERS_FILE);
-  
-  if (users.some(u => u.username === newUser.username)) {
-    return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại!' });
+app.post('/api/register', async (req, res) => {
+  try {
+    const newUser = req.body;
+    const existing = await User.findOne({ username: newUser.username });
+    if (existing) {
+      return res.status(400).json({ message: 'Tên đăng nhập đã tồn tại!' });
+    }
+
+    let settings = await Setting.findOne();
+    if (!settings) settings = await Setting.create({ approvalMode: 'manual' });
+
+    newUser.status = settings.approvalMode === 'auto' ? 'approved' : 'pending';
+    const user = await User.create(newUser);
+
+    const msg = user.status === 'approved' 
+      ? 'Đăng ký thành công! Bạn có thể đăng nhập ngay.' 
+      : 'Đăng ký thành công! Tài khoản đang chờ Admin phê duyệt.';
+
+    res.json({ message: msg, user: formatUser(user) });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi đăng ký hệ thống: ' + err.message });
   }
-
-  newUser.id = Date.now();
-  newUser.status = settings.approvalMode === 'auto' ? 'approved' : 'pending';
-  newUser.createdAt = new Date().toLocaleDateString('vi-VN');
-  newUser.favorites = [];
-  newUser.downloadHistory = [];
-  newUser.viewHistory = [];
-
-  users.push(newUser);
-  writeJSON(USERS_FILE, users);
-
-  const msg = newUser.status === 'approved' 
-    ? 'Đăng ký thành công! Bạn có thể đăng nhập ngay.' 
-    : 'Đăng ký thành công! Tài khoản đang chờ Admin phê duyệt.';
-  res.json({ message: msg, user: newUser });
 });
 
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
-  users = readJSON(USERS_FILE);
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({
+      $or: [{ username: username }, { emailPhone: username }],
+      password: password
+    });
 
-  const user = users.find(u => u.username === username && u.password === password);
-  if (!user) {
-    return res.status(400).json({ message: 'Tài khoản hoặc mật khẩu không đúng!' });
-  }
-  if (user.status === 'pending') {
-    return res.status(403).json({ message: 'Tài khoản của bạn đang chờ Admin phê duyệt!' });
-  }
+    if (!user) {
+      return res.status(400).json({ message: 'Tài khoản/Email hoặc mật khẩu không đúng!' });
+    }
+    if (user.status === 'pending') {
+      return res.status(403).json({ message: 'Tài khoản của bạn đang chờ Admin phê duyệt!' });
+    }
 
-  res.json({ message: 'Đăng nhập thành công!', user });
+    res.json({ message: 'Đăng nhập thành công!', user: formatUser(user) });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi máy chủ khi đăng nhập!' });
+  }
 });
 
 app.post('/api/forgot-password/send-otp', async (req, res) => {
-  const { accountInfo } = req.body;
-  users = readJSON(USERS_FILE);
-  const user = users.find(u => u.username === accountInfo || u.emailPhone === accountInfo);
+  try {
+    const { accountInfo } = req.body;
+    const user = await User.findOne({
+      $or: [{ username: accountInfo }, { emailPhone: accountInfo }]
+    });
 
-  if (!user) {
-    return res.status(404).json({ message: 'Không tìm thấy tài khoản hợp lệ!' });
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy tài khoản hợp lệ!' });
+    }
+
+    const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    const userIdStr = user._id.toString();
+
+    otpStore[userIdStr] = {
+      code: generatedOTP,
+      expiresAt: Date.now() + 5 * 60 * 1000,
+      verified: false
+    };
+
+    if (user.emailPhone && user.emailPhone.includes('@')) {
+      await sendOTPEmail(user.emailPhone, generatedOTP);
+    }
+
+    let responseMsg = 'Mã OTP đã được gửi tự động!';
+    if (!process.env.EMAIL_USER) {
+      responseMsg = `Mã OTP tự động tạo là: ${generatedOTP}`;
+    }
+
+    res.json({ message: responseMsg, userId: userIdStr });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi gửi mã OTP khôi phục!' });
   }
-
-  const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresAt = Date.now() + 5 * 60 * 1000;
-
-  otpStore[user.id] = {
-    code: generatedOTP,
-    expiresAt: expiresAt,
-    verified: false
-  };
-
-  const isEmail = user.emailPhone && user.emailPhone.includes('@');
-  if (isEmail) {
-    await sendOTPEmail(user.emailPhone, generatedOTP);
-  }
-
-  let responseMsg = 'Mã OTP đã được tạo tự động thành công!';
-  if (!process.env.EMAIL_USER) {
-    responseMsg = `Mã OTP tự động tạo là: ${generatedOTP}`;
-  }
-
-  res.json({ message: responseMsg, userId: user.id });
 });
 
 app.post('/api/forgot-password/verify-otp', (req, res) => {
   const { userId, otpCode } = req.body;
   const record = otpStore[userId];
 
-  if (!record) {
-    return res.status(400).json({ message: 'Mã OTP không tồn tại hoặc đã hết hạn!' });
-  }
-
-  if (Date.now() > record.expiresAt) {
-    delete otpStore[userId];
-    return res.status(400).json({ message: 'Mã OTP đã hết hạn (quá 5 phút)!' });
+  if (!record || Date.now() > record.expiresAt) {
+    return res.status(400).json({ message: 'Mã OTP không tồn tại hoặc đã hết hạn (quá 5 phút)!' });
   }
 
   if (record.code !== otpCode.trim()) {
@@ -194,253 +275,240 @@ app.post('/api/forgot-password/verify-otp', (req, res) => {
   }
 
   record.verified = true;
-  res.json({ message: 'Xác thực OTP thành công! Mời nhập mật khẩu mới.' });
+  res.json({ message: 'Xác thực OTP thành công! Mời đặt lại mật khẩu mới.' });
 });
 
-app.post('/api/forgot-password/reset-password', (req, res) => {
-  const { userId, otpCode, newPassword } = req.body;
-  const record = otpStore[userId];
+app.post('/api/forgot-password/reset-password', async (req, res) => {
+  try {
+    const { userId, otpCode, newPassword } = req.body;
+    const record = otpStore[userId];
 
-  if (!record || !record.verified || record.code !== otpCode.trim()) {
-    return res.status(400).json({ message: 'Yêu cầu xác thực OTP không hợp lệ!' });
-  }
+    if (!record || !record.verified || record.code !== otpCode.trim()) {
+      return res.status(400).json({ message: 'Yêu cầu xác thực OTP không hợp lệ!' });
+    }
 
-  users = readJSON(USERS_FILE);
-  const user = users.find(u => u.id == userId);
-  if (user) {
-    user.password = newPassword;
-    writeJSON(USERS_FILE, users);
+    await User.findByIdAndUpdate(userId, { password: newPassword });
     delete otpStore[userId];
-    return res.json({ message: 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.' });
+
+    res.json({ message: 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi khi cập nhật mật khẩu mới!' });
   }
-  res.status(404).json({ message: 'Lỗi không tìm thấy người dùng!' });
 });
 
 // ==================== DOCUMENTS APIs ====================
 
-app.get('/api/documents', (req, res) => {
-  documents = readJSON(DOCS_FILE);
-  res.json(documents);
-});
-
-app.post('/api/documents', upload.single('file'), (req, res) => {
-  documents = readJSON(DOCS_FILE);
-  const body = req.body;
-
-  let fileUrl = '';
-  if (body.type === 'LINK') {
-    fileUrl = body.articleUrl;
-  } else if (req.file) {
-    fileUrl = `/uploads/${req.file.filename}`;
+app.get('/api/documents', async (req, res) => {
+  try {
+    const docs = await DocumentModel.find().sort({ _id: -1 });
+    res.json(docs.map(formatDoc));
+  } catch (err) {
+    res.status(500).json([]);
   }
-
-  const newDoc = {
-    id: Date.now(),
-    title: body.title,
-    type: body.type,
-    category: body.category,
-    school: body.school,
-    faculty: body.faculty,
-    major: body.major,
-    course: body.course,
-    className: body.className,
-    subject: body.subject,
-    author: body.author || 'Khách',
-    authorId: Number(body.authorId) || 0,
-    url: fileUrl,
-    date: new Date().toLocaleDateString('vi-VN'),
-    views: 0,
-    downloads: 0
-  };
-
-  documents.unshift(newDoc);
-  writeJSON(DOCS_FILE, documents);
-  res.json({ message: 'Tải lên tài liệu thành công!', document: newDoc });
 });
 
-app.put('/api/documents/:id', (req, res) => {
-  const docId = Number(req.params.id);
-  documents = readJSON(DOCS_FILE);
-  const index = documents.findIndex(d => d.id === docId);
+app.post('/api/documents', upload.single('file'), async (req, res) => {
+  try {
+    const body = req.body;
+    let fileUrl = body.type === 'LINK' ? body.articleUrl : (req.file ? `/uploads/${req.file.filename}` : '');
 
-  if (index !== -1) {
-    documents[index] = { ...documents[index], ...req.body };
-    writeJSON(DOCS_FILE, documents);
-    return res.json({ message: 'Cập nhật tài liệu thành công!' });
+    const newDoc = await DocumentModel.create({
+      title: body.title,
+      type: body.type,
+      category: body.category,
+      school: body.school,
+      faculty: body.faculty,
+      major: body.major,
+      course: body.course,
+      className: body.className,
+      subject: body.subject,
+      author: body.author || 'Khách',
+      authorId: body.authorId || '0',
+      url: fileUrl
+    });
+
+    res.json({ message: 'Tải lên tài liệu thành công!', document: formatDoc(newDoc) });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi tải lên tài liệu!' });
   }
-  res.status(404).json({ message: 'Không tìm thấy tài liệu!' });
 });
 
-app.delete('/api/documents/:id', (req, res) => {
-  const docId = Number(req.params.id);
-  documents = readJSON(DOCS_FILE);
-  documents = documents.filter(d => d.id !== docId);
-  writeJSON(DOCS_FILE, documents);
-  res.json({ message: 'Đã xóa tài liệu!' });
-});
-
-app.post('/api/documents/:id/view', (req, res) => {
-  const docId = Number(req.params.id);
-  const { userId } = req.body;
-
-  documents = readJSON(DOCS_FILE);
-  const doc = documents.find(d => d.id === docId);
-  if (doc) {
-    doc.views = (doc.views || 0) + 1;
-    writeJSON(DOCS_FILE, documents);
+app.put('/api/documents/:id', async (req, res) => {
+  try {
+    await DocumentModel.findByIdAndUpdate(req.params.id, req.body);
+    res.json({ message: 'Cập nhật tài liệu thành công!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi cập nhật tài liệu!' });
   }
+});
 
-  if (userId) {
-    users = readJSON(USERS_FILE);
-    const user = users.find(u => u.id == userId);
-    if (user) {
-      if (!user.viewHistory) user.viewHistory = [];
-      if (!user.viewHistory.includes(docId)) user.viewHistory.unshift(docId);
-      writeJSON(USERS_FILE, users);
+app.delete('/api/documents/:id', async (req, res) => {
+  try {
+    await DocumentModel.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Đã xóa tài liệu!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi xóa tài liệu!' });
+  }
+});
+
+app.post('/api/documents/:id/view', async (req, res) => {
+  try {
+    await DocumentModel.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } });
+    if (req.body.userId && req.body.userId !== '0') {
+      await User.findByIdAndUpdate(req.body.userId, { $addToSet: { viewHistory: req.params.id } });
     }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false });
   }
-
-  res.json({ success: true });
 });
 
-app.post('/api/documents/:id/download', (req, res) => {
-  const docId = Number(req.params.id);
-  const { userId } = req.body;
-
-  documents = readJSON(DOCS_FILE);
-  const doc = documents.find(d => d.id === docId);
-  if (doc) {
-    doc.downloads = (doc.downloads || 0) + 1;
-    writeJSON(DOCS_FILE, documents);
-  }
-
-  if (userId) {
-    users = readJSON(USERS_FILE);
-    const user = users.find(u => u.id == userId);
-    if (user) {
-      if (!user.downloadHistory) user.downloadHistory = [];
-      if (!user.downloadHistory.includes(docId)) user.downloadHistory.unshift(docId);
-      writeJSON(USERS_FILE, users);
+app.post('/api/documents/:id/download', async (req, res) => {
+  try {
+    await DocumentModel.findByIdAndUpdate(req.params.id, { $inc: { downloads: 1 } });
+    if (req.body.userId && req.body.userId !== '0') {
+      await User.findByIdAndUpdate(req.body.userId, { $addToSet: { downloadHistory: req.params.id } });
     }
+    res.json({ success: true, message: 'Đã ghi nhận lượt tải!' });
+  } catch (err) {
+    res.status(500).json({ success: false });
   }
-
-  res.json({ success: true, message: 'Đã ghi nhận lượt tải!' });
 });
 
 // ==================== COMMENTS APIs ====================
 
-app.get('/api/documents/:id/comments', (req, res) => {
-  const docId = Number(req.params.id);
-  comments = readJSON(COMMENTS_FILE);
-  const docComments = comments.filter(c => c.docId === docId);
-  res.json(docComments);
+app.get('/api/documents/:id/comments', async (req, res) => {
+  try {
+    const comments = await Comment.find({ docId: req.params.id }).sort({ _id: -1 });
+    const formatted = comments.map(c => {
+      const obj = c.toObject();
+      obj.id = obj._id.toString();
+      return obj;
+    });
+    res.json(formatted);
+  } catch (err) {
+    res.status(500).json([]);
+  }
 });
 
-app.post('/api/documents/:id/comments', (req, res) => {
-  const docId = Number(req.params.id);
-  const { userId, userName, rating, content } = req.body;
+app.post('/api/documents/:id/comments', async (req, res) => {
+  try {
+    const { userId, userName, rating, content } = req.body;
+    const newComment = await Comment.create({
+      docId: req.params.id,
+      userId: userId || '0',
+      userName: userName || 'Khách',
+      rating: Number(rating) || 5,
+      content
+    });
 
-  comments = readJSON(COMMENTS_FILE);
-  const newComment = {
-    id: Date.now(),
-    docId,
-    userId,
-    userName,
-    rating: Number(rating) || 5,
-    content,
-    createdAt: new Date().toLocaleString('vi-VN')
-  };
+    const obj = newComment.toObject();
+    obj.id = obj._id.toString();
 
-  comments.unshift(newComment);
-  writeJSON(COMMENTS_FILE, comments);
-  res.json({ message: 'Đã gửi bình luận thành công!', comment: newComment });
+    res.json({ message: 'Đã gửi bình luận thành công!', comment: obj });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi gửi bình luận!' });
+  }
 });
 
-app.delete('/api/documents/comments/:commentId', (req, res) => {
-  const commentId = Number(req.params.commentId);
-  comments = readJSON(COMMENTS_FILE);
-  comments = comments.filter(c => c.id !== commentId);
-  writeJSON(COMMENTS_FILE, comments);
-  res.json({ message: 'Đã xóa bình luận!' });
+app.delete('/api/documents/comments/:commentId', async (req, res) => {
+  try {
+    await Comment.findByIdAndDelete(req.params.commentId);
+    res.json({ message: 'Đã xóa bình luận!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi xóa bình luận!' });
+  }
 });
 
 // ==================== USER PROFILE & ADMIN APIs ====================
 
-app.get('/api/users/profile/:id', (req, res) => {
-  const userId = Number(req.params.id);
-  users = readJSON(USERS_FILE);
-  documents = readJSON(DOCS_FILE);
+app.get('/api/users/profile/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng!' });
 
-  const user = users.find(u => u.id === userId);
-  if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại!' });
+    const formattedUser = formatUser(user);
 
-  const uploadedDocs = documents.filter(d => d.authorId === userId || d.author === user.fullname);
-  const favoriteDocs = documents.filter(d => (user.favorites || []).includes(d.id));
-  const downloadHistoryDocs = documents.filter(d => (user.downloadHistory || []).includes(d.id));
-  const viewHistoryDocs = documents.filter(d => (user.viewHistory || []).includes(d.id));
+    const uploadedDocs = (await DocumentModel.find({
+      $or: [{ authorId: user._id.toString() }, { author: user.fullname }]
+    })).map(formatDoc);
 
-  res.json({ user, uploadedDocs, favoriteDocs, downloadHistoryDocs, viewHistoryDocs });
-});
+    const favoriteDocs = (await DocumentModel.find({ _id: { $in: user.favorites || [] } })).map(formatDoc);
+    const downloadHistoryDocs = (await DocumentModel.find({ _id: { $in: user.downloadHistory || [] } })).map(formatDoc);
+    const viewHistoryDocs = (await DocumentModel.find({ _id: { $in: user.viewHistory || [] } })).map(formatDoc);
 
-app.post('/api/users/favorites', (req, res) => {
-  const { userId, docId } = req.body;
-  users = readJSON(USERS_FILE);
-  const user = users.find(u => u.id == userId);
-
-  if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại!' });
-
-  if (!user.favorites) user.favorites = [];
-  const index = user.favorites.indexOf(docId);
-
-  let message = '';
-  if (index === -1) {
-    user.favorites.push(docId);
-    message = 'Đã thêm vào danh sách Yêu thích!';
-  } else {
-    user.favorites.splice(index, 1);
-    message = 'Đã xóa khỏi danh sách Yêu thích!';
+    res.json({ user: formattedUser, uploadedDocs, favoriteDocs, downloadHistoryDocs, viewHistoryDocs });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi nạp thông tin trang cá nhân!' });
   }
-
-  writeJSON(USERS_FILE, users);
-  res.json({ message, favorites: user.favorites });
 });
 
-app.get('/api/users', (req, res) => {
-  users = readJSON(USERS_FILE);
-  res.json(users);
-});
+app.post('/api/users/favorites', async (req, res) => {
+  try {
+    const { userId, docId } = req.body;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'Người dùng không tồn tại!' });
 
-app.patch('/api/users/:id/approve', (req, res) => {
-  const userId = Number(req.params.id);
-  users = readJSON(USERS_FILE);
-  const user = users.find(u => u.id === userId);
-  if (user) {
-    user.status = 'approved';
-    writeJSON(USERS_FILE, users);
-    return res.json({ message: 'Đã duyệt tài khoản!' });
+    const isFav = user.favorites.includes(docId);
+    if (isFav) {
+      await User.findByIdAndUpdate(userId, { $pull: { favorites: docId } });
+    } else {
+      await User.findByIdAndUpdate(userId, { $addToSet: { favorites: docId } });
+    }
+
+    res.json({ message: isFav ? 'Đã xóa khỏi danh sách Yêu thích!' : 'Đã thêm vào danh sách Yêu thích!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi cập nhật danh sách Yêu thích!' });
   }
-  res.status(404).json({ message: 'Không tìm thấy người dùng!' });
 });
 
-app.delete('/api/users/:id', (req, res) => {
-  const userId = Number(req.params.id);
-  users = readJSON(USERS_FILE);
-  users = users.filter(u => u.id !== userId);
-  writeJSON(USERS_FILE, users);
-  res.json({ message: 'Đã xóa người dùng!' });
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users.map(formatUser));
+  } catch (err) {
+    res.status(500).json([]);
+  }
 });
 
-app.get('/api/settings', (req, res) => {
-  settings = readJSON(SETTINGS_FILE);
-  res.json(settings);
+app.patch('/api/users/:id/approve', async (req, res) => {
+  try {
+    await User.findByIdAndUpdate(req.params.id, { status: 'approved' });
+    res.json({ message: 'Đã duyệt tài khoản thành công!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi duyệt tài khoản!' });
+  }
 });
 
-app.post('/api/settings', (req, res) => {
-  settings = { ...settings, ...req.body };
-  writeJSON(SETTINGS_FILE, settings);
-  res.json({ message: 'Đã cập nhật cấu hình hệ thống!' });
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Đã xóa người dùng thành công!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi xóa người dùng!' });
+  }
 });
 
+app.get('/api/settings', async (req, res) => {
+  try {
+    let settings = await Setting.findOne();
+    if (!settings) settings = await Setting.create({ approvalMode: 'manual' });
+    res.json(settings);
+  } catch (err) {
+    res.status(500).json({ approvalMode: 'manual' });
+  }
+});
+
+app.post('/api/settings', async (req, res) => {
+  try {
+    await Setting.findOneAndUpdate({}, req.body, { upsert: true });
+    res.json({ message: 'Đã cập nhật cấu hình hệ thống!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Lỗi cập nhật cấu hình!' });
+  }
+});
+
+// Fallback Route cho Single Page Application (SPA)
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
