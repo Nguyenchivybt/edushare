@@ -2,6 +2,8 @@ let currentUser = JSON.parse(localStorage.getItem('edushare_user')) || null;
 let documentsData = [];
 let currentForgotUserId = null;
 let currentActiveDocId = null;
+let currentForgotAccountInfo = '';
+let otpTimerInterval = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   bindAuthForms();
@@ -59,7 +61,7 @@ function handleLogout() {
   renderDocuments(documentsData);
 }
 
-/* ==================== XỬ LÝ FORM AUTH & OTP ==================== */
+/* ==================== XỬ LÝ FORM AUTH & ĐĂNG KÝ ==================== */
 
 function bindAuthForms() {
   const regForm = document.getElementById('register-form');
@@ -69,8 +71,14 @@ function bindAuthForms() {
       const password = document.getElementById('reg-password').value;
       const confirmPassword = document.getElementById('reg-confirm-password').value;
 
+      // FIX LỖI MẬT KHẨU ĐĂNG KÝ
+      if (password.length < 6) {
+        alert('⚠️ Mật khẩu phải có độ dài ít nhất 6 ký tự!');
+        return;
+      }
+
       if (password !== confirmPassword) {
-        alert('Mật khẩu và Xác nhận mật khẩu không trùng khớp!');
+        alert('❌ Mật khẩu và Xác nhận mật khẩu không trùng khớp! Vui lòng kiểm tra lại.');
         return;
       }
 
@@ -140,6 +148,58 @@ function bindAuthForms() {
   bindForgotPassword();
 }
 
+/* ==================== QUÊN MẬT KHẨU & TẠO LẠI MẬT KHẨU (FIX BẢO MẬT) ==================== */
+
+function startOtpTimer() {
+  clearInterval(otpTimerInterval);
+  let timeLeft = 60;
+  const timerEl = document.getElementById('otp-timer');
+  const resendBtn = document.getElementById('resend-otp-btn');
+  
+  if (timerEl) timerEl.innerText = timeLeft;
+  if (resendBtn) {
+    resendBtn.disabled = true;
+    resendBtn.style.color = '#94a3b8';
+    resendBtn.style.cursor = 'not-allowed';
+    resendBtn.innerText = '🔄 Cấp lại OTP';
+  }
+
+  otpTimerInterval = setInterval(() => {
+    timeLeft--;
+    if (timerEl) timerEl.innerText = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(otpTimerInterval);
+      if (resendBtn) {
+        resendBtn.disabled = false;
+        resendBtn.style.color = '#2563eb';
+        resendBtn.style.cursor = 'pointer';
+        resendBtn.innerText = '🔄 Cấp lại OTP ngay';
+      }
+    }
+  }, 1000);
+}
+
+async function handleResendOTP() {
+  if (!currentForgotAccountInfo) return;
+  try {
+    const res = await fetch('/api/forgot-password/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accountInfo: currentForgotAccountInfo })
+    });
+    const data = await res.json();
+    alert(data.message);
+    if (res.ok) {
+      currentForgotUserId = data.userId;
+      document.getElementById('forgot-otp-input').value = '';
+      startOtpTimer();
+    }
+  } catch (err) {
+    alert('Lỗi gửi lại mã OTP!');
+  }
+}
+
 function bindForgotPassword() {
   const step1 = document.getElementById('forgot-step1-form');
   const step2 = document.getElementById('forgot-step2-form');
@@ -149,6 +209,8 @@ function bindForgotPassword() {
     step1.addEventListener('submit', async (e) => {
       e.preventDefault();
       const accountInfo = document.getElementById('forgot-account-info').value;
+      currentForgotAccountInfo = accountInfo;
+
       try {
         const res = await fetch('/api/forgot-password/send-otp', {
           method: 'POST',
@@ -161,6 +223,7 @@ function bindForgotPassword() {
           currentForgotUserId = data.userId;
           step1.style.display = 'none';
           step2.style.display = 'block';
+          startOtpTimer();
         }
       } catch (err) { alert('Lỗi hệ thống!'); }
     });
@@ -179,6 +242,7 @@ function bindForgotPassword() {
         const data = await res.json();
         alert(data.message);
         if (res.ok) {
+          clearInterval(otpTimerInterval);
           step2.style.display = 'none';
           step3.style.display = 'block';
         }
@@ -193,11 +257,22 @@ function bindForgotPassword() {
       const confirmPassword = document.getElementById('forgot-confirm-password').value;
       const otpCode = document.getElementById('forgot-otp-input').value;
 
+      // FIX LỖI TẠO MẬT KHẨU MỚI
+      if (newPassword.length < 6) {
+        alert('⚠️ Mật khẩu mới phải có ít nhất 6 ký tự!');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        alert('❌ Mật khẩu mới và Mật khẩu xác nhận không trùng khớp! Vui lòng nhập lại.');
+        return;
+      }
+
       try {
         const res = await fetch('/api/forgot-password/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: currentForgotUserId, otpCode, newPassword, confirmPassword })
+          body: JSON.stringify({ userId: currentForgotUserId, otpCode, newPassword })
         });
         const data = await res.json();
         alert(data.message);
@@ -213,6 +288,7 @@ function bindForgotPassword() {
 function openForgotPasswordModal(e) {
   if (e) e.preventDefault();
   closeModal('login-modal');
+  clearInterval(otpTimerInterval);
   document.getElementById('forgot-step1-form').style.display = 'block';
   document.getElementById('forgot-step2-form').style.display = 'none';
   document.getElementById('forgot-step3-form').style.display = 'none';
@@ -270,7 +346,6 @@ function renderDocuments(docs) {
     let favBtn = '';
     let downloadBtn = '';
 
-    // Tất cả mọi người (kể cả Khách) đều có nút Xem Bình Luận
     const commentBtnText = currentUser ? '💬 Bình luận' : '💬 Xem bình luận';
     const commentBtn = `<button onclick="openDocDetailsModal(${doc.id})" style="background:#475569; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${commentBtnText}</button>`;
 
@@ -374,7 +449,7 @@ async function openDocPreviewModal(docId) {
   openModal('doc-preview-modal');
 }
 
-/* ==================== TÍNH NĂNG XUẤT BÁO CÁO EXCEL (.XLSX) ==================== */
+/* ==================== XUẤT BÁO CÁO EXCEL (.XLSX) ==================== */
 
 async function exportUsersToExcel() {
   if (typeof XLSX === 'undefined') {
@@ -383,7 +458,7 @@ async function exportUsersToExcel() {
   }
   try {
     const res = await fetch('/api/users');
-    if (!res.ok) throw new Error('Không thể lấy danh sách người dùng từ máy chủ');
+    if (!res.ok) throw new Error('Không thể lấy danh sách người dùng');
     const users = await res.json();
 
     const formattedUsers = users.map((u, index) => ({
@@ -417,12 +492,12 @@ async function exportUsersToExcel() {
 
 async function exportStatsToExcel() {
   if (typeof XLSX === 'undefined') {
-    alert('⚠️ Thư viện XLSX chưa được nạp xong. Vui lòng nhấn F5 và thử lại!');
+    alert('⚠️ Thư viện XLSX chưa được nạp xong. Vui lòng nhấn F5 thử lại!');
     return;
   }
   try {
     const res = await fetch('/api/documents');
-    if (!res.ok) throw new Error('Không thể lấy danh sách tài liệu từ máy chủ');
+    if (!res.ok) throw new Error('Không thể lấy danh sách tài liệu');
     const docs = await res.json();
 
     if (!Array.isArray(docs) || docs.length === 0) {
@@ -451,12 +526,11 @@ async function exportStatsToExcel() {
     XLSX.writeFile(workbook, `EduShare_ThongKe_LuotTai_${new Date().toISOString().split('T')[0]}.xlsx`);
     alert('✅ Đã xuất báo cáo thống kê lượt tải tài liệu ra file Excel thành công!');
   } catch (err) {
-    console.error('Lỗi export Excel:', err);
     alert('Lỗi xuất báo cáo Excel tài liệu: ' + err.message);
   }
 }
 
-/* ==================== BÌNH LUẬN & ĐÁNH GIÁ (CHO PHÉP KHÁCH XEM) ==================== */
+/* ==================== BÌNH LUẬN & ĐÁNH GIÁ (CHO KHÁCH XEM) ==================== */
 
 async function openDocDetailsModal(docId) {
   currentActiveDocId = docId;
@@ -472,7 +546,6 @@ async function openDocDetailsModal(docId) {
     <p><strong>Trường/Khoa:</strong> ${doc.school || '-'} - ${doc.faculty || '-'}</p>
   `;
 
-  // Kiểm tra quyền gửi bình luận theo vai trò
   const commentFormBox = document.getElementById('comment-form-container');
   if (commentFormBox) {
     if (currentUser) {
@@ -500,7 +573,7 @@ async function openDocDetailsModal(docId) {
     } else {
       commentFormBox.innerHTML = `
         <div style="text-align:center; padding:12px; background:#fffbeb; border:1px solid #fef3c7; border-radius:6px; color:#b45309; font-size:13px; margin-top:15px;">
-          🔒 Bạn đang ở chế độ Khách. Vui lòng <a href="#" onclick="closeModal('doc-details-modal'); openModal('login-modal');" style="color:#2563eb; font-weight:bold; text-decoration:underline;">Đăng Nhập</a> để viết bình luận.
+          🔒 Bạn đang ở chế độ Khách. Vui lòng <a href="#" onclick="closeModal('doc-details-modal'); openModal('login-modal');" style="color:#2563eb; font-weight:bold; text-decoration:underline;">Đăng Nhập</a> để gửi bình luận.
         </div>
       `;
     }
@@ -551,7 +624,6 @@ async function deleteComment(commentId, docId) {
     alert('Đã xóa bình luận thành công!');
     loadComments(docId);
   } catch (err) {
-    alert('Đã xóa bình luận thành công!');
     loadComments(docId);
   }
 }
@@ -691,7 +763,7 @@ async function downloadCheck(docId) {
   if (!doc) return;
 
   try {
-    const res = await fetch(`/api/documents/${docId}/download`, {
+    await fetch(`/api/documents/${docId}/download`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: currentUser.id })

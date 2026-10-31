@@ -6,24 +6,14 @@
   <title>EduShare - Thư Viện Học Liệu Số Mở</title>
   <link rel="stylesheet" href="style.css">
   
-  <!-- Thư viện SheetJS cho xuất file Excel .xlsx (CDN chuẩn cdnjs) -->
+  <!-- Thư viện SheetJS cho xuất file Excel .xlsx (CDN cdnjs chuẩn) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
-  <!-- Thư viện giải nén & Render DOCX trực tiếp trên Trình duyệt (Client-side) -->
+  <!-- Thư viện giải nén & Render DOCX trực tiếp trên Trình duyệt -->
   <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
   <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
 </head>
 <body>
-
-  <!-- Topbar Tester -->
-  <div class="top-tester-bar">
-    <span class="badge-demo">DEMO TESTER</span>
-    <span>Chuyển đổi vai trò trải nghiệm:</span>
-    <button onclick="switchRole('guest')" class="btn-role">Khách</button>
-    <button onclick="switchRole('student')" class="btn-role">Sinh viên</button>
-    <button onclick="switchRole('teacher')" class="btn-role">Giảng viên</button>
-    <button onclick="switchRole('admin')" class="btn-role btn-role-admin">Quản trị viên (Admin)</button>
-  </div>
 
   <!-- Navbar -->
   <header class="navbar">
@@ -238,8 +228,8 @@
             </select>
           </div>
           <div class="input-group"><label>Tên đăng nhập (*):</label><input type="text" id="reg-username" required placeholder="Tên tài khoản"></div>
-          <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="reg-password" required placeholder="Mật khẩu"></div>
-          <div class="input-group" style="grid-column: span 2;"><label>Xác nhận lại mật khẩu (*):</label><input type="password" id="reg-confirm-password" required placeholder="Nhập lại mật khẩu"></div>
+          <div class="input-group"><label>Mật khẩu (Tối thiểu 6 ký tự) (*):</label><input type="password" id="reg-password" required placeholder="Nhập mật khẩu"></div>
+          <div class="input-group" style="grid-column: span 2;"><label>Xác nhận lại mật khẩu (*):</label><input type="password" id="reg-confirm-password" required placeholder="Nhập lại chính xác mật khẩu"></div>
         </div>
         <button type="submit" class="btn-submit btn-green" style="margin-top:15px;">Tạo Tài Khoản Mới</button>
         <button type="button" onclick="closeModal('register-modal')" class="btn-cancel" style="margin-top:8px;">Hủy Bỏ</button>
@@ -247,7 +237,7 @@
     </div>
   </div>
 
-  <!-- Modal Quên Mật Khẩu -->
+  <!-- Modal Quên Mật Khẩu & OTP -->
   <div id="forgot-modal" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header" style="background:#ea580c;">
@@ -255,34 +245,43 @@
         <button class="modal-close-icon" onclick="closeModal('forgot-modal')">&times;</button>
       </div>
 
+      <!-- Bước 1: Nhập thông tin tài khoản -->
       <form id="forgot-step1-form" style="padding:24px;">
-        <p style="font-size:13px; color:#475569; margin-bottom:15px;">Vui lòng nhập Tên đăng nhập, Email hoặc Số điện thoại để nhận mã OTP.</p>
+        <p style="font-size:13px; color:#475569; margin-bottom:15px;">Vui lòng nhập Tên đăng nhập, Email hoặc Số điện thoại để nhận mã OTP khôi phục.</p>
         <div class="input-group">
           <label>Tên người dùng / Email / SĐT (*):</label>
           <input type="text" id="forgot-account-info" required placeholder="Nhập thông tin tài khoản">
         </div>
-        <button type="submit" class="btn-submit" style="background:#ea580c;">Gửi Mã OTP</button>
+        <button type="submit" class="btn-submit" style="background:#ea580c;">Gửi Mã OTP Tự Động</button>
         <button type="button" onclick="closeModal('forgot-modal')" class="btn-cancel" style="margin-top:8px;">Hủy Bỏ</button>
       </form>
 
+      <!-- Bước 2: Nhập OTP & Đếm ngược 60s -->
       <form id="forgot-step2-form" style="padding:24px; display:none;">
         <p style="font-size:13px; color:#475569; margin-bottom:15px;">Mã OTP đã được tạo. Vui lòng nhập 6 chữ số bên dưới:</p>
         <div class="input-group">
           <label>Mã xác nhận OTP (*):</label>
           <input type="text" id="forgot-otp-input" required maxlength="6" placeholder="Nhập 6 số OTP">
         </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; font-size:13px;">
+          <span id="otp-timer-box" style="color:#dc2626; font-weight:bold;">⏱️ Mã hết hạn sau: <span id="otp-timer">60</span>s</span>
+          <button type="button" id="resend-otp-btn" disabled onclick="handleResendOTP()" style="background:none; border:none; color:#94a3b8; font-weight:bold; cursor:not-allowed; text-decoration:underline; font-size:13px;">🔄 Cấp lại OTP</button>
+        </div>
+
         <button type="submit" class="btn-submit" style="background:#ea580c;">Xác Nhận OTP</button>
       </form>
 
+      <!-- Bước 3: Tạo Mật Khẩu Mới -->
       <form id="forgot-step3-form" style="padding:24px; display:none;">
-        <p style="font-size:13px; color:#166534; font-weight:bold; margin-bottom:15px;">✅ OTP chính xác! Tạo mật khẩu mới.</p>
+        <p style="font-size:13px; color:#166534; font-weight:bold; margin-bottom:15px;">✅ OTP chính xác! Mời đặt lại mật khẩu mới.</p>
         <div class="input-group">
-          <label>Tạo mật khẩu mới (*):</label>
-          <input type="password" id="forgot-new-password" required placeholder="Mật khẩu mới">
+          <label>Tạo mật khẩu mới (Tối thiểu 6 ký tự) (*):</label>
+          <input type="password" id="forgot-new-password" required placeholder="Nhập mật khẩu mới">
         </div>
         <div class="input-group">
           <label>Xác nhận lại mật khẩu mới (*):</label>
-          <input type="password" id="forgot-confirm-password" required placeholder="Nhập lại mật khẩu mới">
+          <input type="password" id="forgot-confirm-password" required placeholder="Nhập lại chính xác mật khẩu mới">
         </div>
         <button type="submit" class="btn-submit btn-green">Lưu Mật Khẩu Mới</button>
       </form>
@@ -302,7 +301,6 @@
         <h4 style="margin-bottom:10px; color:#1e293b;">💬 Bình luận & Đánh giá sao</h4>
         <div id="comments-list-box" style="max-height:220px; overflow-y:auto; margin-bottom:15px;"></div>
 
-        <!-- Khung nhập bình luận (Tự động thay đổi theo trạng thái Đăng nhập) -->
         <div id="comment-form-container"></div>
       </div>
     </div>
