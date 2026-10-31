@@ -268,12 +268,13 @@ function renderDocuments(docs) {
   container.innerHTML = normalDocs.map(doc => {
     let actionBtns = '';
     let favBtn = '';
-    let commentBtn = '';
     let downloadBtn = '';
 
-    // KHÁCH (currentUser == null) SẼ KHÔNG CÓ BÌNH LUẬN, YÊU THÍCH, TẢI VỀ, SỬA, XÓA
+    // Tất cả mọi người (kể cả Khách) đều có nút Xem Bình Luận
+    const commentBtnText = currentUser ? '💬 Bình luận' : '💬 Xem bình luận';
+    const commentBtn = `<button onclick="openDocDetailsModal(${doc.id})" style="background:#475569; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${commentBtnText}</button>`;
+
     if (currentUser) {
-      commentBtn = `<button onclick="openDocDetailsModal(${doc.id})" style="background:#475569; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">💬 Bình luận</button>`;
       favBtn = `<button onclick="toggleFavorite(${doc.id})" style="background:#fef3c7; color:#92400e; border:1px solid #f59e0b; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; margin-right:4px;">⭐ Yêu thích</button>`;
       downloadBtn = `<button onclick="downloadCheck(${doc.id})" style="background:#16a34a; color:#fff; border:none; padding:6px 14px; border-radius:4px; font-size:13px; font-weight:bold; cursor:pointer;">📥 Tải về</button>`;
 
@@ -373,15 +374,91 @@ async function openDocPreviewModal(docId) {
   openModal('doc-preview-modal');
 }
 
-/* ==================== BÌNH LUẬN & ĐÁNH GIÁ ==================== */
+/* ==================== TÍNH NĂNG XUẤT BÁO CÁO EXCEL (.XLSX) ==================== */
 
-async function openDocDetailsModal(docId) {
-  if (!currentUser) {
-    alert('🔒 Chưa đăng nhập! Vui lòng đăng nhập để xem và bình luận.');
-    openModal('login-modal');
+async function exportUsersToExcel() {
+  if (typeof XLSX === 'undefined') {
+    alert('⚠️ Thư viện XLSX chưa được nạp xong. Vui lòng nhấn F5 thử lại!');
     return;
   }
+  try {
+    const res = await fetch('/api/users');
+    if (!res.ok) throw new Error('Không thể lấy danh sách người dùng từ máy chủ');
+    const users = await res.json();
 
+    const formattedUsers = users.map((u, index) => ({
+      "STT": index + 1,
+      "ID": u.id,
+      "Họ và Tên": u.fullname,
+      "Giới tính": u.gender || 'Nam',
+      "Ngày sinh": u.dob || '-',
+      "Email/SĐT": u.emailPhone || '-',
+      "Trường Học": u.school || '-',
+      "Khoa": u.faculty || '-',
+      "Ngành": u.major || '-',
+      "Lớp": u.className || '-',
+      "Khóa": u.course || '-',
+      "Tên Tài Khoản": u.username,
+      "Vai Trò": u.role,
+      "Trạng Thái": u.status === 'approved' ? 'Đã duyệt' : 'Chờ duyệt',
+      "Ngày Tham Gia": u.createdAt || '-'
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedUsers);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "DanhSachNguoiDung");
+
+    XLSX.writeFile(workbook, `EduShare_BaoCao_NguoiDung_${new Date().toISOString().split('T')[0]}.xlsx`);
+    alert('✅ Đã xuất báo cáo danh sách người dùng ra file Excel thành công!');
+  } catch (err) {
+    alert('Lỗi xuất báo cáo Excel người dùng: ' + err.message);
+  }
+}
+
+async function exportStatsToExcel() {
+  if (typeof XLSX === 'undefined') {
+    alert('⚠️ Thư viện XLSX chưa được nạp xong. Vui lòng nhấn F5 và thử lại!');
+    return;
+  }
+  try {
+    const res = await fetch('/api/documents');
+    if (!res.ok) throw new Error('Không thể lấy danh sách tài liệu từ máy chủ');
+    const docs = await res.json();
+
+    if (!Array.isArray(docs) || docs.length === 0) {
+      alert('⚠️ Chưa có dữ liệu tài liệu để xuất!');
+      return;
+    }
+
+    const formattedDocs = docs.map((d, index) => ({
+      "STT": index + 1,
+      "ID Tài Liệu": d.id,
+      "Tiêu Đề Học Liệu": d.title,
+      "Định Dạng Tệp": d.type,
+      "Chuyên Mục": d.category,
+      "Môn Học": d.subject || 'Tổng hợp',
+      "Khoa/Đơn Vị": d.faculty || '-',
+      "Tác Giả": d.author,
+      "Lượt Xem": d.views || 0,
+      "Lượt Tải Down": d.downloads || 0,
+      "Ngày Đăng": d.date
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedDocs);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ThongKeTaiLieu");
+
+    XLSX.writeFile(workbook, `EduShare_ThongKe_LuotTai_${new Date().toISOString().split('T')[0]}.xlsx`);
+    alert('✅ Đã xuất báo cáo thống kê lượt tải tài liệu ra file Excel thành công!');
+  } catch (err) {
+    console.error('Lỗi export Excel:', err);
+    alert('Lỗi xuất báo cáo Excel tài liệu: ' + err.message);
+  }
+}
+
+/* ==================== BÌNH LUẬN & ĐÁNH GIÁ (CHO PHÉP KHÁCH XEM) ==================== */
+
+async function openDocDetailsModal(docId) {
   currentActiveDocId = docId;
   const doc = documentsData.find(d => d.id === docId);
   if (!doc) return;
@@ -391,9 +468,43 @@ async function openDocDetailsModal(docId) {
   document.getElementById('detail-doc-title').innerText = doc.title;
   document.getElementById('detail-doc-info').innerHTML = `
     <p><strong>Chuyên mục:</strong> ${doc.category} | <strong>Định dạng:</strong> ${doc.type}</p>
-    <p><strong>Môn học:</strong> ${doc.subject} | <strong>Tác giả:</strong> ${doc.author}</p>
-    <p><strong>Trường/Khoa:</strong> ${doc.school} - ${doc.faculty}</p>
+    <p><strong>Môn học:</strong> ${doc.subject || 'Tổng hợp'} | <strong>Tác giả:</strong> ${doc.author}</p>
+    <p><strong>Trường/Khoa:</strong> ${doc.school || '-'} - ${doc.faculty || '-'}</p>
   `;
+
+  // Kiểm tra quyền gửi bình luận theo vai trò
+  const commentFormBox = document.getElementById('comment-form-container');
+  if (commentFormBox) {
+    if (currentUser) {
+      commentFormBox.innerHTML = `
+        <form onsubmit="submitComment(event)" style="border-top:1px solid #e2e8f0; padding-top:15px;">
+          <div class="form-grid-2">
+            <div class="input-group">
+              <label>Đánh giá sao:</label>
+              <select id="comment-rating">
+                <option value="5">⭐⭐⭐⭐⭐ (5 sao)</option>
+                <option value="4">⭐⭐⭐⭐ (4 sao)</option>
+                <option value="3">⭐⭐⭐ (3 sao)</option>
+                <option value="2">⭐⭐ (2 sao)</option>
+                <option value="1">⭐ (1 sao)</option>
+              </select>
+            </div>
+            <div class="input-group" style="grid-column: span 2;">
+              <label>Nội dung bình luận:</label>
+              <textarea id="comment-text" required rows="2" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;" placeholder="Nhập cảm nhận của bạn về tài liệu này..."></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit btn-blue" style="margin-top:10px;">Gửi Bình Luận</button>
+        </form>
+      `;
+    } else {
+      commentFormBox.innerHTML = `
+        <div style="text-align:center; padding:12px; background:#fffbeb; border:1px solid #fef3c7; border-radius:6px; color:#b45309; font-size:13px; margin-top:15px;">
+          🔒 Bạn đang ở chế độ Khách. Vui lòng <a href="#" onclick="closeModal('doc-details-modal'); openModal('login-modal');" style="color:#2563eb; font-weight:bold; text-decoration:underline;">Đăng Nhập</a> để viết bình luận.
+        </div>
+      `;
+    }
+  }
 
   loadComments(docId);
   openModal('doc-details-modal');

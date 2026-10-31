@@ -6,8 +6,8 @@
   <title>EduShare - Thư Viện Học Liệu Số Mở</title>
   <link rel="stylesheet" href="style.css">
   
-  <!-- Thư viện SheetJS cho xuất file Excel .xlsx -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Thư viện SheetJS cho xuất file Excel .xlsx (CDN chuẩn cdnjs) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
   <!-- Thư viện giải nén & Render DOCX trực tiếp trên Trình duyệt (Client-side) -->
   <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
@@ -173,7 +173,7 @@
 
   <!-- MODALS -->
 
-  <!-- Modal Xem Trước Tệp (PDF/Word Viewer) -->
+  <!-- Modal Xem Trước Tệp -->
   <div id="doc-preview-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header" style="background:#0369a1;">
@@ -302,25 +302,8 @@
         <h4 style="margin-bottom:10px; color:#1e293b;">💬 Bình luận & Đánh giá sao</h4>
         <div id="comments-list-box" style="max-height:220px; overflow-y:auto; margin-bottom:15px;"></div>
 
-        <form onsubmit="submitComment(event)" style="border-top:1px solid #e2e8f0; padding-top:15px;">
-          <div class="form-grid-2">
-            <div class="input-group">
-              <label>Đánh giá sao:</label>
-              <select id="comment-rating">
-                <option value="5">⭐⭐⭐⭐⭐ (5 sao)</option>
-                <option value="4">⭐⭐⭐⭐ (4 sao)</option>
-                <option value="3">⭐⭐⭐ (3 sao)</option>
-                <option value="2">⭐⭐ (2 sao)</option>
-                <option value="1">⭐ (1 sao)</option>
-              </select>
-            </div>
-            <div class="input-group" style="grid-column: span 2;">
-              <label>Nội dung bình luận:</label>
-              <textarea id="comment-text" required rows="2" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1;" placeholder="Nhập cảm nhận của bạn về tài liệu này..."></textarea>
-            </div>
-          </div>
-          <button type="submit" class="btn-submit btn-blue" style="margin-top:10px;">Gửi Bình Luận</button>
-        </form>
+        <!-- Khung nhập bình luận (Tự động thay đổi theo trạng thái Đăng nhập) -->
+        <div id="comment-form-container"></div>
       </div>
     </div>
   </div>
