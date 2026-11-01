@@ -9,10 +9,60 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
   <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
+
+  <style>
+    /* FIX LỖI KHUNG MOBILE AUTH TRÀN MÀN HÌNH DESKTOP */
+    @media (min-width: 992px) {
+      .mobile-auth-box { display: none !important; }
+    }
+    
+    /* CSS FOOTER CHUẨN PHONG CÁCH HỌC THUẬT MTU */
+    .footer {
+      background: var(--bg-card, #1e293b);
+      color: var(--text-main, #f8fafc);
+      border-top: 2px solid var(--border-color, #334155);
+      margin-top: 50px;
+      padding: 40px 20px 20px 20px;
+    }
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+    }
+    .footer-col h3, .footer-col h4 {
+      color: #38bdf8;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+    .footer-col p {
+      font-size: 13px;
+      color: #94a3b8;
+      margin: 6px 0;
+      line-height: 1.6;
+    }
+    .footer-col a {
+      color: #38bdf8;
+      text-decoration: none;
+    }
+    .footer-col a:hover {
+      text-decoration: underline;
+    }
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 30px auto 0 auto;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- NAVBAR CẤP CAO HOẠT ẢNH MƯỢT MÀ -->
+  <!-- NAVBAR CẤP CAO -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()">
       <div class="logo-icon">🎓</div>
@@ -65,7 +115,7 @@
 
       <a href="#articles-section" class="nav-item">📰 Bài Báo</a>
 
-      <!-- MENU TÀI KHOẢN DI ĐỘNG -->
+      <!-- MENU TÀI KHOẢN DÀNH RIÊNG CHO MÀN HÌNH ĐIỆN THOẠI -->
       <div id="mobile-auth-container" class="mobile-auth-box"></div>
 
       <div class="nav-search-group">
@@ -161,7 +211,7 @@
     </section>
   </main>
 
-  <!-- CHATBOT AI MAXIMUM -->
+  <!-- CHATBOT AI -->
   <div id="ai-chatbot-button" class="chatbot-floating-btn" onclick="toggleChatbot()">
     🤖 <span>Hỏi AI EduShare</span>
   </div>
@@ -184,6 +234,35 @@
       <button onclick="sendChatMessage()" class="btn-blue" style="width:auto; padding:8px 14px;">Gửi</button>
     </div>
   </div>
+
+  <!-- FOOTER ĐẦY ĐỦ THÔNG TIN TRƯỜNG & SĐT & ĐỊA CHỈ -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col brand-col">
+        <h3>🎓 EduShare MTU</h3>
+        <p>Hệ thống Thư viện Học liệu số & Tài nguyên Giáo dục Mở.</p>
+        <p><strong>Trường Đại học Xây dựng Miền Tây</strong></p>
+        <p>Khoa Công Nghệ Thông Tin - Ngành Kỹ Thuật Phần Mềm</p>
+      </div>
+      <div class="footer-col">
+        <h4>📍 Thông Tin Liên Hệ</h4>
+        <p>🏢 <strong>Địa chỉ:</strong> Số 20B Đường 2 Tháng 9, Phường 1, TP. Vĩnh Long, Tỉnh Vĩnh Long</p>
+        <p>📞 <strong>Điện thoại:</strong> (0270) 3822 141 - Hotline tuyển sinh: (0270) 3822 141</p>
+        <p>✉️ <strong>Email:</strong> dhxdmientay@mtu.edu.vn | support@edushare.edu.vn</p>
+        <p>🌐 <strong>Website chính thức:</strong> <a href="http://www.mtu.edu.vn" target="_blank">www.mtu.edu.vn</a></p>
+      </div>
+      <div class="footer-col">
+        <h4>🔗 Danh Mục Học Liệu</h4>
+        <p><a href="#" onclick="resetHomePage()">🏠 Trang Chủ EduShare</a></p>
+        <p><a href="#" onclick="filterByCategory('Tài liệu')">📚 Giáo Trình & Tài Liệu Môn Học</a></p>
+        <p><a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Ngân Hàng Đề Thi & Đáp Án</a></p>
+        <p><a href="#articles-section">📰 Công Trình & Bài Báo Khoa Học</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 EduShare - Trường Đại học Xây dựng Miền Tây. Phát triển bởi Sinh viên Nguyễn Chí Vỹ. Tất cả quyền được bảo lưu.</p>
+    </div>
+  </footer>
 
   <!-- MODAL CÀI ĐẶT -->
   <div id="settings-modal" class="modal-overlay">
@@ -223,7 +302,7 @@
     </div>
   </div>
 
-  <!-- MODAL XEM TRƯỚC TÀI LIỆU CẢI TIẾN TRÌNH PHÁT ĐA PHƯƠNG TIỆN -->
+  <!-- MODAL XEM TRƯỚC TÀI LIỆU -->
   <div id="doc-preview-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header" style="background:#0369a1;">
