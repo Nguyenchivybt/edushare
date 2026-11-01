@@ -6,10 +6,10 @@
   <title>EduShare - Thư Viện Học Liệu Số Mở</title>
   <link rel="stylesheet" href="style.css">
   
-  <!-- Thư viện SheetJS cho xuất file Excel .xlsx (CDN cdnjs chuẩn) -->
+  <!-- Thư viện SheetJS cho xuất file Excel .xlsx -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
-  <!-- Thư viện giải nén & Render DOCX trực tiếp trên Trình duyệt -->
+  <!-- Thư viện giải nén & Render DOCX -->
   <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
   <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
 </head>
@@ -28,9 +28,11 @@
     <nav class="nav-links">
       <a href="#" onclick="resetHomePage()" class="active">🏠 Trang Chủ</a>
       <a href="#category-section">📑 Danh Mục</a>
-      <a href="#" onclick="filterByCategory('Bài tập mẫu')">🛠️ Bài Tập Mẫu</a>
-      <a href="#" onclick="filterByCategory('Tài liệu bài thi')">📚 Tài Liệu Bài Thi</a>
-      <a href="#articles-section">📰 Bài Báo Tiêu Biểu</a>
+      <a href="#" onclick="filterByCategory('Tài liệu')">📚 Tài Liệu</a>
+      <a href="#" onclick="filterByCategory('Bài giảng')">📖 Bài Giảng</a>
+      <a href="#" onclick="filterByCategory('Bài tập')">🛠️ Bài Tập</a>
+      <a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Đề Thi</a>
+      <a href="#articles-section">📰 Bài Báo</a>
     </nav>
 
     <div id="auth-buttons-container" class="auth-buttons"></div>
@@ -42,7 +44,7 @@
     <p>Tra cứu, chia sẻ giáo trình, bài giảng, bài tập mẫu, đề thi & bài báo khoa học dành cho Giảng viên và Sinh viên.</p>
 
     <div class="search-box-group">
-      <input type="text" id="search-input" placeholder="Tìm kiếm giáo trình, đề thi, môn học, tác giả...">
+      <input type="text" id="search-input" placeholder="Tìm kiếm giáo trình, bài giảng, đề thi, môn học, tác giả...">
       <select id="search-type">
         <option value="all">Tất cả loại tệp</option>
         <option value="PDF">PDF</option>
@@ -57,49 +59,80 @@
     </div>
   </section>
 
-  <!-- Filter Bar -->
+  <!-- Filter Bar (Phân Cấp: Trường ➔ Khoa ➔ Ngành ➔ Khóa ➔ Lớp) -->
   <section class="filter-bar">
-    <span class="filter-label">▼ BỘ LỌC TÀI LIỆU:</span>
-    <select id="filter-school" onchange="handleFilterChange()"><option value="">Tất cả Trường</option></select>
-    <select id="filter-faculty" onchange="handleFilterChange()"><option value="">Tất cả Khoa</option></select>
-    <select id="filter-major" onchange="handleFilterChange()"><option value="">Tất cả Ngành</option></select>
-    <select id="filter-course" onchange="handleFilterChange()"><option value="">Tất cả Khóa</option></select>
-    <select id="filter-class" onchange="handleFilterChange()"><option value="">Tất cả Lớp</option></select>
-    <a href="#" onclick="resetFilters(event)" class="btn-reset">Đặt lại lọc</a>
+    <span class="filter-label">▼ BỘ LỌC PHÂN CẤP:</span>
+    <select id="filter-school" onchange="handleFilterChange('school')"><option value="">🏛️ Tất cả Trường</option></select>
+    <select id="filter-faculty" onchange="handleFilterChange('faculty')"><option value="">🏢 Tất cả Khoa</option></select>
+    <select id="filter-major" onchange="handleFilterChange('major')"><option value="">💾 Tất cả Ngành</option></select>
+    <select id="filter-course" onchange="handleFilterChange('course')"><option value="">📦 Tất cả Khóa</option></select>
+    <select id="filter-class" onchange="handleFilterChange('class')"><option value="">👥 Tất cả Lớp</option></select>
+    <a href="#" onclick="resetFilters(event)" class="btn-reset">↺ Đặt lại lọc</a>
   </section>
 
   <main class="main-content">
+    <!-- KHU VỰC DANH MỤC HỌC LIỆU & ĐƠN VỊ ĐÀO TẠO PHÂN CẤP -->
     <section id="category-section" class="group-category-section">
-      <h3>🏛️ Thư Viện Nhóm Trường & Khoa Ngành</h3>
+      <h3 style="margin-bottom:12px; color:#1e293b;">📑 Danh Mục Loại Học Liệu</h3>
+      <div class="category-grid" style="margin-bottom:30px;">
+        <div class="cat-card" onclick="filterByCategory('Tài liệu')">
+          <div class="cat-icon">📚</div>
+          <h4>Tài Liệu Học Tập</h4>
+          <p>Sách, Giáo trình & Sách tham khảo</p>
+        </div>
+        <div class="cat-card" onclick="filterByCategory('Bài giảng')">
+          <div class="cat-icon">📖</div>
+          <h4>Bài Giảng & Slide</h4>
+          <p>Bài giảng lý thuyết, Video & Audio</p>
+        </div>
+        <div class="cat-card" onclick="filterByCategory('Bài tập')">
+          <div class="cat-icon">🛠️</div>
+          <h4>Bài Tập & Đồ Án</h4>
+          <p>Bài tập thực hành, đồ án môn học</p>
+        </div>
+        <div class="cat-card" onclick="filterByCategory('Tài liệu bài thi')">
+          <div class="cat-icon">🎯</div>
+          <h4>Đề Thi & Ngân Hàng Câu Hỏi</h4>
+          <p>Đề thi giữa kỳ, cuối kỳ & đáp án</p>
+        </div>
+        <div class="cat-card" onclick="filterByCategory('Bài báo tiêu biểu')">
+          <div class="cat-icon">📰</div>
+          <h4>Bài Báo Khoa Học</h4>
+          <p>Công trình nghiên cứu & Tạp chí</p>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:12px; color:#1e293b;">🏛️ Cấu Trúc Đơn Vị Đào Tạo (Trường ➔ Khoa ➔ Ngành ➔ Khóa ➔ Lớp)</h3>
       <div class="category-grid">
         <div class="cat-card" onclick="filterByGroup('school', 'Trường Đại học Xây dựng Miền Tây')">
           <div class="cat-icon">🏛️</div>
-          <h4>Khối Trường</h4>
-          <p>Giáo trình & Văn bản cấp Trường</p>
+          <h4>1. Khối Trường</h4>
+          <p>Văn bản & Học liệu cấp Trường</p>
         </div>
         <div class="cat-card" onclick="filterByGroup('faculty', 'Công nghệ thông tin')">
           <div class="cat-icon">🏢</div>
-          <h4>Khối Khoa</h4>
-          <p>Tài liệu chuyên Khoa CNTT, Xây dựng...</p>
+          <h4>2. Khối Khoa</h4>
+          <p>Chuyên khoa CNTT, Xây dựng, Kiến trúc...</p>
         </div>
         <div class="cat-card" onclick="filterByGroup('major', 'Kỹ thuật phần mềm')">
           <div class="cat-icon">💾</div>
-          <h4>Khối Ngành</h4>
-          <p>Chuyên ngành KTPM, Đô thị, Kiến trúc</p>
+          <h4>3. Khối Ngành</h4>
+          <p>Ngành KTPM, Đô thị, Cầu đường...</p>
         </div>
         <div class="cat-card" onclick="filterByGroup('course', 'K15')">
           <div class="cat-icon">📦</div>
-          <h4>Khối Khóa Học</h4>
-          <p>Khóa K14, K15, K16, K17</p>
+          <h4>4. Khối Khóa Học</h4>
+          <p>Các niên khóa K14, K15, K16, K17...</p>
         </div>
-        <div class="cat-card" onclick="filterByGroup('class', 'ĐH KTPM 2023')">
+        <div class="cat-card" onclick="filterByGroup('className', 'ĐH KTPM 2023')">
           <div class="cat-icon">👥</div>
-          <h4>Khối Lớp Học</h4>
-          <p>Nội bộ các lớp học phần</p>
+          <h4>5. Khối Lớp Học</h4>
+          <p>Nội bộ danh sách các Lớp học phần</p>
         </div>
       </div>
     </section>
 
+    <!-- BÀI BÁO KHOA HỌC TIÊU BIỂU -->
     <section id="articles-section" class="articles-section" style="margin-top: 40px;">
       <div class="section-header">
         <div>
@@ -110,6 +143,7 @@
       <div id="articles-grid" class="articles-grid"></div>
     </section>
 
+    <!-- DANH SÁCH TÀI LIỆU -->
     <section class="doc-list-section" style="margin-top: 40px;">
       <div class="section-header">
         <div>
@@ -143,8 +177,9 @@
       <div class="footer-info">
         <h4>Chuyên Mục Chính</h4>
         <ul>
-          <li><a href="#" onclick="resetHomePage()">Giáo trình & Bài giảng</a></li>
-          <li><a href="#" onclick="filterByCategory('Bài tập mẫu')">Bài tập mẫu các môn</a></li>
+          <li><a href="#" onclick="filterByCategory('Tài liệu')">Tài liệu học tập & Giáo trình</a></li>
+          <li><a href="#" onclick="filterByCategory('Bài giảng')">Bài giảng lý thuyết & Slide</a></li>
+          <li><a href="#" onclick="filterByCategory('Bài tập')">Bài tập thực hành & Đồ án</a></li>
           <li><a href="#" onclick="filterByCategory('Tài liệu bài thi')">Đề thi mẫu & Đề thi các năm</a></li>
           <li><a href="#articles-section">Bài báo khoa học tiêu biểu</a></li>
         </ul>
@@ -445,19 +480,20 @@
             </select>
           </div>
           <div class="input-group">
-            <label>Chuyên mục (*):</label>
+            <label>Chuyên mục học liệu (*):</label>
             <select id="up-category">
-              <option value="Giáo trình">Giáo trình & Bài giảng</option>
-              <option value="Bài tập mẫu">Bài tập mẫu</option>
-              <option value="Tài liệu bài thi">Tài liệu bài thi / Đề thi</option>
-              <option value="Bài báo tiêu biểu">Bài báo khoa học</option>
+              <option value="Tài liệu">📚 Tài liệu học tập / Giáo trình</option>
+              <option value="Bài giảng">📖 Bài giảng & Slide</option>
+              <option value="Bài tập">🛠️ Bài tập mẫu & Đồ án</option>
+              <option value="Tài liệu bài thi">🎯 Đề thi & Ngân hàng câu hỏi</option>
+              <option value="Bài báo tiêu biểu">📰 Bài báo khoa học</option>
             </select>
           </div>
-          <div class="input-group"><label>Trường:</label><input type="text" id="up-school" value="Trường Đại học Xây dựng Miền Tây"></div>
-          <div class="input-group"><label>Khoa:</label><input type="text" id="up-faculty" placeholder="Công nghệ thông tin..."></div>
-          <div class="input-group"><label>Ngành Học:</label><input type="text" id="up-major" placeholder="Kỹ thuật phần mềm..."></div>
-          <div class="input-group"><label>Khóa Học:</label><input type="text" id="up-course" placeholder="K15..."></div>
-          <div class="input-group"><label>Lớp Học:</label><input type="text" id="up-class" placeholder="ĐH KTPM 2023..."></div>
+          <div class="input-group"><label>Trường (*):</label><input type="text" id="up-school" value="Trường Đại học Xây dựng Miền Tây"></div>
+          <div class="input-group"><label>Khoa (*):</label><input type="text" id="up-faculty" placeholder="Công nghệ thông tin..."></div>
+          <div class="input-group"><label>Ngành Học (*):</label><input type="text" id="up-major" placeholder="Kỹ thuật phần mềm..."></div>
+          <div class="input-group"><label>Khóa Học (*):</label><input type="text" id="up-course" placeholder="K15..."></div>
+          <div class="input-group"><label>Lớp Học (*):</label><input type="text" id="up-class" placeholder="ĐH KTPM 2023..."></div>
           <div class="input-group"><label>Môn Học:</label><input type="text" id="up-subject" placeholder="Lập trình Web..."></div>
 
           <div class="input-group" id="up-file-box" style="grid-column: span 2;">
@@ -504,10 +540,11 @@
           <div class="input-group">
             <label>Chuyên mục:</label>
             <select id="edit-category">
-              <option value="Giáo trình">Giáo trình & Bài giảng</option>
-              <option value="Bài tập mẫu">Bài tập mẫu</option>
-              <option value="Tài liệu bài thi">Tài liệu bài thi</option>
-              <option value="Bài báo tiêu biểu">Bài báo khoa học</option>
+              <option value="Tài liệu">📚 Tài liệu học tập</option>
+              <option value="Bài giảng">📖 Bài giảng & Slide</option>
+              <option value="Bài tập">🛠️ Bài tập mẫu</option>
+              <option value="Tài liệu bài thi">🎯 Tài liệu bài thi</option>
+              <option value="Bài báo tiêu biểu">📰 Bài báo khoa học</option>
             </select>
           </div>
           <div class="input-group"><label>Trường:</label><input type="text" id="edit-school"></div>

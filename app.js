@@ -38,22 +38,6 @@ function updateAuthUI() {
   }
 }
 
-function switchRole(role) {
-  if (role === 'guest') {
-    handleLogout();
-  } else {
-    currentUser = {
-      id: role === 'admin' ? '1' : String(Date.now()),
-      username: role,
-      fullname: role === 'admin' ? 'Quản Trị Viên' : (role === 'teacher' ? 'Giảng Viên Mẫu' : 'Sinh Viên Mẫu'),
-      role: role
-    };
-    localStorage.setItem('edushare_user', JSON.stringify(currentUser));
-    updateAuthUI();
-    renderDocuments(documentsData);
-  }
-}
-
 function handleLogout() {
   localStorage.removeItem('edushare_user');
   currentUser = null;
@@ -61,7 +45,7 @@ function handleLogout() {
   renderDocuments(documentsData);
 }
 
-/* ==================== XỬ LÝ FORM AUTH & ĐĂNG KÝ ==================== */
+/* ==================== FORM AUTH & ĐĂNG KÝ ==================== */
 
 function bindAuthForms() {
   const regForm = document.getElementById('register-form');
@@ -331,10 +315,10 @@ function renderDocuments(docs) {
   if (!container) return;
 
   const normalDocs = docs.filter(d => !d.isArticle && d.type !== 'LINK');
-  if (countText) countText.innerText = `Đang hiển thị ${normalDocs.length} tài liệu học tập`;
+  if (countText) countText.innerText = `Đang hiển thị ${normalDocs.length} học liệu giáo dục`;
 
   if (normalDocs.length === 0) {
-    container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding:30px 0;">Chưa tìm thấy tài liệu phù hợp.</p>';
+    container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding:30px 0;">Chưa tìm thấy học liệu phù hợp với bộ lọc.</p>';
     return;
   }
 
@@ -365,9 +349,9 @@ function renderDocuments(docs) {
           <span style="font-size:12px; color:#94a3b8;">📅 ${doc.date}</span>
         </div>
         <h3 style="margin:10px 0 6px 0; font-size:16px; color:#0f172a; cursor:pointer;" onclick="openDocPreviewModal('${doc.id}')">${doc.title}</h3>
-        <p style="margin:3px 0; font-size:13px; color:#475569;"><strong>Chuyên mục:</strong> ${doc.category}</p>
+        <p style="margin:3px 0; font-size:13px; color:#2563eb; font-weight:600;">🏷️ ${doc.category || 'Tài liệu'}</p>
         <p style="margin:3px 0; font-size:13px; color:#475569;"><strong>Môn học:</strong> ${doc.subject || 'Tổng hợp'}</p>
-        <p style="margin:3px 0; font-size:12px; color:#64748b;"><strong>Đơn vị:</strong> ${doc.faculty || 'Khoa'} - ${doc.className || 'Lớp'}</p>
+        <p style="margin:3px 0; font-size:12px; color:#64748b;"><strong>Đơn vị:</strong> ${doc.faculty || 'Khoa'} ➔ ${doc.major || 'Ngành'} ➔ ${doc.className || 'Lớp'}</p>
         <p style="margin:3px 0; font-size:12px; color:#64748b;"><strong>Tác giả:</strong> ${doc.author}</p>
         <p style="margin:3px 0; font-size:12px; color:#94a3b8;">👁️ ${doc.views || 0} lượt xem | 📥 ${doc.downloads || 0} lượt tải</p>
         
@@ -444,6 +428,150 @@ async function openDocPreviewModal(docId) {
   }
 
   openModal('doc-preview-modal');
+}
+
+/* ==================== BỘ LỌC PHÂN CẤP TỰ ĐỘNG (CASCADING DROPDOWNS) ==================== */
+
+function populateFilterOptions(docs) {
+  const selectedSchool = document.getElementById('filter-school').value;
+  const selectedFaculty = document.getElementById('filter-faculty').value;
+  const selectedMajor = document.getElementById('filter-major').value;
+  const selectedCourse = document.getElementById('filter-course').value;
+
+  // Lọc dữ liệu động theo tầng phân cấp
+  let filteredForSchool = docs;
+  let filteredForFaculty = docs.filter(d => !selectedSchool || d.school === selectedSchool);
+  let filteredForMajor = filteredForFaculty.filter(d => !selectedFaculty || d.faculty === selectedFaculty);
+  let filteredForCourse = filteredForMajor.filter(d => !selectedMajor || d.major === selectedMajor);
+  let filteredForClass = filteredForCourse.filter(d => !selectedCourse || d.course === selectedCourse);
+
+  const schools = [...new Set(filteredForSchool.map(d => d.school).filter(Boolean))];
+  const faculties = [...new Set(filteredForFaculty.map(d => d.faculty).filter(Boolean))];
+  const majors = [...new Set(filteredForMajor.map(d => d.major).filter(Boolean))];
+  const courses = [...new Set(filteredForCourse.map(d => d.course).filter(Boolean))];
+  const classes = [...new Set(filteredForClass.map(d => d.className).filter(Boolean))];
+
+  fillSelect('filter-school', schools, '🏛️ Tất cả Trường', selectedSchool);
+  fillSelect('filter-faculty', faculties, '🏢 Tất cả Khoa', selectedFaculty);
+  fillSelect('filter-major', majors, '💾 Tất cả Ngành', selectedMajor);
+  fillSelect('filter-course', courses, '📦 Tất cả Khóa', selectedCourse);
+  fillSelect('filter-class', classes, '👥 Tất cả Lớp');
+}
+
+function fillSelect(elementId, list, defaultLabel, currentValue = '') {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+
+  let optionsHtml = `<option value="">${defaultLabel}</option>`;
+  list.forEach(item => {
+    const isSelected = item === currentValue ? 'selected' : '';
+    optionsHtml += `<option value="${item}" ${isSelected}>${item}</option>`;
+  });
+  el.innerHTML = optionsHtml;
+}
+
+function handleFilterChange(changedLevel) {
+  // Khi cấp trên thay đổi, reset cấp dưới nhỏ hơn
+  if (changedLevel === 'school') {
+    document.getElementById('filter-faculty').value = '';
+    document.getElementById('filter-major').value = '';
+    document.getElementById('filter-course').value = '';
+    document.getElementById('filter-class').value = '';
+  } else if (changedLevel === 'faculty') {
+    document.getElementById('filter-major').value = '';
+    document.getElementById('filter-course').value = '';
+    document.getElementById('filter-class').value = '';
+  } else if (changedLevel === 'major') {
+    document.getElementById('filter-course').value = '';
+    document.getElementById('filter-class').value = '';
+  } else if (changedLevel === 'course') {
+    document.getElementById('filter-class').value = '';
+  }
+
+  populateFilterOptions(documentsData);
+
+  const school = document.getElementById('filter-school').value;
+  const faculty = document.getElementById('filter-faculty').value;
+  const major = document.getElementById('filter-major').value;
+  const course = document.getElementById('filter-course').value;
+  const className = document.getElementById('filter-class').value;
+
+  const filtered = documentsData.filter(d => {
+    return (!school || d.school === school) &&
+           (!faculty || d.faculty === faculty) &&
+           (!major || d.major === major) &&
+           (!course || d.course === course) &&
+           (!className || d.className === className);
+  });
+
+  renderDocuments(filtered);
+}
+
+function filterByCategory(cat) {
+  const filtered = documentsData.filter(d => {
+    if (!d.category) return false;
+    const itemCat = d.category.toLowerCase();
+    const targetCat = cat.toLowerCase();
+    return itemCat.includes(targetCat) || targetCat.includes(itemCat);
+  });
+  renderDocuments(filtered);
+  
+  const docSection = document.querySelector('.doc-list-section');
+  if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function filterByGroup(key, value) {
+  const filtered = documentsData.filter(d => d[key] === value);
+  renderDocuments(filtered);
+
+  const docSection = document.querySelector('.doc-list-section');
+  if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
+}
+
+function handleSearch() {
+  const query = document.getElementById('search-input').value.toLowerCase();
+  const type = document.getElementById('search-type').value;
+
+  const filtered = documentsData.filter(d => {
+    const matchText = d.title.toLowerCase().includes(query) ||
+                      (d.category && d.category.toLowerCase().includes(query)) ||
+                      (d.subject && d.subject.toLowerCase().includes(query)) ||
+                      (d.author && d.author.toLowerCase().includes(query));
+    const matchType = (type === 'all') || (d.type === type);
+    return matchText && matchType;
+  });
+
+  renderDocuments(filtered);
+}
+
+function resetFilters(e) {
+  if (e) e.preventDefault();
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-type').value = 'all';
+  document.getElementById('filter-school').value = '';
+  document.getElementById('filter-faculty').value = '';
+  document.getElementById('filter-major').value = '';
+  document.getElementById('filter-course').value = '';
+  document.getElementById('filter-class').value = '';
+  populateFilterOptions(documentsData);
+  renderDocuments(documentsData);
+}
+
+function resetHomePage() { resetFilters(); }
+
+function handleSortChange() {
+  const sortType = document.getElementById('sort-select').value;
+  let sorted = [...documentsData];
+
+  if (sortType === 'downloads') {
+    sorted.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
+  } else if (sortType === 'views') {
+    sorted.sort((a, b) => (b.views || 0) - (a.views || 0));
+  } else {
+    sorted.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+  }
+
+  renderDocuments(sorted);
 }
 
 /* ==================== XUẤT BÁO CÁO EXCEL (.XLSX) ==================== */
@@ -540,7 +668,7 @@ async function openDocDetailsModal(docId) {
   document.getElementById('detail-doc-info').innerHTML = `
     <p><strong>Chuyên mục:</strong> ${doc.category} | <strong>Định dạng:</strong> ${doc.type}</p>
     <p><strong>Môn học:</strong> ${doc.subject || 'Tổng hợp'} | <strong>Tác giả:</strong> ${doc.author}</p>
-    <p><strong>Trường/Khoa:</strong> ${doc.school || '-'} - ${doc.faculty || '-'}</p>
+    <p><strong>Đơn vị:</strong> ${doc.school || '-'} ➔ ${doc.faculty || '-'} ➔ ${doc.major || '-'}</p>
   `;
 
   const commentFormBox = document.getElementById('comment-form-container');
@@ -650,101 +778,6 @@ async function submitComment(e) {
       loadComments(currentActiveDocId);
     }
   } catch (err) { alert('Lỗi gửi bình luận!'); }
-}
-
-/* ==================== BỘ LỌC, TÌM KIẾM, SẮP XẾP ==================== */
-
-function populateFilterOptions(docs) {
-  const schools = [...new Set(docs.map(d => d.school).filter(Boolean))];
-  const faculties = [...new Set(docs.map(d => d.faculty).filter(Boolean))];
-  const majors = [...new Set(docs.map(d => d.major).filter(Boolean))];
-  const courses = [...new Set(docs.map(d => d.course).filter(Boolean))];
-  const classes = [...new Set(docs.map(d => d.className).filter(Boolean))];
-
-  fillSelect('filter-school', schools, 'Tất cả Trường');
-  fillSelect('filter-faculty', faculties, 'Tất cả Khoa');
-  fillSelect('filter-major', majors, 'Tất cả Ngành');
-  fillSelect('filter-course', courses, 'Tất cả Khóa');
-  fillSelect('filter-class', classes, 'Tất cả Lớp');
-}
-
-function fillSelect(elementId, list, defaultLabel) {
-  const el = document.getElementById(elementId);
-  if (!el) return;
-  el.innerHTML = `<option value="">${defaultLabel}</option>` + list.map(item => `<option value="${item}">${item}</option>`).join('');
-}
-
-function handleFilterChange() {
-  const school = document.getElementById('filter-school').value;
-  const faculty = document.getElementById('filter-faculty').value;
-  const major = document.getElementById('filter-major').value;
-  const course = document.getElementById('filter-course').value;
-  const className = document.getElementById('filter-class').value;
-
-  const filtered = documentsData.filter(d => {
-    return (!school || d.school === school) &&
-           (!faculty || d.faculty === faculty) &&
-           (!major || d.major === major) &&
-           (!course || d.course === course) &&
-           (!className || d.className === className);
-  });
-
-  renderDocuments(filtered);
-}
-
-function handleSearch() {
-  const query = document.getElementById('search-input').value.toLowerCase();
-  const type = document.getElementById('search-type').value;
-
-  const filtered = documentsData.filter(d => {
-    const matchText = d.title.toLowerCase().includes(query) ||
-                      (d.category && d.category.toLowerCase().includes(query)) ||
-                      (d.subject && d.subject.toLowerCase().includes(query)) ||
-                      (d.author && d.author.toLowerCase().includes(query));
-    const matchType = (type === 'all') || (d.type === type);
-    return matchText && matchType;
-  });
-
-  renderDocuments(filtered);
-}
-
-function filterByCategory(cat) {
-  const filtered = documentsData.filter(d => d.category === cat);
-  renderDocuments(filtered);
-}
-
-function filterByGroup(key, value) {
-  const filtered = documentsData.filter(d => d[key] === value);
-  renderDocuments(filtered);
-}
-
-function resetFilters(e) {
-  if (e) e.preventDefault();
-  document.getElementById('search-input').value = '';
-  document.getElementById('search-type').value = 'all';
-  document.getElementById('filter-school').value = '';
-  document.getElementById('filter-faculty').value = '';
-  document.getElementById('filter-major').value = '';
-  document.getElementById('filter-course').value = '';
-  document.getElementById('filter-class').value = '';
-  renderDocuments(documentsData);
-}
-
-function resetHomePage() { resetFilters(); }
-
-function handleSortChange() {
-  const sortType = document.getElementById('sort-select').value;
-  let sorted = [...documentsData];
-
-  if (sortType === 'downloads') {
-    sorted.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
-  } else if (sortType === 'views') {
-    sorted.sort((a, b) => (b.views || 0) - (a.views || 0));
-  } else {
-    sorted.sort((a, b) => String(b.id).localeCompare(String(a.id)));
-  }
-
-  renderDocuments(sorted);
 }
 
 /* ==================== TẢI VỀ, XEM, YÊU THÍCH ==================== */
