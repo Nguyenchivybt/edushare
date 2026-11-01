@@ -15,8 +15,9 @@
 </head>
 <body>
 
-  <!-- Navbar Cấp Cao: Tích hợp Thanh Tìm Kiếm & Nút Tải Lên bên trái User -->
+  <!-- Navbar Cấp Cao -->
   <header class="navbar">
+    <!-- 1. Logo Bên Trái -->
     <div class="logo-group" onclick="resetHomePage()" style="cursor:pointer;">
       <div class="logo-icon">🎓</div>
       <div>
@@ -25,11 +26,14 @@
       </div>
     </div>
 
-    <!-- Hàng Menu Điều Hướng kèm Thanh Tìm Kiếm Cấp Cao -->
-    <nav class="nav-links">
+    <!-- Nút Mở Menu Trên Mobile -->
+    <button class="mobile-toggle-btn" onclick="toggleMobileNav()">☰ Menu</button>
+
+    <!-- 2. Cụm Điều Hướng & Tìm Kiếm Ở Giữa -->
+    <nav class="nav-links" id="main-nav-links">
       <a href="#" onclick="resetHomePage()" class="active">🏠 Trang Chủ</a>
 
-      <!-- Thanh Tìm Kiếm Tích Hợp Trên Navbar Cùng Hàng -->
+      <!-- Thanh Tìm Kiếm Tích Hợp Trên Navbar -->
       <div class="nav-search-group">
         <input type="text" id="search-input" placeholder="Tìm kiếm giáo trình, bài giảng, đề thi...">
         <select id="search-type">
@@ -56,17 +60,17 @@
         </div>
       </div>
 
-      <!-- MENU SỔ DOWN 2: CẤU TRÚC ĐƠN VỊ ĐÀO TẠO -->
+      <!-- MENU SỔ DOWN 2: ĐƠN VỊ ĐÀO TẠO (ĐÃ FIX LỖI BỊ CHE TRÊN PC/MOBILE) -->
       <div class="dropdown mega-dropdown">
         <a href="javascript:void(0)" class="dropdown-btn">🏛️ Đơn Vị Đào Tạo ▼</a>
         <div class="dropdown-content mega-content">
           <div class="submenu-container">
             <div class="submenu-sidebar">
-              <div class="submenu-item active" onmouseover="showSubmenuTab('tab-truong', this)">🏛️ 1. Khối Trường</div>
-              <div class="submenu-item" onmouseover="showSubmenuTab('tab-khoa', this)">🏢 2. Khối Khoa</div>
-              <div class="submenu-item" onmouseover="showSubmenuTab('tab-nganh', this)">💾 3. Khối Ngành</div>
-              <div class="submenu-item" onmouseover="showSubmenuTab('tab-khoa-hoc', this)">📦 4. Khối Khóa Học</div>
-              <div class="submenu-item" onmouseover="showSubmenuTab('tab-lop', this)">👥 5. Khối Lớp Học</div>
+              <div class="submenu-item active" onclick="showSubmenuTab('tab-truong', this)" onmouseover="showSubmenuTab('tab-truong', this)">🏛️ 1. Khối Trường</div>
+              <div class="submenu-item" onclick="showSubmenuTab('tab-khoa', this)" onmouseover="showSubmenuTab('tab-khoa', this)">🏢 2. Khối Khoa</div>
+              <div class="submenu-item" onclick="showSubmenuTab('tab-nganh', this)" onmouseover="showSubmenuTab('tab-nganh', this)">💾 3. Khối Ngành</div>
+              <div class="submenu-item" onclick="showSubmenuTab('tab-khoa-hoc', this)" onmouseover="showSubmenuTab('tab-khoa-hoc', this)">📦 4. Khối Khóa Học</div>
+              <div class="submenu-item" onclick="showSubmenuTab('tab-lop', this)" onmouseover="showSubmenuTab('tab-lop', this)">👥 5. Khối Lớp Học</div>
             </div>
 
             <div class="submenu-body">
@@ -101,21 +105,20 @@
       <a href="#articles-section">📰 Bài Báo</a>
     </nav>
 
-    <!-- Góc Phải Navbar: Nút Tải Lên Bên Trái Tài Khoản Người Dùng -->
+    <!-- 3. Cụm Tải Lên & Tài Khoản Bên Phải Cùng (ĐÃ DỜI SANG PHẢI NGOÀI CÙNG) -->
     <div class="right-nav-group">
       <button onclick="openUploadCheck()" class="btn-upload-nav">+ Tải Lên Tài Liệu</button>
       <div id="auth-buttons-container" class="auth-buttons"></div>
     </div>
   </header>
 
-  <!-- Hero Section Trang Chủ: Đồ Họa Giáo Dục Học Thuật & Slogan Ấn Tượng -->
+  <!-- Hero Section Trang Chủ -->
   <section class="hero-section">
     <div class="hero-container">
       <div class="hero-text-box">
         <span class="hero-badge">🎓 TRI THỨC MỞ - KẾT NỐI TƯƠNG LAI</span>
         <h1>Kho Học Liệu Giáo Dục & Nghiên Cứu Mở</h1>
         
-        <!-- Slogan Giáo Dục -->
         <div class="hero-slogans">
           <div class="slogan-tag primary-slogan">✨ "Tiếp nối tri thức - Vững bước tương lai!"</div>
           <div class="slogan-tag secondary-slogan">📖 "Học đi đôi với Hành"</div>
@@ -124,7 +127,6 @@
         <p class="hero-description">Nền tảng lưu trữ, tra cứu và chia sẻ giáo trình, bài giảng, bài tập mẫu, đề thi & công trình nghiên cứu khoa học mở dành cho Giảng viên và Sinh viên.</p>
       </div>
 
-      <!-- Hình Ảnh Minh Họa Giáo Dục Học Thuật Số Độc Đáo -->
       <div class="hero-image-box">
         <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80" alt="Học Thuật Giáo Dục" class="hero-img">
         <div class="hero-img-overlay">
@@ -166,7 +168,7 @@
           <h2>📚 Danh Sách Tài Liệu Học Tập & Bài Thi</h2>
           <p class="sub-text" id="doc-count-text">Đang hiển thị tất cả tài liệu khả dụng</p>
         </div>
-        <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
           <button onclick="exportStatsToExcel()" style="background:#15803d; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:12px;">📊 Xuất Excel Thống Kê</button>
           <div class="sort-group">
             <label>Sắp xếp:</label>

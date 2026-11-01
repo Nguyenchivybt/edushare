@@ -11,7 +11,14 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDocumentsFromServer();
 });
 
-/* ==================== XỬ LÝ MEGA DROPDOWN MENU ==================== */
+/* ==================== XỬ LÝ MENU MOBILE & MEGA DROPDOWN ==================== */
+
+function toggleMobileNav() {
+  const navLinks = document.getElementById('main-nav-links');
+  if (navLinks) {
+    navLinks.classList.toggle('show-mobile');
+  }
+}
 
 function showSubmenuTab(tabId, element) {
   document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
