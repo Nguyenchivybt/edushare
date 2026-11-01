@@ -170,18 +170,18 @@
   <div id="ai-chatbot-window" class="chatbot-window">
     <div class="chatbot-header">
       <div>
-        <strong>🤖 Trợ Lý AI EduShare (Gemini Mode)</strong>
-        <p style="font-size:11px; color:#93c5fd; margin:0;">Tra cứu EduShare & Giải đáp câu hỏi ngoài</p>
+        <strong>🤖 Trợ Lý AI EduShare (Maximum AI)</strong>
+        <p style="font-size:11px; color:#93c5fd; margin:0;">Giải đáp trực tiếp & Tra cứu học liệu chuẩn xác</p>
       </div>
       <button class="modal-close-icon" onclick="toggleChatbot()">&times;</button>
     </div>
     <div id="chatbot-messages" class="chatbot-messages">
       <div class="chat-msg bot-msg">
-        👋 Xin chào! Tôi là Trợ lý AI Thông Minh EduShare. Bạn có thể hỏi về tài liệu trong hệ thống hoặc bất kỳ câu hỏi kiến thức ngoài nào!
+        👋 Xin chào! Tôi là Trợ lý AI EduShare. Nhập tên khái niệm hoặc tài liệu cần tìm, tôi sẽ trả lời trực tiếp ngay cho bạn!
       </div>
     </div>
     <div class="chatbot-input-box">
-      <input type="text" id="chatbot-input" placeholder="Hỏi tài liệu hoặc thắc mắc học tập..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+      <input type="text" id="chatbot-input" placeholder="Nhập khái niệm hoặc câu hỏi..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
       <button onclick="sendChatMessage()" class="btn-blue" style="width:auto; padding:8px 14px;">Gửi</button>
     </div>
   </div>
@@ -268,8 +268,32 @@
       <form id="login-form" style="padding:20px;">
         <div class="input-group"><label>Tên đăng nhập / Email / SĐT (*):</label><input type="text" id="login-username" required placeholder="Nhập tài khoản"></div>
         <div class="input-group" style="margin-top:10px;"><label>Mật khẩu (*):</label><input type="password" id="login-password" required placeholder="Nhập mật khẩu"></div>
-        <button type="submit" class="btn-submit btn-blue" style="margin-top:15px;">Đăng Nhập Ngay</button>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px;">
+          <a href="#" onclick="switchModal('login-modal', 'forgot-modal')" style="color:#2563eb; font-weight:600; text-decoration:none;">🔑 Quên mật khẩu?</a>
+          <a href="#" onclick="switchModal('login-modal', 'register-modal')" style="color:#16a34a; font-weight:600; text-decoration:none;">📝 Chưa có tài khoản? Đăng ký ngay</a>
+        </div>
+
+        <button type="submit" class="btn-submit btn-blue" style="margin-top:16px;">Đăng Nhập Ngay</button>
         <button type="button" onclick="closeModal('login-modal')" class="btn-cancel" style="margin-top:8px;">Hủy Bỏ</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL QUÊN MẬT KHẨU -->
+  <div id="forgot-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header" style="background:#ea580c;">
+        <div class="modal-title">🔑 Khôi Phục Mật Khẩu</div>
+        <button class="modal-close-icon" onclick="closeModal('forgot-modal')">&times;</button>
+      </div>
+      <form id="forgot-form" style="padding:20px;" onsubmit="handleForgotPassword(event)">
+        <p style="font-size:13px; color:#475569; margin-bottom:12px;">Nhập Tên đăng nhập hoặc Email/SĐT đã đăng ký để đặt lại mật khẩu mới:</p>
+        <div class="input-group"><label>Tên đăng nhập hoặc Email/SĐT (*):</label><input type="text" id="forgot-account" required placeholder="Nhập tài khoản hoặc Email"></div>
+        <div class="input-group" style="margin-top:10px;"><label>Mật khẩu mới (*):</label><input type="password" id="forgot-newpass" required placeholder="Nhập mật khẩu mới"></div>
+        
+        <button type="submit" class="btn-submit btn-blue" style="margin-top:16px; background:#ea580c;">Xác Nhận Đặt Lại Mật Khẩu</button>
+        <button type="button" onclick="switchModal('forgot-modal', 'login-modal')" class="btn-cancel" style="margin-top:8px;">Quay lại Đăng Nhập</button>
       </form>
     </div>
   </div>
@@ -294,7 +318,12 @@
           <div class="input-group"><label>Tên đăng nhập (*):</label><input type="text" id="reg-username" required></div>
           <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="reg-password" required></div>
         </div>
-        <button type="submit" class="btn-submit btn-green" style="margin-top:15px;">Tạo Tài Khoản Mới</button>
+
+        <div style="text-align:right; margin-top:10px; font-size:12px;">
+          <a href="#" onclick="switchModal('register-modal', 'login-modal')" style="color:#2563eb; font-weight:600; text-decoration:none;">🔑 Đã có tài khoản? Đăng nhập tại đây</a>
+        </div>
+
+        <button type="submit" class="btn-submit btn-green" style="margin-top:12px;">Tạo Tài Khoản Mới</button>
         <button type="button" onclick="closeModal('register-modal')" class="btn-cancel" style="margin-top:8px;">Hủy Bỏ</button>
       </form>
     </div>

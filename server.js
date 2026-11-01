@@ -29,7 +29,7 @@ const upload = multer({ storage });
 
 // MOCK DATA BAN ĐẦU
 let users = [
-  { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: '123', role: 'admin', status: 'approved', emailPhone: 'vy@edushare.edu.vn' },
+  { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: '123', role: 'admin', status: 'approved', emailPhone: 'nguyenchivytails@gmail.com' },
   { id: '2', fullname: 'Sinh Viên Mẫu', username: 'student', password: '123', role: 'student', status: 'approved', emailPhone: 'student@edushare.edu.vn' }
 ];
 
@@ -74,7 +74,19 @@ let documents = [
 
 let comments = {};
 
-/* ==================== API AI CHATBOT THÔNG MINH BẬC CAO ==================== */
+// BỘ TỪ ĐIỂN TỔNG HỢP KIẾN THỨC MÔN HỌC ĐẠI HỌC (TRẢ LỜI ĐÚNG TRỌNG TÂM 100%)
+const academicDictionary = {
+  "triết học": "📌 **Triết học** là hệ thống tri thức lý luận chung nhất của con người về thế giới, về vị trí và vai trò của con người trong thế giới đó. Triết học nghiên cứu các quy luật vận động, phát triển chung nhất của tự nhiên, xã hội và tư duy.",
+  "triết học mác - lê nin": "📌 **Triết học Mác - Lênin** là hệ thống quan điểm duy vật phiến diện và biện chứng về tự nhiên, xã hội và tư duy, do C.Mác và Ph.Ăngghen sáng lập, được V.I.Lênin phát triển.",
+  "cấu trúc dữ liệu": "💻 **Cấu trúc dữ liệu** là cách tổ chức, lưu trữ và quản lý dữ liệu trong máy tính sao cho có thể truy xuất và thao tác hiệu quả nhất (Ví dụ: Mảng, Danh sách liên kết, Ngăn xếp Stack, Hàng đợi Queue, Cây Tree, Đồ thị Graph).",
+  "cơ sở dữ liệu": "🗄️ **Cơ sở dữ liệu (Database)** là một tập hợp các dữ liệu có liên quan logic với nhau, được lưu trữ trên các thiết bị nhớ để đáp ứng nhu cầu khai thác thông tin của nhiều người dùng.",
+  "sql": "🗄️ **SQL (Structured Query Language)** là ngôn ngữ chuẩn dùng để truy vấn, cập nhật, tạo và quản lý các hệ quản trị cơ sở dữ liệu quan hệ như SQL Server, MySQL, PostgreSQL, Oracle.",
+  "mạng máy tính": "🌐 **Mạng máy tính** là tập hợp các máy tính độc lập được kết nối với nhau thông qua các phương tiện truyền dẫn (dây cáp, sóng wifi) để chia sẻ tài nguyên và dữ liệu.",
+  "kỹ thuật phần mềm": "⚙️ **Kỹ thuật phần mềm (Software Engineering)** là ngành học ứng dụng tiếp cận có hệ thống, có kỷ luật và định lượng vào việc phát triển, vận hành và bảo trì phần mềm.",
+  "lập trình hướng đối tượng": "🧩 **Lập trình hướng đối tượng (OOP)** là phương pháp lập trình dựa trên khái niệm 'đối tượng' (object), chứa dữ liệu (thuộc tính) và mã lệnh (phương thức). OOP có 4 tính chất chính: **Đóng gói, Kế thừa, Đa hình, Trừu tượng**."
+};
+
+/* ==================== API AI CHATBOT MAXIMUM SMART ENGINE ==================== */
 
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
@@ -85,52 +97,54 @@ app.post('/api/chatbot', async (req, res) => {
   let reply = '';
   let matchedDocs = [];
 
-  // 1. TÌM KIẾM TRONG KHO HỌC LIỆU EDUSHARE (RAG Engine)
+  // 1. TRUY VẤN TỪ ĐIỂN TỔNG HỢP KIẾN THỨC MÔN HỌC (TRẢ LỜI NGAY CÂU ĐẦU TIÊN)
+  for (let key in academicDictionary) {
+    if (query.includes(key)) {
+      reply = academicDictionary[key];
+      
+      // Bổ sung các tài liệu trong EduShare nếu có
+      matchedDocs = documents.filter(d => 
+        (d.title && d.title.toLowerCase().includes(key)) ||
+        (d.subject && d.subject.toLowerCase().includes(key))
+      );
+      if (matchedDocs.length > 0) {
+        reply += `\n\n📚 **Tài liệu sẵn có trong EduShare:**`;
+      }
+      return res.json({ reply, matchedDocs });
+    }
+  }
+
+  // 2. TÌM KIẾM TRONG KHO HỌC LIỆU EDUSHARE (RAG Engine)
   matchedDocs = documents.filter(d => 
     (d.title && d.title.toLowerCase().includes(query)) ||
     (d.subject && d.subject.toLowerCase().includes(query)) ||
     (d.category && d.category.toLowerCase().includes(query)) ||
     (d.major && d.major.toLowerCase().includes(query)) ||
-    (d.faculty && d.faculty.toLowerCase().includes(query)) ||
-    (d.author && d.author.toLowerCase().includes(query))
+    (d.faculty && d.faculty.toLowerCase().includes(query))
   );
 
   if ((query.includes('tài liệu') || query.includes('giáo trình') || query.includes('đề thi') || query.includes('bài giảng')) && matchedDocs.length > 0) {
-    reply = `📚 **Tôi tìm thấy ${matchedDocs.length} tài liệu khớp trong kho EduShare:**`;
+    reply = `📚 **Tìm thấy ${matchedDocs.length} tài liệu phù hợp trong kho EduShare:**`;
     return res.json({ reply, matchedDocs });
-  }
-
-  // 2. GIẢI ĐÁP TÍNH NĂNG EDUSHARE
-  if (query.includes('đăng ký') || query.includes('tạo tài khoản')) {
-    reply = "📝 **Hướng dẫn Đăng ký:**\n1. Nhấn **'Đăng Ký'** ở góc trên bên phải thanh Menu.\n2. Điền thông tin cá nhân và nhấn **'Tạo Tài Khoản Mới'**.";
-    return res.json({ reply });
-  }
-  if (query.includes('tải lên') || query.includes('up tài liệu')) {
-    reply = "📤 **Hướng dẫn Tải lên:**\n1. Đăng nhập tài khoản.\n2. Bấm nút **'+ Tải Lên'** màu xanh lá trên Navbar.\n3. Chọn file PDF/DOCX từ thiết bị để tải lên.";
-    return res.json({ reply });
   }
 
   // 3. THUẬT TOÁN BÓC TÁCH KHẨU NGỮ & TRUY VẤN WIKIPEDIA SEARCH ENGINE
   let cleanKeyword = query
-    .replace(/[.,?!:;""''`~]/g, '') // Bỏ toàn bộ dấu câu
+    .replace(/[.,?!:;""''`~]/g, '')
     .replace(/(khái niệm về|khái niệm|là gì|cho biết|tìm hiểu|giải thích|nghĩa là gì|định nghĩa|cho tôi hỏi|cho hỏi|thế nào là|cho tui hỏi|nói về|cho xem|cho hỏi về)/gi, '')
-    .replace(/\b(đi|nè|nha|nhé|với|ạ|ơi|á|z|vậy|giùm|hộ)\b/gi, '') // Bỏ khẩu ngữ tiếng Việt
+    .replace(/\b(đi|nè|nha|nhé|với|ạ|ơi|á|z|vậy|giùm|hộ)\b/gi, '')
     .trim();
 
   if (!cleanKeyword) cleanKeyword = query.replace(/[.,?!:;""''`~]/g, '').trim();
 
   try {
-    // BƯỚC A: Dùng Wikipedia Search API để tự tìm kết quả phù hợp nhất (Fuzzy Search)
     const searchUrl = `https://vi.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=${encodeURIComponent(cleanKeyword)}`;
     const searchRes = await fetch(searchUrl);
     const searchData = await searchRes.json();
     const searchResults = searchData?.query?.search;
 
     if (searchResults && searchResults.length > 0) {
-      // Lấy tiêu đề chuẩn nhất từ danh sách kết quả (ví dụ: "Triết học")
       const bestTitle = searchResults[0].title;
-
-      // BƯỚC B: Tải tóm tắt khái niệm từ trang tiêu đề chuẩn
       const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${encodeURIComponent(bestTitle)}`;
       const wikiRes = await fetch(wikiUrl);
       const wikiData = await wikiRes.json();
@@ -140,30 +154,23 @@ app.post('/api/chatbot', async (req, res) => {
         const pageId = Object.keys(pages)[0];
         if (pageId !== '-1' && pages[pageId].extract) {
           let extract = pages[pageId].extract.trim();
-          if (extract.length > 600) extract = extract.substring(0, 600) + '...';
+          if (extract.length > 550) extract = extract.substring(0, 550) + '...';
           
-          reply = `💡 **Khái niệm & Tri thức học thuật (${bestTitle.toUpperCase()}):**\n\n${extract}\n\n📌 *Bạn có thể tìm kiếm thêm các tài liệu, bài giảng môn này trên thanh tìm kiếm của EduShare!*`;
+          reply = `📌 **${bestTitle}** là ${extract.replace(/^[^:]*là\s*/i, '')}`;
           return res.json({ reply, matchedDocs });
         }
       }
     }
   } catch (err) {
-    console.error("Lỗi truy vấn Wikipedia Search:", err);
+    console.error("Lỗi truy vấn Search:", err);
   }
 
-  // 4. LUỒNG TRẢ LỜI DỰ PHÒNG CHO MÔN HỌC
-  if (query.includes('sql') || query.includes('cơ sở dữ liệu')) {
-    reply = "🗄️ **Cơ Sở Dữ Liệu & SQL Server:**\nCơ sở dữ liệu là tập hợp dữ liệu có cấu trúc. SQL là ngôn ngữ chuẩn để truy vấn và quản lý CSDL.\n\n👉 EduShare có sẵn **Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server 2022**!";
-  } else if (query.includes('cấu trúc dữ liệu') || query.includes('thuật toán')) {
-    reply = "💻 **Cấu Trúc Dữ Liệu & Giải Thuật:**\nLà môn học cốt lõi giúp tối ưu bộ nhớ và tốc độ chạy của phần mềm.\n\n📚 EduShare có sẵn **Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật**!";
-  } else {
-    reply = `🤖 **Trợ lý AI EduShare:**\nCảm ơn câu hỏi của bạn về chủ đề *"__${rawQuery}__"*.\n\n• **Tìm học liệu:** Nhập tên môn học hoặc mã học phần lên thanh tìm kiếm.\n• **Hỏi đáp:** Nhập tên khái niệm (Ví dụ: *Triết học*, *Mạng máy tính*, *Lập trình C*...) để AI giải thích!`;
-  }
-
+  // 4. LUỒNG TRẢ LỜI MẶC ĐỊNH
+  reply = `🤖 **EduShare AI:** Bạn có thể tra cứu thông tin khái niệm (Ví dụ: *Triết học*, *Mạng máy tính*, *Cơ sở dữ liệu*...) hoặc gõ tên môn học để tìm tài liệu, đề thi tương ứng.`;
   return res.json({ reply, matchedDocs });
 });
 
-/* ==================== API AUTH & DOCUMENT ==================== */
+/* ==================== API AUTH, REGISTER & FORGOT PASSWORD ==================== */
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
@@ -179,6 +186,17 @@ app.post('/api/register', (req, res) => {
   const newUser = { id: String(Date.now()), ...req.body, status: 'approved' };
   users.push(newUser);
   res.json({ message: 'Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay.' });
+});
+
+app.post('/api/forgot-password', (req, res) => {
+  const { account, newPassword } = req.body;
+  const user = users.find(u => u.username === account || u.emailPhone === account);
+  if (user) {
+    user.password = newPassword;
+    res.json({ message: 'Đã cập nhật mật khẩu mới thành công!' });
+  } else {
+    res.status(404).json({ message: 'Không tìm thấy tài khoản hoặc Email/SĐT này trong hệ thống!' });
+  }
 });
 
 app.get('/api/users', (req, res) => {

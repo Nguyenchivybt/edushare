@@ -85,7 +85,45 @@ function formatMarkdownText(text) {
   return str;
 }
 
-/* ==================== 2. CÀI ĐẶT GIAO DIỆN & TRẠNG THÁI ==================== */
+/* ==================== 2. QUẢN LÝ TÀI KHOẢN & KHÔI PHỤC MẬT KHẨU ==================== */
+
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  const account = document.getElementById('forgot-account').value.trim();
+  const newPassword = document.getElementById('forgot-newpass').value.trim();
+
+  if (!account || !newPassword) {
+    alert('⚠️ Vui lòng nhập đầy đủ thông tin!');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account, newPassword })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert(data.message || '🔑 Đã đặt lại mật khẩu thành công! Hãy đăng nhập ngay.');
+      closeModal('forgot-modal');
+      openModal('login-modal');
+      document.getElementById('login-username').value = account;
+    } else {
+      alert(data.message || '⚠️ Không tìm thấy tài khoản tương ứng!');
+    }
+  } catch (err) {
+    alert('Lỗi kết nối máy chủ!');
+  }
+}
+
+function switchModal(fromId, toId) {
+  closeModal(fromId);
+  openModal(toId);
+}
+
+/* ==================== 3. CÀI ĐẶT GIAO DIỆN & TRẠNG THÁI ==================== */
 
 function changeTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -124,7 +162,7 @@ function saveUserProfileInfo() {
   closeModal('settings-modal');
 }
 
-/* ==================== 3. XỬ LÝ XEM TRƯỚC TỆP WORD/PDF KHÔNG LỖI ==================== */
+/* ==================== 4. XỬ LÝ XEM TRƯỚC TỆP WORD/PDF KHÔNG LỖI ==================== */
 
 async function openDocPreviewModal(docId) {
   const doc = documentsData.find(d => String(d.id) === String(docId));
@@ -184,7 +222,7 @@ async function openDocPreviewModal(docId) {
   openModal('doc-preview-modal');
 }
 
-/* ==================== 4. TẢI DỮ LIỆU & RENDER ==================== */
+/* ==================== 5. TẢI DỮ LIỆU & RENDER ==================== */
 
 async function loadDocumentsFromServer() {
   try {
@@ -276,7 +314,7 @@ function renderDocuments(docs) {
   }).join('');
 }
 
-/* ==================== 5. BỘ LỌC PHÂN CẤP ==================== */
+/* ==================== 6. BỘ LỌC PHÂN CẤP ==================== */
 
 function populateFilterOptions(docs) {
   const selectedSchool = document.getElementById('filter-school').value;
@@ -435,7 +473,7 @@ function handleSortChange() {
   renderDocuments(sorted);
 }
 
-/* ==================== 6. BÌNH LUẬN ==================== */
+/* ==================== 7. BÌNH LUẬN ==================== */
 
 async function openDocDetailsModal(docId) {
   currentActiveDocId = docId;
@@ -564,7 +602,7 @@ async function submitComment(e) {
   }
 }
 
-/* ==================== 7. XUẤT EXCEL ==================== */
+/* ==================== 8. XUẤT EXCEL ==================== */
 
 async function exportUsersToExcel() {
   if (typeof XLSX === 'undefined') {
@@ -631,7 +669,7 @@ async function exportStatsToExcel() {
   }
 }
 
-/* ==================== 8. AUTH & TẢI TỆP ==================== */
+/* ==================== 9. AUTH & TẢI TỆP ==================== */
 
 function updateAuthUI() {
   const authContainer = document.getElementById('auth-buttons-container');
