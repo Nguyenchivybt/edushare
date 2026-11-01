@@ -110,35 +110,48 @@ app.post('/api/chatbot', async (req, res) => {
     return res.json({ reply });
   }
 
-  // 3. TRUY VẤN TRI THỨC MỞ WIKIPEDIA (Lọc sạch câu hỏi & dấu dư thừa)
+  // 3. THUẬT TOÁN BÓC TÁCH KHẨU NGỮ & TRUY VẤN WIKIPEDIA SEARCH ENGINE
   let cleanKeyword = query
     .replace(/[.,?!:;""''`~]/g, '') // Bỏ toàn bộ dấu câu
-    .replace(/(khái niệm về|khái niệm|là gì|cho biết|tìm hiểu|giải thích|nghĩa là gì|định nghĩa|cho tôi hỏi|cho hỏi|thế nào là)/gi, '')
+    .replace(/(khái niệm về|khái niệm|là gì|cho biết|tìm hiểu|giải thích|nghĩa là gì|định nghĩa|cho tôi hỏi|cho hỏi|thế nào là|cho tui hỏi|nói về|cho xem|cho hỏi về)/gi, '')
+    .replace(/\b(đi|nè|nha|nhé|với|ạ|ơi|á|z|vậy|giùm|hộ)\b/gi, '') // Bỏ khẩu ngữ tiếng Việt
     .trim();
 
   if (!cleanKeyword) cleanKeyword = query.replace(/[.,?!:;""''`~]/g, '').trim();
 
   try {
-    const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${encodeURIComponent(cleanKeyword)}`;
-    const wikiRes = await fetch(wikiUrl);
-    const wikiData = await wikiRes.json();
-    const pages = wikiData?.query?.pages;
+    // BƯỚC A: Dùng Wikipedia Search API để tự tìm kết quả phù hợp nhất (Fuzzy Search)
+    const searchUrl = `https://vi.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=${encodeURIComponent(cleanKeyword)}`;
+    const searchRes = await fetch(searchUrl);
+    const searchData = await searchRes.json();
+    const searchResults = searchData?.query?.search;
 
-    if (pages) {
-      const pageId = Object.keys(pages)[0];
-      if (pageId !== '-1' && pages[pageId].extract) {
-        let extract = pages[pageId].extract.trim();
-        if (extract.length > 600) extract = extract.substring(0, 600) + '...';
-        
-        reply = `💡 **Khái niệm & Tri thức học thuật (${cleanKeyword.toUpperCase()}):**\n\n${extract}\n\n📌 *Bạn có thể tìm kiếm thêm các tài liệu, bài giảng môn này trên thanh tìm kiếm của EduShare!*`;
-        return res.json({ reply, matchedDocs });
+    if (searchResults && searchResults.length > 0) {
+      // Lấy tiêu đề chuẩn nhất từ danh sách kết quả (ví dụ: "Triết học")
+      const bestTitle = searchResults[0].title;
+
+      // BƯỚC B: Tải tóm tắt khái niệm từ trang tiêu đề chuẩn
+      const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${encodeURIComponent(bestTitle)}`;
+      const wikiRes = await fetch(wikiUrl);
+      const wikiData = await wikiRes.json();
+      const pages = wikiData?.query?.pages;
+
+      if (pages) {
+        const pageId = Object.keys(pages)[0];
+        if (pageId !== '-1' && pages[pageId].extract) {
+          let extract = pages[pageId].extract.trim();
+          if (extract.length > 600) extract = extract.substring(0, 600) + '...';
+          
+          reply = `💡 **Khái niệm & Tri thức học thuật (${bestTitle.toUpperCase()}):**\n\n${extract}\n\n📌 *Bạn có thể tìm kiếm thêm các tài liệu, bài giảng môn này trên thanh tìm kiếm của EduShare!*`;
+          return res.json({ reply, matchedDocs });
+        }
       }
     }
   } catch (err) {
-    console.error("Lỗi truy vấn Wikipedia:", err);
+    console.error("Lỗi truy vấn Wikipedia Search:", err);
   }
 
-  // 4. LUỒNG TRẢ LỜI MẶC ĐỊNH CHO CÁC MÔN HỌC
+  // 4. LUỒNG TRẢ LỜI DỰ PHÒNG CHO MÔN HỌC
   if (query.includes('sql') || query.includes('cơ sở dữ liệu')) {
     reply = "🗄️ **Cơ Sở Dữ Liệu & SQL Server:**\nCơ sở dữ liệu là tập hợp dữ liệu có cấu trúc. SQL là ngôn ngữ chuẩn để truy vấn và quản lý CSDL.\n\n👉 EduShare có sẵn **Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server 2022**!";
   } else if (query.includes('cấu trúc dữ liệu') || query.includes('thuật toán')) {
