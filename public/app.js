@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   applySavedTheme();
 });
 
-/* ==================== 1. CHATBOT AI THÔNG MINH ==================== */
+/* ==================== 1. HỆ THỐNG CHATBOT AI BẬC CAO ==================== */
 
 function toggleChatbot() {
   const win = document.getElementById('ai-chatbot-window');
@@ -19,7 +19,7 @@ function toggleChatbot() {
   }
 }
 
-function sendChatMessage() {
+async function sendChatMessage() {
   const input = document.getElementById('chatbot-input');
   if (!input) return;
   const text = input.value.trim();
@@ -29,23 +29,53 @@ function sendChatMessage() {
   msgBox.innerHTML += `<div class="chat-msg user-msg">${escapeHtml(text)}</div>`;
   input.value = '';
 
-  setTimeout(() => {
-    let reply = "Tôi có thể giúp bạn tra cứu giáo trình, slide bài giảng hoặc đề thi. Bạn đang cần tìm học liệu cho môn học nào?";
-    const lower = text.toLowerCase();
+  const typingId = 'typing-' + Date.now();
+  msgBox.innerHTML += `<div class="chat-msg bot-msg" id="${typingId}">🤖 <em>AI đang suy nghĩ và tổng hợp dữ liệu...</em></div>`;
+  msgBox.scrollTop = msgBox.scrollHeight;
 
-    if (lower.includes('thi') || lower.includes('đề thi')) {
-      reply = "🎯 Để tìm đề thi các năm, bạn chọn danh mục '🎯 Đề Thi & Ngân Hàng Câu Hỏi' trên Menu hoặc chọn lọc theo Môn/Lớp nhé!";
-    } else if (lower.includes('đăng ký') || lower.includes('tài khoản')) {
-      reply = "📝 Bạn chỉ cần bấm vào nút 'Đăng Ký' ở góc trên bên phải màn hình để tạo tài khoản Sinh viên/Giảng viên mới.";
-    } else if (lower.includes('word') || lower.includes('docx') || lower.includes('lỗi')) {
-      reply = "📄 Hệ thống đã hỗ trợ trình xem trước tệp Word (DOCX) mượt mà, tự động co giãn 100% phù hợp cả điện thoại và máy tính.";
-    } else if (lower.includes('sách') || lower.includes('giáo trình')) {
-      reply = "📚 Bạn có thể chọn mục '📚 Tài Liệu Học Tập' trên Thanh menu chính để xem danh sách giáo trình mới nhất.";
+  try {
+    const res = await fetch('/api/chatbot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await res.json();
+    const typingElem = document.getElementById(typingId);
+
+    let formattedReply = formatMarkdownText(data.reply);
+
+    let docCardsHtml = '';
+    if (data.matchedDocs && data.matchedDocs.length > 0) {
+      docCardsHtml = data.matchedDocs.slice(0, 3).map(d => `
+        <div class="chat-doc-card">
+          <h4>📄 ${escapeHtml(d.title)}</h4>
+          <p>📌 <strong>Môn:</strong> ${escapeHtml(d.subject || 'Tổng hợp')} | <strong>Định dạng:</strong> ${d.type}</p>
+          <button onclick="openDocPreviewModal('${d.id}')" style="background:#2563eb; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold; margin-top:4px;">👁️ Xem ngay</button>
+        </div>
+      `).join('');
     }
 
-    msgBox.innerHTML += `<div class="chat-msg bot-msg">🤖 ${reply}</div>`;
-    msgBox.scrollTop = msgBox.scrollHeight;
-  }, 500);
+    if (typingElem) {
+      typingElem.innerHTML = `🤖 ${formattedReply} ${docCardsHtml}`;
+    }
+  } catch (err) {
+    const typingElem = document.getElementById(typingId);
+    if (typingElem) {
+      typingElem.innerHTML = `🤖 Rất tiếc, đã có lỗi kết nối mạng! Vui lòng thử lại sau ít phút.`;
+    }
+  }
+
+  msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+function formatMarkdownText(text) {
+  if (!text) return '';
+  let str = escapeHtml(text);
+  str = str.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  str = str.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  str = str.replace(/\n/g, '<br>');
+  return str;
 }
 
 /* ==================== 2. CÀI ĐẶT GIAO DIỆN & TRẠNG THÁI ==================== */

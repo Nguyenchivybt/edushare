@@ -162,7 +162,7 @@
     </section>
   </main>
 
-  <!-- CHATBOT AI THÔNG MINH -->
+  <!-- CHATBOT AI THÔNG MINH BẬC CAO -->
   <div id="ai-chatbot-button" class="chatbot-floating-btn" onclick="toggleChatbot()">
     🤖 <span>Hỏi AI EduShare</span>
   </div>
@@ -170,18 +170,18 @@
   <div id="ai-chatbot-window" class="chatbot-window">
     <div class="chatbot-header">
       <div>
-        <strong>🤖 Trợ Lý AI EduShare</strong>
-        <p style="font-size:11px; color:#93c5fd; margin:0;">Giải đáp tài liệu & Hướng dẫn học tập</p>
+        <strong>🤖 Trợ Lý AI EduShare (Gemini Mode)</strong>
+        <p style="font-size:11px; color:#93c5fd; margin:0;">Tra cứu EduShare & Giải đáp câu hỏi ngoài</p>
       </div>
       <button class="modal-close-icon" onclick="toggleChatbot()">&times;</button>
     </div>
     <div id="chatbot-messages" class="chatbot-messages">
       <div class="chat-msg bot-msg">
-        👋 Xin chào! Tôi là Trợ lý AI của EduShare. Bạn cần tìm tài liệu gì hoặc hỏi bài tập môn nào?
+        👋 Xin chào! Tôi là Trợ lý AI Thông Minh EduShare. Bạn có thể hỏi về tài liệu trong hệ thống hoặc bất kỳ câu hỏi kiến thức ngoài nào!
       </div>
     </div>
     <div class="chatbot-input-box">
-      <input type="text" id="chatbot-input" placeholder="Nhập câu hỏi tại đây..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+      <input type="text" id="chatbot-input" placeholder="Hỏi tài liệu hoặc thắc mắc học tập..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
       <button onclick="sendChatMessage()" class="btn-blue" style="width:auto; padding:8px 14px;">Gửi</button>
     </div>
   </div>

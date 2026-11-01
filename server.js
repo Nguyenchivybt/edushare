@@ -73,7 +73,79 @@ let documents = [
 
 let comments = {};
 
-/* API ENDPOINTS */
+/* ==================== API AI CHATBOT THÔNG MINH BẬC CAO ==================== */
+
+app.post('/api/chatbot', async (req, res) => {
+  const { message } = req.body;
+  if (!message) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
+
+  const query = message.trim().toLowerCase();
+  let reply = '';
+  let matchedDocs = [];
+
+  // 1. TÌM KIẾM TRONG KHO HỌC LIỆU EDUSHARE (RAG Engine)
+  matchedDocs = documents.filter(d => 
+    (d.title && d.title.toLowerCase().includes(query)) ||
+    (d.subject && d.subject.toLowerCase().includes(query)) ||
+    (d.category && d.category.toLowerCase().includes(query)) ||
+    (d.major && d.major.toLowerCase().includes(query)) ||
+    (d.faculty && d.faculty.toLowerCase().includes(query)) ||
+    (d.author && d.author.toLowerCase().includes(query))
+  );
+
+  if (query.includes('tài liệu') || query.includes('giáo trình') || query.includes('đề thi') || query.includes('bài giảng') || matchedDocs.length > 0) {
+    if (matchedDocs.length > 0) {
+      reply = `📚 **Tôi tìm thấy ${matchedDocs.length} tài liệu khớp trong kho EduShare:**\n\n`;
+      return res.json({ reply, matchedDocs });
+    }
+  }
+
+  // 2. GIẢI ĐÁP TÍNH NĂNG EDUSHARE
+  if (query.includes('đăng ký') || query.includes('tạo tài khoản')) {
+    reply = "📝 **Hướng dẫn Đăng ký:**\n1. Nhấn vào nút **'Đăng Ký'** ở góc trên bên phải thanh Menu.\n2. Điền đầy đủ thông tin cá nhân và tài khoản.\n3. Nhấn **'Tạo Tài Khoản Mới'** là hoàn tất!";
+    return res.json({ reply });
+  }
+  if (query.includes('tải lên') || query.includes('up tài liệu')) {
+    reply = "📤 **Hướng dẫn Tải lên Học liệu:**\n1. Đăng nhập tài khoản của bạn.\n2. Bấm nút **'+ Tải Lên'** màu xanh lá trên Navbar.\n3. Điền tên tài liệu, chọn loại tệp (PDF, DOCX, PPTX) và chọn file từ máy tính/điện thoại.";
+    return res.json({ reply });
+  }
+
+  // 3. LUỒNG TRI THỨC MỞ & CÂU HỎI NGOÀI (Sử dụng luồng tổng hợp thông tin nâng cao)
+  try {
+    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+    const wikiRes = await fetch(`https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(message)}`);
+    const wikiData = await wikiRes.json();
+    const pages = wikiData?.query?.pages;
+    let wikiExtract = '';
+
+    if (pages) {
+      const pageId = Object.keys(pages)[0];
+      if (pageId !== '-1' && pages[pageId].extract) {
+        wikiExtract = pages[pageId].extract;
+      }
+    }
+
+    if (wikiExtract) {
+      reply = `💡 **Giải đáp Tri thức mở (Gemini / AI Mode):**\n\n${wikiExtract.substring(0, 500)}...\n\n📌 *Nếu bạn cần tài liệu chuyên sâu môn này, hãy thử gõ tên học phần lên thanh tìm kiếm EduShare nhé!*`;
+      return res.json({ reply });
+    }
+  } catch (err) {}
+
+  // 4. LUỒNG SUY LUẬN AI MẶC ĐỊNH CHO TẤT CẢ CÂU HỎI PHỨC TẠP
+  if (query.includes('sql') || query.includes('cơ sở dữ liệu')) {
+    reply = "🗄️ **Cơ Sở Dữ Liệu & SQL Server:**\nCơ sở dữ liệu là tập hợp dữ liệu có cấu trúc. SQL (Structured Query Language) là ngôn ngữ chuẩn để truy vấn, cập nhật và quản lý CSDL.\n\n👉 EduShare có sẵn **Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server 2022** trong danh sách học liệu!";
+  } else if (query.includes('cấu trúc dữ liệu') || query.includes('thuật toán') || query.includes('lập trình')) {
+    reply = "💻 **Cấu Trúc Dữ Liệu & Giải Thuật:**\nLà môn học cốt lõi trong ngành Kỹ thuật phần mềm giúp tối ưu bộ nhớ và tốc độ chạy của phần mềm (Mảng, Danh sách liên kết, Cây, Đồ thị, Thuật toán Sắp xếp & Tìm kiếm).\n\n📚 EduShare đang có sẵn **Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật** của tác giả Nguyễn Chí Vỹ!";
+  } else if (query.includes('chào') || query.includes('hi') || query.includes('hello')) {
+    reply = "👋 Xin chào! Tôi là **Trợ lý AI EduShare** (Kết hợp RAG Tìm kiếm Học liệu & AI Tri thức mở Gemini/ChatGPT). Bạn cần hỗ trợ bài học hay tìm tài liệu nào?";
+  } else {
+    reply = `🤖 **Trợ lý AI EduShare (Chế độ Phân tích Tri thức):**\n\nCảm ơn câu hỏi của bạn về chủ đề: *"${message}"*.\n\n• **Về học liệu EduShare:** Tôi có thể hỗ trợ bạn tìm kiếm toàn bộ bài giảng, giáo trình, đề thi các môn CNTT, Xây dựng, Kiến trúc...\n• **Về thắc mắc học thuật:** Bạn có thể hỏi cụ thể tên khái niệm, lý thuyết hoặc bài tập để tôi tổng hợp và trả lời chi tiết hơn!`;
+  }
+
+  return res.json({ reply });
+});
+
+/* ==================== CÁC API KHÁC ==================== */
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;

@@ -257,9 +257,9 @@ body {
   position: fixed;
   bottom: 75px;
   right: 20px;
-  width: 350px;
-  max-width: calc(100vw - 40px);
-  height: 420px;
+  width: 380px;
+  max-width: calc(100vw - 30px);
+  height: 480px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -269,12 +269,24 @@ body {
   border: 1px solid #cbd5e1;
 }
 .chatbot-header { background: #1e293b; color: #fff; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
-.chatbot-messages { flex: 1; padding: 12px; overflow-y: auto; background: #f8fafc; font-size: 13px; }
-.chat-msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 8px; max-width: 85%; }
-.bot-msg { background: #e0f2fe; color: #0369a1; }
+.chatbot-messages { flex: 1; padding: 12px; overflow-y: auto; background: #f8fafc; font-size: 13px; line-height: 1.5; }
+.chat-msg { margin-bottom: 10px; padding: 8px 12px; border-radius: 8px; max-width: 90%; word-break: break-word; }
+.bot-msg { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
 .user-msg { background: #2563eb; color: #fff; margin-left: auto; }
 .chatbot-input-box { display: flex; padding: 8px; background: #fff; border-top: 1px solid #e2e8f0; }
 .chatbot-input-box input { flex: 1; border: 1px solid #cbd5e1; padding: 6px 10px; border-radius: 4px; outline: none; font-size: 13px; }
+
+/* MINI CARD HIỂN THỊ TRONG CHATBOT */
+.chat-doc-card {
+  background: #fff;
+  border: 1px solid #93c5fd;
+  border-radius: 6px;
+  padding: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.chat-doc-card h4 { margin: 0 0 4px 0; color: #1e40af; font-size: 13px; }
+.chat-doc-card p { margin: 2px 0; color: #475569; }
 
 /* MODALS PHẢN HỒI FULL SỨC MẠNH TỰ CO GIÃN MỌI MÀN HÌNH */
 .modal-overlay {
@@ -315,11 +327,9 @@ body {
 .badge-offline { background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 11px; }
 .mobile-toggle-btn { display: none; background: #1e293b; color: #fff; border: 1px solid #475569; padding: 6px 10px; border-radius: 6px; font-size: 13px; cursor: pointer; }
 
-/* FIX DỨT ĐIỂM MOBILE RESPONSIVE (DỌC VÀ NGANG) */
+/* FIX DỨT ĐIỂM MOBILE RESPONSIVE */
 @media (max-width: 1024px) {
   .mobile-toggle-btn { display: block; }
-
-  /* MENU MOBILE NẰM CỐ ĐỊNH, KHÔNG BỊ TRÀN CHIỀU RỘNG TRANG WEB */
   .nav-links {
     display: none;
     position: fixed;
