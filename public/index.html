@@ -12,7 +12,7 @@
 </head>
 <body>
 
-  <!-- NAVBAR CẤP CAO -->
+  <!-- NAVBAR CẤP CAO HOẠT ẢNH MƯỢT MÀ -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()">
       <div class="logo-icon">🎓</div>
@@ -65,24 +65,26 @@
 
       <a href="#articles-section" class="nav-item">📰 Bài Báo</a>
 
-      <!-- KHU VỰC TÀI KHOẢN DÀNH RIÊNG CHO ĐIỆN THOẠI TRONG MENU HAMBURGER -->
+      <!-- MENU TÀI KHOẢN DI ĐỘNG -->
       <div id="mobile-auth-container" class="mobile-auth-box"></div>
 
       <div class="nav-search-group">
         <input type="text" id="search-input" placeholder="Tìm giáo trình, đề thi...">
         <select id="search-type">
-          <option value="all">Tất cả</option>
+          <option value="all">Tất cả định dạng</option>
           <option value="PDF">PDF</option>
-          <option value="DOCX">Word</option>
+          <option value="DOCX">Word (DOCX)</option>
           <option value="PPTX">PowerPoint</option>
-          <option value="Video">Video</option>
+          <option value="ZIP/RAR">File nén ZIP/RAR</option>
+          <option value="AUDIO">Âm thanh MP3</option>
+          <option value="VIDEO">Video MP4</option>
         </select>
         <button onclick="handleSearch()" class="btn-nav-search">🔍 Tìm</button>
       </div>
     </nav>
 
     <div class="right-nav-group">
-      <button onclick="openUploadCheck()" class="btn-upload-nav">+ Tải Lên</button>
+      <button onclick="openUploadCheck()" class="btn-upload-nav">+ Tải Lên Đa Tệp</button>
       <button onclick="openModal('settings-modal')" class="btn-settings-nav" title="Cài đặt hệ thống">⚙️ Cài Đặt</button>
       <div id="auth-buttons-container" class="auth-buttons"></div>
     </div>
@@ -159,7 +161,7 @@
     </section>
   </main>
 
-  <!-- CHATBOT AI -->
+  <!-- CHATBOT AI MAXIMUM -->
   <div id="ai-chatbot-button" class="chatbot-floating-btn" onclick="toggleChatbot()">
     🤖 <span>Hỏi AI EduShare</span>
   </div>
@@ -221,7 +223,7 @@
     </div>
   </div>
 
-  <!-- MODAL XEM TRƯỚC TÀI LIỆU -->
+  <!-- MODAL XEM TRƯỚC TÀI LIỆU CẢI TIẾN TRÌNH PHÁT ĐA PHƯƠNG TIỆN -->
   <div id="doc-preview-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header" style="background:#0369a1;">
@@ -358,24 +360,16 @@
     </div>
   </div>
 
-  <!-- MODAL TẢI LÊN -->
+  <!-- MODAL TẢI LÊN ĐA TỆP -->
   <div id="upload-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">
-        <div class="modal-title">📤 Tải Lên Học Liệu Mới</div>
+        <div class="modal-title">📤 Tải Lên Học Liệu Mới (Hỗ trợ Đa Tệp)</div>
         <button class="modal-close-icon" onclick="closeModal('upload-modal')">&times;</button>
       </div>
       <form id="upload-form" onsubmit="handleUploadSubmit(event)" style="padding:20px;">
         <div class="form-grid-2">
-          <div class="input-group" style="grid-column: span 2;"><label>Tên tài liệu (*):</label><input type="text" id="up-title" required></div>
-          <div class="input-group"><label>Loại tệp (*):</label>
-            <select id="up-type">
-              <option value="PDF">PDF</option>
-              <option value="DOCX">Word (DOCX)</option>
-              <option value="PPTX">PowerPoint (PPTX)</option>
-              <option value="Video">Video</option>
-            </select>
-          </div>
+          <div class="input-group" style="grid-column: span 2;"><label>Tên tài liệu (*):</label><input type="text" id="up-title" placeholder="Nhập tên giáo trình, đề thi..." required></div>
           <div class="input-group"><label>Chuyên mục (*):</label>
             <select id="up-category">
               <option value="Tài liệu">Tài liệu học tập</option>
@@ -384,8 +378,13 @@
               <option value="Tài liệu bài thi">Đề thi mẫu</option>
             </select>
           </div>
-          <div class="input-group" style="grid-column: span 2;"><label>Chọn Tệp Tải Lên (*):</label><input type="file" id="up-file" required></div>
+          <div class="input-group"><label>Môn Học / Chủ đề:</label><input type="text" id="up-subject" placeholder="Ví dụ: Triết học, SQL..."></div>
+          <div class="input-group" style="grid-column: span 2;">
+            <label>Chọn Tệp Tải Lên (PDF, DOCX, PPTX, MP3, MP4, ZIP, RAR...):</label>
+            <input type="file" id="up-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp3,.mp4,.zip,.rar,.7z,.txt" required>
+          </div>
         </div>
+        <div id="upload-progress-text" style="font-size:12px; color:#2563eb; margin-top:8px; display:none;">⏳ Đang tải tệp lên máy chủ... Vui lòng chờ!</div>
         <button type="submit" class="btn-submit btn-blue" style="margin-top:15px;">Xác Nhận Tải Lên Học Liệu</button>
       </form>
     </div>

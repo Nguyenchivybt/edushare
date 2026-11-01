@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   applySavedTheme();
 });
 
-/* ==================== 1. CHATBOT AI & BẬT TẮT NÚT NỔI ==================== */
+/* ==================== 1. CHATBOT AI MAXIMUM ==================== */
 
 function toggleChatbot() {
   const win = document.getElementById('ai-chatbot-window');
@@ -37,7 +37,7 @@ async function sendChatMessage() {
   input.value = '';
 
   const typingId = 'typing-' + Date.now();
-  msgBox.innerHTML += `<div class="chat-msg bot-msg" id="${typingId}">🤖 <em>AI đang phân tích và tìm kiếm tri thức...</em></div>`;
+  msgBox.innerHTML += `<div class="chat-msg bot-msg" id="${typingId}">🤖 <em>AI đang phân tích câu hỏi...</em></div>`;
   msgBox.scrollTop = msgBox.scrollHeight;
 
   try {
@@ -57,7 +57,7 @@ async function sendChatMessage() {
       docCardsHtml = data.matchedDocs.slice(0, 3).map(d => `
         <div class="chat-doc-card">
           <h4>📄 ${escapeHtml(d.title)}</h4>
-          <p>📌 <strong>Môn:</strong> ${escapeHtml(d.subject || 'Tổng hợp')} | <strong>Định dạng:</strong> ${d.type}</p>
+          <p>📌 <strong>Môn:</strong> ${escapeHtml(d.subject || 'Tổng hợp')} | <strong>Loại:</strong> ${d.type}</p>
           <button onclick="openDocPreviewModal('${d.id}')" style="background:#2563eb; color:#fff; border:none; padding:3px 8px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:bold; margin-top:4px;">👁️ Xem ngay</button>
         </div>
       `).join('');
@@ -69,7 +69,7 @@ async function sendChatMessage() {
   } catch (err) {
     const typingElem = document.getElementById(typingId);
     if (typingElem) {
-      typingElem.innerHTML = `🤖 Rất tiếc, đã có lỗi kết nối mạng! Vui lòng thử lại sau.`;
+      typingElem.innerHTML = `🤖 Đã có lỗi kết nối mạng! Vui lòng thử lại.`;
     }
   }
 
@@ -162,7 +162,7 @@ function saveUserProfileInfo() {
   closeModal('settings-modal');
 }
 
-/* ==================== 4. XỬ LÝ XEM TRƯỚC TỆP WORD/PDF KHÔNG LỖI ==================== */
+/* ==================== 4. XỬ LÝ XEM TRƯỚC ĐA DẠNG LOẠI TỆP (AUDIO, VIDEO, ZIP, RAR, PDF, WORD) ==================== */
 
 async function openDocPreviewModal(docId) {
   const doc = documentsData.find(d => String(d.id) === String(docId));
@@ -173,17 +173,33 @@ async function openDocPreviewModal(docId) {
   document.getElementById('preview-doc-title').innerText = `👁️ Xem Trước: ${doc.title}`;
   const container = document.getElementById('preview-content-box');
 
-  if (doc.type === 'LINK') {
-    window.open(doc.url, '_blank');
-    return;
-  }
-
   if (doc.type === 'PDF') {
     container.innerHTML = `<iframe src="${doc.url}" width="100%" height="500px" style="border:none; border-radius:6px;"></iframe>`;
+  } else if (doc.type === 'AUDIO') {
+    container.innerHTML = `
+      <div style="text-align:center; padding:40px; background:#f1f5f9; border-radius:8px;">
+        <p style="font-size:18px; font-weight:bold; margin-bottom:15px; color:#1e293b;">🎵 Trình Phát Âm Thanh MP3 / Audio</p>
+        <audio controls style="width:100%; max-width:500px;"><source src="${doc.url}">Trình duyệt của bạn không hỗ trợ phát âm thanh.</audio>
+      </div>
+    `;
+  } else if (doc.type === 'VIDEO') {
+    container.innerHTML = `
+      <div style="text-align:center; background:#000; border-radius:8px; padding:10px;">
+        <video controls style="width:100%; max-height:450px; border-radius:6px;"><source src="${doc.url}">Trình duyệt của bạn không hỗ trợ phát video.</video>
+      </div>
+    `;
+  } else if (doc.type === 'ZIP/RAR' || doc.type === 'PPTX') {
+    container.innerHTML = `
+      <div style="text-align:center; padding:40px; background:#f8fafc; border-radius:8px; border:2px dashed #cbd5e1;">
+        <p style="font-size:20px; font-weight:bold; color:#0f172a; margin-bottom:10px;">📦 Tệp Nén / Trình Chiếu (${doc.type})</p>
+        <p style="font-size:13px; color:#64748b; margin-bottom:20px;">Định dạng này không hỗ trợ xem trực tiếp. Hãy tải tệp gốc về máy để mở!</p>
+        ${currentUser ? `<button onclick="downloadCheck('${doc.id}')" class="btn-submit btn-green" style="width:auto; padding:10px 24px;">📥 Tải Về Tệp Gốc Ngay</button>` : `<p style="color:#ef4444; font-size:13px;">🔒 Vui lòng đăng nhập để tải tệp về.</p>`}
+      </div>
+    `;
   } else if (doc.type === 'DOCX') {
     container.innerHTML = `
       <div id="docx-render-area" style="width:100%; height:500px; overflow-y:auto; background:#f1f5f9; padding:15px; border-radius:6px;">
-        <p style="text-align:center; color:#64748b; font-weight:bold; padding:20px;">⏳ Đang nạp và xử lý tệp Word...</p>
+        <p style="text-align:center; color:#64748b; font-weight:bold; padding:20px;">⏳ Đang nạp văn bản Word...</p>
       </div>
     `;
 
@@ -195,17 +211,15 @@ async function openDocPreviewModal(docId) {
     } else {
       try {
         const response = await fetch(doc.url);
-        if (!response.ok) throw new Error('Không thể tải tệp từ máy chủ');
         const blob = await response.blob();
         const renderArea = document.getElementById('docx-render-area');
         renderArea.innerHTML = '';
         await docx.renderAsync(blob, renderArea, null, { inWrapper: true });
       } catch (err) {
         document.getElementById('docx-render-area').innerHTML = `
-          <div style="text-align:center; padding:30px; color:#dc2626;">
-            <p style="font-size:16px; font-weight:bold;">📄 Xem Trước Tệp Word (${doc.type})</p>
-            <p style="font-size:13px; color:#475569; margin:10px 0;">Vui lòng tải tệp về thiết bị để xem với định dạng đầy đủ nhất.</p>
-            ${currentUser ? `<button onclick="downloadCheck('${doc.id}')" class="btn-submit btn-green" style="width:auto; padding:8px 20px;">📥 Tải Về Tệp Gốc</button>` : `<p style="color:#2563eb; font-weight:bold; font-size:13px;">🔒 Vui lòng đăng nhập để tải tệp về.</p>`}
+          <div style="text-align:center; padding:30px; color:#475569;">
+            <p style="font-size:15px; font-weight:bold;">📄 Văn bản Word (.docx)</p>
+            ${currentUser ? `<button onclick="downloadCheck('${doc.id}')" class="btn-submit btn-green" style="width:auto; padding:8px 20px; margin-top:10px;">📥 Tải Về Tệp Gốc</button>` : `<p style="color:#ef4444; font-size:13px; margin-top:10px;">🔒 Vui lòng đăng nhập để tải tệp.</p>`}
           </div>
         `;
       }
@@ -213,8 +227,8 @@ async function openDocPreviewModal(docId) {
   } else {
     container.innerHTML = `
       <div style="text-align:center; padding:40px; color:#475569;">
-        <p style="font-size:18px; font-weight:bold; margin-bottom:10px;">📁 Tệp định dạng ${doc.type}</p>
-        ${currentUser ? `<button onclick="downloadCheck('${doc.id}')" class="btn-submit btn-green" style="width:auto; padding:8px 20px;">📥 Tải Về Tệp Gốc</button>` : `<p style="color:#ef4444; font-size:13px; margin-top:10px;">🔒 Vui lòng đăng nhập để tải tệp về.</p>`}
+        <p style="font-size:18px; font-weight:bold; margin-bottom:10px;">📁 Tập Tin ${doc.type}</p>
+        ${currentUser ? `<button onclick="downloadCheck('${doc.id}')" class="btn-submit btn-green" style="width:auto; padding:8px 20px;">📥 Tải Về Tệp Gốc</button>` : `<p style="color:#ef4444; font-size:13px;">🔒 Vui lòng đăng nhập để tải tệp.</p>`}
       </div>
     `;
   }
@@ -298,7 +312,6 @@ function renderDocuments(docs) {
         <h3 style="margin:10px 0 6px 0; font-size:15px; color:var(--text-main); cursor:pointer;" onclick="openDocPreviewModal('${doc.id}')">${escapeHtml(doc.title)}</h3>
         <p style="margin:3px 0; font-size:13px; color:#2563eb; font-weight:600;">🏷️ ${escapeHtml(doc.category || 'Tài liệu')}</p>
         <p style="margin:3px 0; font-size:12px; color:var(--text-muted);"><strong>Môn học:</strong> ${escapeHtml(doc.subject || 'Tổng hợp')}</p>
-        <p style="margin:3px 0; font-size:12px; color:var(--text-muted);"><strong>Đơn vị:</strong> ${escapeHtml(doc.faculty || 'Khoa')} ➔ ${escapeHtml(doc.major || 'Ngành')}</p>
         <p style="margin:3px 0; font-size:12px; color:var(--text-muted);"><strong>Tác giả:</strong> ${escapeHtml(doc.author || 'Vô danh')}</p>
         <p style="margin:3px 0; font-size:11px; color:#94a3b8;">👁️ ${doc.views || 0} lượt xem | 📥 ${doc.downloads || 0} lượt tải</p>
         
@@ -669,7 +682,7 @@ async function exportStatsToExcel() {
   }
 }
 
-/* ==================== 9. AUTH & TẢI TỆP ==================== */
+/* ==================== 9. AUTH, UPLOAD ĐA TỆP & TẢI VỀ ==================== */
 
 function updateAuthUI() {
   const authContainer = document.getElementById('auth-buttons-container');
@@ -679,7 +692,6 @@ function updateAuthUI() {
   if (currentUser) {
     let adminBtn = currentUser.role === 'admin' ? `<button onclick="loadUsersForAdmin()" style="background:#dc3545; color:#fff;">🛡️ Admin</button>` : '';
     
-    // UI Desktop
     if (authContainer) {
       authContainer.innerHTML = `
         ${adminBtn}
@@ -688,7 +700,6 @@ function updateAuthUI() {
       `;
     }
 
-    // UI Mobile Hamburger Menu
     if (mobileAuthContainer) {
       mobileAuthContainer.innerHTML = `
         <div style="border-top:1px solid rgba(255,255,255,0.1); margin-top:10px; padding-top:10px; display:flex; flex-direction:column; gap:8px;">
@@ -705,7 +716,6 @@ function updateAuthUI() {
     if (nameInput) nameInput.value = currentUser.fullname || '';
     if (emailInput) emailInput.value = currentUser.emailPhone || '';
   } else {
-    // Desktop UI
     if (authContainer) {
       authContainer.innerHTML = `
         <button onclick="openModal('login-modal')" class="btn-login">Đăng Nhập</button>
@@ -713,11 +723,10 @@ function updateAuthUI() {
       `;
     }
 
-    // Mobile Hamburger Menu UI
     if (mobileAuthContainer) {
       mobileAuthContainer.innerHTML = `
         <div style="border-top:1px solid rgba(255,255,255,0.1); margin-top:10px; padding-top:10px; display:flex; flex-direction:column; gap:8px;">
-          <span style="color:#93c5fd; font-size:12px; font-weight:bold;">🔐 TÀI KHOẢN NGHỆ TỆP</span>
+          <span style="color:#93c5fd; font-size:12px; font-weight:bold;">🔐 TÀI KHOẢN HỆ THỐNG</span>
           <button onclick="openModal('login-modal'); closeMobileNav();" style="background:#2563eb; color:#fff; text-align:left; padding:8px; border-radius:4px; font-weight:bold;">🔑 Đăng Nhập</button>
           <button onclick="openModal('register-modal'); closeMobileNav();" style="background:#16a34a; color:#fff; text-align:left; padding:8px; border-radius:4px; font-weight:bold;">📝 Đăng Ký Tài Khoản</button>
           <button onclick="openModal('forgot-modal'); closeMobileNav();" style="background:#ea580c; color:#fff; text-align:left; padding:8px; border-radius:4px;">❓ Quên Mật Khẩu?</button>
@@ -859,25 +868,34 @@ async function handleUploadSubmit(e) {
     return;
   }
 
+  const progressText = document.getElementById('upload-progress-text');
+  if (progressText) progressText.style.display = 'block';
+
   const formData = new FormData();
   formData.append('title', document.getElementById('up-title').value);
-  formData.append('type', document.getElementById('up-type').value);
   formData.append('category', document.getElementById('up-category').value);
+  formData.append('subject', document.getElementById('up-subject').value || 'Học phần chung');
   formData.append('author', currentUser.fullname);
   formData.append('authorId', currentUser.id);
 
   const fileInput = document.getElementById('up-file');
-  if (fileInput && fileInput.files[0]) formData.append('file', fileInput.files[0]);
+  if (fileInput && fileInput.files[0]) {
+    formData.append('file', fileInput.files[0]);
+  }
 
   try {
     const res = await fetch('/api/documents', { method: 'POST', body: formData });
     if (res.ok) {
-      alert('Đã tải lên học liệu thành công!');
+      alert('✅ Đã tải lên học liệu thành công!');
       closeModal('upload-modal');
       document.getElementById('upload-form').reset();
+      if (progressText) progressText.style.display = 'none';
       loadDocumentsFromServer();
     }
-  } catch (err) { alert('Lỗi tải lên!'); }
+  } catch (err) {
+    alert('Lỗi tải lên tệp!');
+    if (progressText) progressText.style.display = 'none';
+  }
 }
 
 async function deleteDocument(docId) {
