@@ -110,12 +110,13 @@ app.post('/api/chatbot', async (req, res) => {
     return res.json({ reply });
   }
 
-  // 3. TRUY VẤN TRI THỨC MỞ WIKIPEDIA (Dùng built-in fetch của Node.js)
+  // 3. TRUY VẤN TRI THỨC MỞ WIKIPEDIA (Lọc sạch câu hỏi & dấu dư thừa)
   let cleanKeyword = query
+    .replace(/[.,?!:;""''`~]/g, '') // Bỏ toàn bộ dấu câu
     .replace(/(khái niệm về|khái niệm|là gì|cho biết|tìm hiểu|giải thích|nghĩa là gì|định nghĩa|cho tôi hỏi|cho hỏi|thế nào là)/gi, '')
     .trim();
 
-  if (!cleanKeyword) cleanKeyword = query;
+  if (!cleanKeyword) cleanKeyword = query.replace(/[.,?!:;""''`~]/g, '').trim();
 
   try {
     const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${encodeURIComponent(cleanKeyword)}`;
