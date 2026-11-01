@@ -102,7 +102,7 @@ let documents = [
 
 let comments = {};
 
-// HÀM BỔ TRỢ: TRA CỨU WIKIPEDIA DỰ PHÒNG KHI GEMINI CHƯA CÓ KEY
+// HÀM BỔ TRỢ: TRA CỨU WIKIPEDIA DỰ PHÒNG KHI GEMINI CHƯA CÓ KEY HOẶC LỖI KẾT NỐI
 async function fetchWikiFallback(queryText) {
   let cleanKeyword = queryText
     .replace(/[.,?!:;""''`~()]/g, ' ')
@@ -183,7 +183,7 @@ app.post('/api/chatbot', async (req, res) => {
   return res.json({ reply: fallbackReply, matchedDocs: matchedDocs.slice(0, 5) });
 });
 
-/* ==================== 2. API KHÁC GIỮ NGUYÊN ==================== */
+/* ==================== 2. API KHÁC (AUTH, FAVORITES, DOCUMENTS, COMMENTS) ==================== */
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
@@ -208,9 +208,27 @@ app.post('/api/forgot-password', (req, res) => {
 });
 
 app.get('/api/users', (req, res) => res.json(users));
+
 app.delete('/api/users/:id', (req, res) => {
   users = users.filter(u => String(u.id) !== String(req.params.id));
   res.json({ message: 'Đã xóa người dùng thành công.' });
+});
+
+// API THÊM / BỎ YÊU THÍCH TÀI LIỆU
+app.post('/api/users/favorites', (req, res) => {
+  const { userId, docId } = req.body;
+  const user = users.find(u => String(u.id) === String(userId));
+  if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng!' });
+
+  if (!user.favorites) user.favorites = [];
+  const index = user.favorites.indexOf(docId);
+  if (index > -1) {
+    user.favorites.splice(index, 1);
+    res.json({ message: 'Đã bỏ khỏi danh sách yêu thích!' });
+  } else {
+    user.favorites.push(docId);
+    res.json({ message: 'Đã thêm vào danh sách yêu thích thành công!' });
+  }
 });
 
 app.get('/api/documents', (req, res) => res.json(documents));
@@ -243,6 +261,7 @@ app.post('/api/documents', upload.single('file'), (req, res) => {
 
 app.delete('/api/documents/:id', (req, res) => {
   documents = documents.filter(d => String(d.id) !== String(req.params.id));
+  delete comments[req.params.id];
   res.json({ message: 'Đã xóa tài liệu thành công.' });
 });
 
@@ -259,6 +278,7 @@ app.post('/api/documents/:id/download', (req, res) => {
 });
 
 app.get('/api/documents/:id/comments', (req, res) => res.json(comments[req.params.id] || []));
+
 app.post('/api/documents/:id/comments', (req, res) => {
   const docId = req.params.id;
   if (!comments[docId]) comments[docId] = [];
@@ -272,6 +292,15 @@ app.post('/api/documents/:id/comments', (req, res) => {
   };
   comments[docId].unshift(newComment);
   res.json({ message: 'Đã gửi bình luận!', comment: newComment });
+});
+
+// API XÓA BÌNH LUẬN
+app.delete('/api/documents/comments/:commentId', (req, res) => {
+  const commentId = req.params.commentId;
+  for (let docId in comments) {
+    comments[docId] = comments[docId].filter(c => String(c.id) !== String(commentId));
+  }
+  res.json({ message: 'Đã xóa bình luận thành công.' });
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
