@@ -3,62 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>EduShare - Thư Viện Học Liệu Số Giáo Dục</title>
+  <title>EduShare - Thư Viện Học Liệu Số Giáo Dục MTU</title>
   <link rel="stylesheet" href="style.css">
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
   <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
-
-  <style>
-    /* FIX LỖI KHUNG MOBILE AUTH TRÀN MÀN HÌNH DESKTOP */
-    @media (min-width: 992px) {
-      .mobile-auth-box { display: none !important; }
-    }
-    
-    /* CSS FOOTER CHUẨN PHONG CÁCH HỌC THUẬT MTU */
-    .footer {
-      background: var(--bg-card, #1e293b);
-      color: var(--text-main, #f8fafc);
-      border-top: 2px solid var(--border-color, #334155);
-      margin-top: 50px;
-      padding: 40px 20px 20px 20px;
-    }
-    .footer-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 30px;
-    }
-    .footer-col h3, .footer-col h4 {
-      color: #38bdf8;
-      margin-bottom: 12px;
-      font-size: 16px;
-    }
-    .footer-col p {
-      font-size: 13px;
-      color: #94a3b8;
-      margin: 6px 0;
-      line-height: 1.6;
-    }
-    .footer-col a {
-      color: #38bdf8;
-      text-decoration: none;
-    }
-    .footer-col a:hover {
-      text-decoration: underline;
-    }
-    .footer-bottom {
-      max-width: 1200px;
-      margin: 30px auto 0 auto;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      text-align: center;
-      font-size: 12px;
-      color: #64748b;
-    }
-  </style>
 </head>
 <body>
 
@@ -68,7 +18,7 @@
       <div class="logo-icon">🎓</div>
       <div class="logo-text-box">
         <span class="logo-title">EduShare</span>
-        <span class="logo-sub">THƯ VIỆN HỌC LIỆU SỐ GIÁO DỤC</span>
+        <span class="logo-sub">THƯ VIỆN HỌC LIỆU SỐ GIÁO DỤC MTU</span>
       </div>
     </div>
 
@@ -113,9 +63,11 @@
         </div>
       </div>
 
-      <a href="#articles-section" class="nav-item">📰 Bài Báo</a>
+      <!-- MỤC MỚI TRÊN MENU -->
+      <a href="#" onclick="openCommunityModal()" class="nav-item">💬 Cộng Đồng Chat</a>
+      <a href="#" onclick="openFavoritesModal()" class="nav-item" style="color:#f59e0b;">⭐ Album Yêu Thích</a>
 
-      <!-- MENU TÀI KHOẢN DÀNH RIÊNG CHO MÀN HÌNH ĐIỆN THOẠI -->
+      <!-- MENU TÀI KHOẢN MOBILE -->
       <div id="mobile-auth-container" class="mobile-auth-box"></div>
 
       <div class="nav-search-group">
@@ -139,6 +91,14 @@
       <div id="auth-buttons-container" class="auth-buttons"></div>
     </div>
   </header>
+
+  <!-- THANH TIỆN ÍCH TRUY CẬP NHANH (QUICK ACCESS BAR) -->
+  <div class="quick-access-bar" id="quick-access-bar">
+    <div class="quick-access-container" id="quick-access-items">
+      <!-- RENDER DYNAMIC SHORTCUTS -->
+    </div>
+    <button class="btn-config-quick" onclick="openModal('quick-config-modal')" title="Tùy chỉnh tiện ích">⚙️ Lối Tắt</button>
+  </div>
 
   <!-- HERO BANNER TRANG CHỦ -->
   <section class="hero-section">
@@ -200,6 +160,7 @@
             <label>Sắp xếp:</label>
             <select id="sort-select" onchange="handleSortChange()">
               <option value="newest">Mới nhất</option>
+              <option value="likes">Yêu thích nhất</option>
               <option value="downloads">Lượt tải nhiều nhất</option>
               <option value="views">Lượt xem nhiều nhất</option>
             </select>
@@ -226,7 +187,7 @@
     </div>
     <div id="chatbot-messages" class="chatbot-messages">
       <div class="chat-msg bot-msg">
-        👋 Xin chào! Tôi là Trợ lý AI EduShare. Nhập tên khái niệm hoặc tài liệu cần tìm, tôi sẽ trả lời trực tiếp ngay cho bạn!
+        👋 Xin chào! Tôi là Trợ lý AI EduShare. Nhập tên khái niệm hoặc câu hỏi học thuật từ dễ đến khó, tôi sẽ phân tích và giải đáp ngay cho bạn!
       </div>
     </div>
     <div class="chatbot-input-box">
@@ -235,34 +196,81 @@
     </div>
   </div>
 
-  <!-- FOOTER ĐẦY ĐỦ THÔNG TIN TRƯỜNG & SĐT & ĐỊA CHỈ -->
-  <footer class="footer">
-    <div class="footer-container">
-      <div class="footer-col brand-col">
-        <h3>🎓 EduShare MTU</h3>
-        <p>Hệ thống Thư viện Học liệu số & Tài nguyên Giáo dục Mở.</p>
-        <p><strong>Trường Đại học Xây dựng Miền Tây</strong></p>
-        <p>Khoa Công Nghệ Thông Tin - Ngành Kỹ Thuật Phần Mềm</p>
+  <!-- MODAL CỘNG ĐỒNG TRÒ CHUYỆN HỌC THUẬT -->
+  <div id="community-modal" class="modal-overlay">
+    <div class="modal-card modal-card-xlarge">
+      <div class="modal-header" style="background:#0284c7;">
+        <div class="modal-title">💬 Cộng Đồng Trò Chuyện & Thảo Luận Học Thuật MTU</div>
+        <button class="modal-close-icon" onclick="closeModal('community-modal')">&times;</button>
       </div>
-      <div class="footer-col">
-        <h4>📍 Thông Tin Liên Hệ</h4>
-        <p>🏢 <strong>Địa chỉ:</strong> Số 20B Đường 2 Tháng 9, Phường 1, TP. Vĩnh Long, Tỉnh Vĩnh Long</p>
-        <p>📞 <strong>Điện thoại:</strong> (0270) 3822 141 - Hotline tuyển sinh: (0270) 3822 141</p>
-        <p>✉️ <strong>Email:</strong> dhxdmientay@mtu.edu.vn | support@edushare.edu.vn</p>
-        <p>🌐 <strong>Website chính thức:</strong> <a href="http://www.mtu.edu.vn" target="_blank">www.mtu.edu.vn</a></p>
-      </div>
-      <div class="footer-col">
-        <h4>🔗 Danh Mục Học Liệu</h4>
-        <p><a href="#" onclick="resetHomePage()">🏠 Trang Chủ EduShare</a></p>
-        <p><a href="#" onclick="filterByCategory('Tài liệu')">📚 Giáo Trình & Tài Liệu Môn Học</a></p>
-        <p><a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Ngân Hàng Đề Thi & Đáp Án</a></p>
-        <p><a href="#articles-section">📰 Công Trình & Bài Báo Khoa Học</a></p>
+      <div class="community-layout">
+        <!-- SIDEBAR KÊNH CHAT & DIRECT MESSAGES -->
+        <div class="community-sidebar">
+          <div class="community-sidebar-header">
+            <h4>📢 Nhóm Thảo Luận</h4>
+            <button onclick="promptCreateGroup()" class="btn-small-plus" title="Tạo nhóm mới">+</button>
+          </div>
+          <div id="chat-groups-list" class="chat-target-list"></div>
+
+          <div class="community-sidebar-header" style="margin-top:15px;">
+            <h4>👤 Trò Chuyện Trực Tiếp</h4>
+          </div>
+          <div id="chat-users-list" class="chat-target-list"></div>
+
+          <div style="margin-top:20px; padding:10px; background:#0f172a; border-radius:6px; border:1px solid #334155;">
+            <p style="font-size:11px; color:#38bdf8; font-weight:bold; margin-bottom:5px;">💡 AI Gợi Ý Người Giải Đáp</p>
+            <input type="text" id="suggest-question-input" placeholder="Nhập câu hỏi để tìm thầy/bạn hỗ trợ..." style="width:100%; padding:6px; font-size:11px; border-radius:4px; border:1px solid #334155; background:#1e293b; color:#fff; margin-bottom:6px;">
+            <button onclick="findHelperForQuestion()" class="btn-submit btn-blue" style="font-size:11px; padding:6px;">🔍 Tìm Người Hỗ Trợ</button>
+            <div id="suggested-helpers-box" style="margin-top:8px; font-size:11px;"></div>
+          </div>
+        </div>
+
+        <!-- KHUNG TIN NHẮN CHÍNH -->
+        <div class="community-chat-main">
+          <div class="chat-main-header">
+            <strong id="chat-current-title">📢 Thảo Luận Học Thuật Chung</strong>
+            <span id="chat-current-desc" style="font-size:12px; color:#94a3b8;">Kênh trao đổi thắc mắc học tập</span>
+          </div>
+
+          <div id="community-messages-box" class="community-messages"></div>
+
+          <div class="community-input-bar">
+            <input type="text" id="community-msg-input" placeholder="Nhập tin nhắn trao đổi học thuật..." onkeypress="if(event.key==='Enter') sendCommunityMessage()">
+            <button onclick="sendCommunityMessage()" class="btn-submit btn-blue" style="width:auto; padding:8px 20px;">Gửi 🚀</button>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <p>© 2026 EduShare - Trường Đại học Xây dựng Miền Tây. Phát triển bởi Sinh viên Nguyễn Chí Vỹ. Tất cả quyền được bảo lưu.</p>
+  </div>
+
+  <!-- MODAL ALBUM YÊU THÍCH -->
+  <div id="favorites-modal" class="modal-overlay">
+    <div class="modal-card modal-card-large">
+      <div class="modal-header" style="background:#d97706;">
+        <div class="modal-title">⭐ Album Học Liệu & Bài Báo Yêu Thích</div>
+        <button class="modal-close-icon" onclick="closeModal('favorites-modal')">&times;</button>
+      </div>
+      <div style="padding:20px;">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:15px;">Danh sách tài liệu và công trình nghiên cứu bạn đã lưu lại để học tập & nghiên cứu:</p>
+        <div id="favorites-grid-box" class="document-grid" style="max-height:420px; overflow-y:auto; padding:5px;"></div>
+      </div>
     </div>
-  </footer>
+  </div>
+
+  <!-- MODAL CẤU HÌNH TIỆN ÍCH TRUY CẬP NHANH -->
+  <div id="quick-config-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header" style="background:#4f46e5;">
+        <div class="modal-title">⚡ Tùy Chỉnh Tiện Ích Truy Cập Nhanh</div>
+        <button class="modal-close-icon" onclick="closeModal('quick-config-modal')">&times;</button>
+      </div>
+      <div style="padding:20px;">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Chọn các chức năng bạn muốn hiển thị trên thanh Shortcut:</p>
+        <div id="quick-checkboxes-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <button onclick="saveQuickConfig()" class="btn-submit btn-blue" style="margin-top:15px;">Lưu Thay Đổi Shortcut</button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL CÀI ĐẶT -->
   <div id="settings-modal" class="modal-overlay">
@@ -376,7 +384,7 @@
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG KÝ -->
+  <!-- MODAL ĐĂNG KÝ (PHÂN QUYỀN 4 VAI TRÒ) -->
   <div id="register-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">
@@ -387,11 +395,16 @@
         <div class="form-grid-2">
           <div class="input-group"><label>Họ và Tên (*):</label><input type="text" id="reg-fullname" required></div>
           <div class="input-group"><label>Giới tính:</label><select id="reg-gender"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
-          <div class="input-group"><label>Ngày sinh (*):</label><input type="date" id="reg-dob" required></div>
+          <div class="input-group"><label>Vai Trò (*):</label>
+            <select id="reg-role">
+              <option value="student">🎓 Học sinh / Sinh viên</option>
+              <option value="teacher">👨‍🏫 Giáo viên / Giảng viên</option>
+            </select>
+          </div>
           <div class="input-group"><label>Email / SĐT (*):</label><input type="text" id="reg-email-phone" required></div>
           <div class="input-group"><label>Trường Học:</label><input type="text" id="reg-school" value="Trường Đại học Xây dựng Miền Tây"></div>
           <div class="input-group"><label>Khoa / Viện:</label><input type="text" id="reg-faculty"></div>
-          <div class="input-group"><label>Ngành Học:</label><input type="text" id="reg-major"></div>
+          <div class="input-group"><label>Ngành Học / Chuyên môn:</label><input type="text" id="reg-major" placeholder="Ví dụ: Lập trình Web, Xây dựng..."></div>
           <div class="input-group"><label>Khóa / Lớp:</label><input type="text" id="reg-class"></div>
           <div class="input-group"><label>Tên đăng nhập (*):</label><input type="text" id="reg-username" required></div>
           <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="reg-password" required></div>
@@ -407,11 +420,11 @@
     </div>
   </div>
 
-  <!-- MODAL ADMIN -->
+  <!-- MODAL ADMIN QUẢN LÝ USER -->
   <div id="admin-users-modal" class="modal-overlay">
     <div class="modal-card modal-card-xlarge">
       <div class="modal-header" style="background:#881337;">
-        <div class="modal-title">🛡️ Quản Lý Hệ Thống & Trạng Thái Hoạt Động (Admin)</div>
+        <div class="modal-title">🛡️ Quản Lý Hệ Thống & Phân Quyền Người Dùng (Admin)</div>
         <button class="modal-close-icon" onclick="closeModal('admin-users-modal')">&times;</button>
       </div>
       <div style="padding:15px; display:flex; justify-content:flex-end; gap:10px;">
@@ -426,7 +439,7 @@
               <th>Tài khoản</th>
               <th>Vai trò</th>
               <th>Trạng thái Hoạt Động</th>
-              <th>Duyệt</th>
+              <th>Đổi Vai Trò</th>
               <th>Thao tác</th>
             </tr>
           </thead>
@@ -455,9 +468,10 @@
               <option value="Bài giảng">Bài giảng & Slide</option>
               <option value="Bài tập">Bài tập mẫu & Đồ án</option>
               <option value="Tài liệu bài thi">Đề thi mẫu</option>
+              <option value="Bài báo tiêu biểu">Bài báo khoa học</option>
             </select>
           </div>
-          <div class="input-group"><label>Môn Học / Chủ đề:</label><input type="text" id="up-subject" placeholder="Ví dụ: Triết học, SQL..."></div>
+          <div class="input-group"><label>Môn Học / Chủ đề:</label><input type="text" id="up-subject" placeholder="Ví dụ: Triết học, SQL, Xây dựng..."></div>
           <div class="input-group" style="grid-column: span 2;">
             <label>Chọn Tệp Tải Lên (PDF, DOCX, PPTX, MP3, MP4, ZIP, RAR...):</label>
             <input type="file" id="up-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp3,.mp4,.zip,.rar,.7z,.txt" required>
@@ -468,6 +482,35 @@
       </form>
     </div>
   </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-col brand-col">
+        <h3>🎓 EduShare MTU</h3>
+        <p>Hệ thống Thư viện Học liệu số & Tài nguyên Giáo dục Mở.</p>
+        <p><strong>Trường Đại học Xây dựng Miền Tây</strong></p>
+        <p>Khoa Công Nghệ Thông Tin - Ngành Kỹ Thuật Phần Mềm</p>
+      </div>
+      <div class="footer-col">
+        <h4>📍 Thông Tin Liên Hệ</h4>
+        <p>🏢 <strong>Địa chỉ:</strong> Số 20B Đường 2 Tháng 9, Phường 1, TP. Vĩnh Long, Tỉnh Vĩnh Long</p>
+        <p>📞 <strong>Điện thoại:</strong> (0270) 3822 141 - Hotline tuyển sinh: (0270) 3822 141</p>
+        <p>✉️ <strong>Email:</strong> dhxdmientay@mtu.edu.vn | support@edushare.edu.vn</p>
+        <p>🌐 <strong>Website chính thức:</strong> <a href="http://www.mtu.edu.vn" target="_blank">www.mtu.edu.vn</a></p>
+      </div>
+      <div class="footer-col">
+        <h4>🔗 Danh Mục Học Liệu</h4>
+        <p><a href="#" onclick="resetHomePage()">🏠 Trang Chủ EduShare</a></p>
+        <p><a href="#" onclick="filterByCategory('Tài liệu')">📚 Giáo Trình & Tài Liệu Môn Học</a></p>
+        <p><a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Ngân Hàng Đề Thi & Đáp Án</a></p>
+        <p><a href="#articles-section">📰 Công Trình & Bài Báo Khoa Học</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 EduShare - Trường Đại học Xây dựng Miền Tây. Phát triển bởi Sinh viên Nguyễn Chí Vỹ. Tất cả quyền được bảo lưu.</p>
+    </div>
+  </footer>
 
   <script src="app.js"></script>
 </body>

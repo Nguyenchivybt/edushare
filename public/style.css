@@ -1,4 +1,4 @@
-/* ==================== 1. BIẾN HỆ THỐNG (THEME VARIABLES) ==================== */
+/* ==================== 1. BIẾN HỆ THỐNG ==================== */
 :root {
   --bg-main: #0f172a;
   --bg-card: #1e293b;
@@ -28,13 +28,12 @@
   --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
-/* ==================== 2. CẤU HÌNH CƠ BẢN ==================== */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 body {
@@ -46,7 +45,7 @@ body {
   flex-direction: column;
 }
 
-/* ==================== 3. NAVBAR HEADER ==================== */
+/* ==================== 2. NAVBAR HEADER ==================== */
 .navbar {
   position: sticky;
   top: 0;
@@ -68,14 +67,9 @@ body {
   cursor: pointer;
 }
 
-.logo-icon {
-  font-size: 26px;
-}
+.logo-icon { font-size: 26px; }
 
-.logo-text-box {
-  display: flex;
-  flex-direction: column;
-}
+.logo-text-box { display: flex; flex-direction: column; }
 
 .logo-title {
   font-size: 20px;
@@ -105,7 +99,7 @@ body {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -116,6 +110,7 @@ body {
   font-weight: 600;
   padding: 6px 10px;
   border-radius: 6px;
+  white-space: nowrap;
 }
 
 .nav-item:hover, .nav-item.active {
@@ -124,10 +119,7 @@ body {
 }
 
 /* DROPDOWN MENU */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
+.dropdown { position: relative; display: inline-block; }
 
 .dropdown-content {
   display: none;
@@ -156,9 +148,7 @@ body {
   color: var(--accent);
 }
 
-.dropdown:hover .dropdown-content {
-  display: block;
-}
+.dropdown:hover .dropdown-content { display: block; }
 
 /* MEGA DROPDOWN */
 .mega-dropdown .mega-content {
@@ -167,10 +157,7 @@ body {
   overflow: hidden;
 }
 
-.submenu-container {
-  display: flex;
-  min-height: 220px;
-}
+.submenu-container { display: flex; min-height: 220px; }
 
 .submenu-sidebar {
   width: 180px;
@@ -198,18 +185,9 @@ body {
   overflow-y: auto;
 }
 
-.submenu-panel {
-  display: none;
-}
-
-.submenu-panel.active {
-  display: block;
-}
-
-.submenu-panel a {
-  padding: 6px 10px;
-  border-radius: 4px;
-}
+.submenu-panel { display: none; }
+.submenu-panel.active { display: block; }
+.submenu-panel a { padding: 6px 10px; border-radius: 4px; }
 
 /* SEARCH GROUP IN NAVBAR */
 .nav-search-group {
@@ -227,7 +205,7 @@ body {
   border-radius: 6px;
   font-size: 12px;
   outline: none;
-  width: 180px;
+  width: 160px;
 }
 
 .nav-search-group select {
@@ -251,16 +229,10 @@ body {
   cursor: pointer;
 }
 
-.btn-nav-search:hover {
-  background: var(--primary-hover);
-}
+.btn-nav-search:hover { background: var(--primary-hover); }
 
 /* RIGHT NAV GROUP */
-.right-nav-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.right-nav-group { display: flex; align-items: center; gap: 8px; }
 
 .btn-upload-nav {
   background: var(--success);
@@ -271,6 +243,7 @@ body {
   font-size: 12px;
   font-weight: bold;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .btn-settings-nav {
@@ -283,10 +256,7 @@ body {
   cursor: pointer;
 }
 
-.auth-buttons {
-  display: flex;
-  gap: 6px;
-}
+.auth-buttons { display: flex; gap: 6px; }
 
 .auth-buttons button {
   padding: 6px 12px;
@@ -295,28 +265,68 @@ body {
   font-weight: bold;
   border: none;
   cursor: pointer;
+  white-space: nowrap;
 }
 
-.btn-login {
+.btn-login { background: var(--primary); color: #fff; }
+.btn-user-nav { background: var(--bg-hover); color: var(--accent); border: 1px solid var(--border-color) !important; }
+.mobile-auth-box { display: none; }
+
+/* ==================== 3. QUICK ACCESS BAR (TIỆN ÍCH TRUY CẬP NHANH) ==================== */
+.quick-access-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.quick-access-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.quick-shortcut-btn {
+  background: var(--bg-hover);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.quick-shortcut-btn:hover {
   background: var(--primary);
   color: #fff;
 }
 
-.btn-user-nav {
-  background: var(--bg-hover);
-  color: var(--accent);
-  border: 1px solid var(--border-color) !important;
-}
-
-.mobile-auth-box {
-  display: none;
+.btn-config-quick {
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 /* ==================== 4. HERO SECTION ==================== */
 .hero-section {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border-bottom: 1px solid var(--border-color);
-  padding: 40px 20px;
+  padding: 35px 20px;
 }
 
 .hero-container {
@@ -341,7 +351,7 @@ body {
 }
 
 .hero-text-box h1 {
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 15px;
@@ -361,18 +371,11 @@ body {
   border-radius: 6px;
 }
 
-.primary-slogan {
-  background: #f59e0b;
-  color: #78350f;
-}
-
-.secondary-slogan {
-  background: #3b82f6;
-  color: #eff6ff;
-}
+.primary-slogan { background: #f59e0b; color: #78350f; }
+.secondary-slogan { background: #3b82f6; color: #eff6ff; }
 
 .hero-description {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-muted);
   line-height: 1.6;
 }
@@ -386,7 +389,7 @@ body {
 
 .hero-img {
   width: 100%;
-  height: 240px;
+  height: 220px;
   object-fit: cover;
   display: block;
 }
@@ -467,21 +470,9 @@ body {
   padding-bottom: 10px;
 }
 
-.section-header h2 {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.sub-text {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.section-controls {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
+.section-header h2 { font-size: 18px; font-weight: 700; }
+.sub-text { font-size: 12px; color: var(--text-muted); }
+.section-controls { display: flex; align-items: center; gap: 15px; }
 
 .btn-excel {
   background: var(--success);
@@ -494,10 +485,7 @@ body {
   cursor: pointer;
 }
 
-.sort-group {
-  font-size: 12px;
-}
-
+.sort-group { font-size: 12px; }
 .sort-group select {
   background: var(--bg-card);
   color: var(--text-main);
@@ -528,15 +516,20 @@ body {
 }
 
 .doc-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: var(--shadow);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .doc-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
-/* ==================== 7. CHATBOT AI FLOATING UI ==================== */
+/* ==================== 7. CHATBOT AI & COMMUNITY CHAT UI ==================== */
 .chatbot-floating-btn {
   position: fixed;
   bottom: 20px;
@@ -553,13 +546,10 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
-.chatbot-floating-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
-}
+.chatbot-floating-btn:hover { transform: scale(1.05); }
 
 .chatbot-window {
   position: fixed;
@@ -620,14 +610,6 @@ body {
   border-bottom-left-radius: 2px;
 }
 
-.chat-doc-card {
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
-  padding: 8px;
-  border-radius: 6px;
-  margin-top: 8px;
-}
-
 .chatbot-input-box {
   padding: 10px;
   background: var(--bg-card);
@@ -647,7 +629,124 @@ body {
   outline: none;
 }
 
-/* ==================== 8. MODAL SYSTEM ==================== */
+/* COMMUNITY CHAT MODAL LAYOUT */
+.community-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: 500px;
+}
+
+.community-sidebar {
+  background: var(--bg-main);
+  border-right: 1px solid var(--border-color);
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.community-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.community-sidebar-header h4 {
+  font-size: 12px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.btn-small-plus {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.chat-target-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chat-target-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.chat-target-item:hover, .chat-target-item.active {
+  background: var(--bg-hover);
+  border-color: var(--border-color);
+  color: var(--accent);
+}
+
+.community-chat-main {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+}
+
+.chat-main-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-hover);
+}
+
+.community-messages {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-main);
+}
+
+.comm-msg-item {
+  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.comm-msg-item.mine {
+  align-self: flex-end;
+  background: #0284c7;
+  color: #fff;
+}
+
+.comm-msg-item.others {
+  align-self: flex-start;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+}
+
+.community-input-bar {
+  padding: 10px 15px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 10px;
+}
+
+.community-input-bar input {
+  flex: 1;
+  background: var(--bg-main);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+/* ==================== 8. MODALS & TABLES ==================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -673,13 +772,8 @@ body {
   box-shadow: var(--shadow);
 }
 
-.modal-card-large {
-  max-width: 700px;
-}
-
-.modal-card-xlarge {
-  max-width: 950px;
-}
+.modal-card-large { max-width: 750px; }
+.modal-card-xlarge { max-width: 980px; }
 
 .modal-header {
   background: var(--primary);
@@ -690,37 +784,13 @@ body {
   align-items: center;
 }
 
-.modal-title {
-  font-size: 15px;
-  font-weight: 700;
-}
+.modal-title { font-size: 15px; font-weight: 700; }
+.modal-close-icon { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; }
 
-.modal-close-icon {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 20px;
-  cursor: pointer;
-}
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.form-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.input-group label {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--text-muted);
-}
-
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+.input-group label { font-size: 12px; font-weight: bold; color: var(--text-muted); }
 .input-group input, .input-group select {
   background: var(--bg-main);
   color: var(--text-main);
@@ -741,15 +811,8 @@ body {
   font-size: 13px;
 }
 
-.btn-blue {
-  background: var(--primary);
-  color: #fff;
-}
-
-.btn-green {
-  background: var(--success);
-  color: #fff;
-}
+.btn-blue { background: var(--primary); color: #fff; }
+.btn-green { background: var(--success); color: #fff; }
 
 .btn-cancel {
   width: 100%;
@@ -762,31 +825,9 @@ body {
   cursor: pointer;
 }
 
-/* ADMIN TABLE */
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.admin-table th, .admin-table td {
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  text-align: left;
-}
-
-.admin-table th {
-  background: var(--bg-hover);
-}
-
-.badge-online {
-  color: #22c55e;
-  font-weight: bold;
-}
-
-.badge-offline {
-  color: #94a3b8;
-}
+.admin-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.admin-table th, .admin-table td { padding: 10px; border: 1px solid var(--border-color); text-align: left; }
+.admin-table th { background: var(--bg-hover); }
 
 /* ==================== 9. FOOTER CHUẨN MTU ==================== */
 .footer {
@@ -805,27 +846,10 @@ body {
   gap: 30px;
 }
 
-.footer-col h3, .footer-col h4 {
-  color: var(--accent);
-  margin-bottom: 12px;
-  font-size: 16px;
-}
-
-.footer-col p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 6px 0;
-  line-height: 1.6;
-}
-
-.footer-col a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.footer-col a:hover {
-  text-decoration: underline;
-}
+.footer-col h3, .footer-col h4 { color: var(--accent); margin-bottom: 12px; font-size: 16px; }
+.footer-col p { font-size: 13px; color: var(--text-muted); margin: 6px 0; line-height: 1.6; }
+.footer-col a { color: var(--accent); text-decoration: none; }
+.footer-col a:hover { text-decoration: underline; }
 
 .footer-bottom {
   max-width: 1200px;
@@ -837,22 +861,14 @@ body {
   color: var(--text-muted);
 }
 
-/* ==================== 10. RESPONSIVE MOBILE FIX (TRÁNH LỖI ĐÈ NÚT) ==================== */
-
+/* ==================== 10. RESPONSIVE MOBILE FIX ==================== */
 @media (min-width: 992px) {
-  .mobile-auth-box {
-    display: none !important;
-  }
+  .mobile-auth-box { display: none !important; }
 }
 
 @media (max-width: 991px) {
-  .hero-container {
-    grid-template-columns: 1fr;
-  }
-
-  .mobile-toggle-btn {
-    display: block;
-  }
+  .hero-container { grid-template-columns: 1fr; }
+  .mobile-toggle-btn { display: block; }
 
   .nav-links {
     display: none;
@@ -867,33 +883,17 @@ body {
     align-items: stretch;
   }
 
-  .nav-links.show-mobile {
-    display: flex;
-  }
+  .nav-links.show-mobile { display: flex; }
+  .mega-dropdown .mega-content { min-width: 100%; }
+  .nav-search-group { width: 100%; margin-top: 10px; }
+  .nav-search-group input { flex: 1; }
+  .right-nav-group { display: none; }
+  .mobile-auth-box { display: block !important; }
 
-  .mega-dropdown .mega-content {
-    min-width: 100%;
-  }
-
-  .nav-search-group {
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .nav-search-group input {
-    flex: 1;
-  }
-
-  .right-nav-group {
-    display: none;
-  }
-
-  .mobile-auth-box {
-    display: block !important;
-  }
+  .community-layout { grid-template-columns: 1fr; height: auto; }
+  .community-sidebar { max-height: 200px; }
 }
 
-/* SỬA LỖI ĐÈ NÚT CHATBOT TRÊN ĐIỆN THOẠI (MOBILE) */
 @media (max-width: 768px) {
   .chatbot-floating-btn {
     bottom: 15px !important;
@@ -901,7 +901,6 @@ body {
     z-index: 99999 !important;
     padding: 10px 16px !important;
     font-size: 13px !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
   }
 
   .chatbot-window {
@@ -909,16 +908,12 @@ body {
     right: 4vw !important;
     bottom: 70px !important;
     max-height: 80vh !important;
-    z-index: 999999 !important;
   }
 
-  /* Đẩy phần bộ lọc xuống để không bị nút Chatbot che */
   .filter-bar {
     padding-bottom: 25px !important;
     margin-bottom: 20px !important;
   }
 
-  .form-grid-2 {
-    grid-template-columns: 1fr;
-  }
+  .form-grid-2 { grid-template-columns: 1fr; }
 }
