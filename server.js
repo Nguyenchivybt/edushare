@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Cấu hình lưu trữ file tải lên với Multer
+// Cấu hình Multer lưu tệp tải lên
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -27,7 +27,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// MOCK DATA BAN ĐẦU
 let users = [
   { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: '123', role: 'admin', status: 'approved', emailPhone: 'vy@edushare.edu.vn' },
   { id: '2', fullname: 'Sinh Viên Mẫu', username: 'student', password: '123', role: 'student', status: 'approved', emailPhone: 'student@edushare.edu.vn' }
@@ -74,9 +73,8 @@ let documents = [
 
 let comments = {};
 
-/* API ROUTES */
+/* API ENDPOINTS */
 
-// Auth APIs
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const user = users.find(u => (u.username === username || u.emailPhone === username) && u.password === password);
@@ -102,7 +100,6 @@ app.delete('/api/users/:id', (req, res) => {
   res.json({ message: 'Đã xóa người dùng thành công.' });
 });
 
-// Document APIs
 app.get('/api/documents', (req, res) => {
   res.json(documents);
 });
@@ -146,10 +143,8 @@ app.post('/api/documents/:id/download', (req, res) => {
   res.json({ success: true });
 });
 
-// Comment APIs
 app.get('/api/documents/:id/comments', (req, res) => {
-  const docComments = comments[req.params.id] || [];
-  res.json(docComments);
+  res.json(comments[req.params.id] || []);
 });
 
 app.post('/api/documents/:id/comments', (req, res) => {
@@ -176,7 +171,6 @@ app.delete('/api/documents/comments/:commentId', (req, res) => {
   res.json({ message: 'Đã xóa bình luận.' });
 });
 
-// Trang chủ SPA Fallback
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

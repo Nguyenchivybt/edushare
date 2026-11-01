@@ -2,7 +2,7 @@
 <html lang="vi" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>EduShare - Thư Viện Học Liệu Số Giáo Dục</title>
   <link rel="stylesheet" href="style.css">
   
@@ -15,22 +15,22 @@
 
   <!-- NAVBAR CẤP CAO NẰM NGANG CÂN SÓNG -->
   <header class="navbar">
-    <div class="logo-group" onclick="resetHomePage()" style="cursor:pointer;">
+    <div class="logo-group" onclick="resetHomePage()">
       <div class="logo-icon">🎓</div>
-      <div>
+      <div class="logo-text-box">
         <span class="logo-title">EduShare</span>
         <span class="logo-sub">THƯ VIỆN HỌC LIỆU SỐ GIÁO DỤC</span>
       </div>
     </div>
 
-    <button class="mobile-toggle-btn" onclick="toggleMobileNav()">☰ Menu</button>
+    <button class="mobile-toggle-btn" onclick="toggleMobileNav()" aria-label="Menu">☰ Menu</button>
 
-    <!-- Cụm Điều Hướng Nằm Ngang Chuẩn Đẹp (Không Bị Rớt Dòng) -->
+    <!-- Cụm Điều Hướng Nằm Ngang Chuẩn Đẹp -->
     <nav class="nav-links" id="main-nav-links">
-      <a href="#" onclick="resetHomePage()" class="active">🏠 Trang Chủ</a>
+      <a href="#" onclick="resetHomePage()" class="nav-item active">🏠 Trang Chủ</a>
 
       <div class="dropdown">
-        <a href="javascript:void(0)" class="dropdown-btn">📑 Danh Mục Học Liệu ▼</a>
+        <a href="javascript:void(0)" class="dropdown-btn nav-item">📑 Danh Mục Học Liệu ▼</a>
         <div class="dropdown-content">
           <a href="#" onclick="filterByCategory('Tài liệu')">📚 Tài Liệu Học Tập</a>
           <a href="#" onclick="filterByCategory('Bài giảng')">📖 Bài Giảng & Slide</a>
@@ -41,7 +41,7 @@
       </div>
 
       <div class="dropdown mega-dropdown">
-        <a href="javascript:void(0)" class="dropdown-btn">🏛️ Đơn Vị Đào Tạo ▼</a>
+        <a href="javascript:void(0)" class="dropdown-btn nav-item">🏛️ Đơn Vị Đào Tạo ▼</a>
         <div class="dropdown-content mega-content">
           <div class="submenu-container">
             <div class="submenu-sidebar">
@@ -65,9 +65,9 @@
         </div>
       </div>
 
-      <a href="#articles-section">📰 Bài Báo</a>
+      <a href="#articles-section" class="nav-item">📰 Bài Báo</a>
 
-      <!-- Thanh Tìm Kiếm Nhỏ Gọn Nằm Trong Menu -->
+      <!-- Thanh Tìm Kiếm Co Giãn Tự Động -->
       <div class="nav-search-group">
         <input type="text" id="search-input" placeholder="Tìm giáo trình, đề thi...">
         <select id="search-type">
@@ -116,11 +116,13 @@
   <!-- FILTER BAR: BỘ LỌC PHÂN CẤP -->
   <section class="filter-bar">
     <span class="filter-label">▼ BỘ LỌC PHÂN CẤP:</span>
-    <select id="filter-school" onchange="handleFilterChange('school')"><option value="">🏛️ Tất cả Trường</option></select>
-    <select id="filter-faculty" onchange="handleFilterChange('faculty')"><option value="">🏢 Tất cả Khoa</option></select>
-    <select id="filter-major" onchange="handleFilterChange('major')"><option value="">💾 Tất cả Ngành</option></select>
-    <select id="filter-course" onchange="handleFilterChange('course')"><option value="">📦 Tất cả Khóa</option></select>
-    <select id="filter-class" onchange="handleFilterChange('class')"><option value="">👥 Tất cả Lớp</option></select>
+    <div class="filter-select-group">
+      <select id="filter-school" onchange="handleFilterChange('school')"><option value="">🏛️ Tất cả Trường</option></select>
+      <select id="filter-faculty" onchange="handleFilterChange('faculty')"><option value="">🏢 Tất cả Khoa</option></select>
+      <select id="filter-major" onchange="handleFilterChange('major')"><option value="">💾 Tất cả Ngành</option></select>
+      <select id="filter-course" onchange="handleFilterChange('course')"><option value="">📦 Tất cả Khóa</option></select>
+      <select id="filter-class" onchange="handleFilterChange('class')"><option value="">👥 Tất cả Lớp</option></select>
+    </div>
     <a href="#" onclick="resetFilters(event)" class="btn-reset">↺ Đặt lại lọc</a>
   </section>
 
@@ -137,14 +139,14 @@
     </section>
 
     <!-- DANH SÁCH TÀI LIỆU HỌC TẬP -->
-    <section class="doc-list-section" style="margin-top: 40px;">
+    <section class="doc-list-section">
       <div class="section-header">
         <div>
           <h2>📚 Danh Sách Tài Liệu Học Tập & Bài Thi</h2>
           <p class="sub-text" id="doc-count-text">Đang hiển thị tất cả học liệu khả dụng</p>
         </div>
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-          <button onclick="exportStatsToExcel()" style="background:#15803d; color:#fff; border:none; padding:8px 14px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:12px;">📊 Xuất Excel Thống Kê</button>
+        <div class="section-controls">
+          <button onclick="exportStatsToExcel()" class="btn-excel">📊 Xuất Excel Thống Kê</button>
           <div class="sort-group">
             <label>Sắp xếp:</label>
             <select id="sort-select" onchange="handleSortChange()">
@@ -160,7 +162,7 @@
     </section>
   </main>
 
-  <!-- CHATBOT AI THÔNG MINH (WIDGET NỔI GÓC PHẢI DƯỚI) -->
+  <!-- CHATBOT AI THÔNG MINH -->
   <div id="ai-chatbot-button" class="chatbot-floating-btn" onclick="toggleChatbot()">
     🤖 <span>Hỏi AI EduShare</span>
   </div>
@@ -184,7 +186,7 @@
     </div>
   </div>
 
-  <!-- MODAL CÀI ĐẶT (SETTINGS MODAL) -->
+  <!-- MODAL CÀI ĐẶT -->
   <div id="settings-modal" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header" style="background:#334155;">
@@ -192,7 +194,6 @@
         <button class="modal-close-icon" onclick="closeModal('settings-modal')">&times;</button>
       </div>
       <div style="padding:20px;">
-        <!-- Tùy Chọn Giao Diện -->
         <div class="setting-item">
           <label><strong>🎨 Giao Diện Hệ Thống:</strong></label>
           <select id="theme-selector" onchange="changeTheme(this.value)" style="width:100%; padding:8px; border-radius:6px; margin-top:5px;">
@@ -203,7 +204,6 @@
 
         <hr style="margin:15px 0; border:none; border-top:1px solid #cbd5e1;">
 
-        <!-- Trạng Thái Hoạt Động -->
         <div class="setting-item">
           <label><strong>🟢 Trạng Thái Hoạt Động:</strong></label>
           <select id="status-selector" onchange="toggleOnlineStatus(this.value)" style="width:100%; padding:8px; border-radius:6px; margin-top:5px;">
@@ -214,7 +214,6 @@
 
         <hr style="margin:15px 0; border:none; border-top:1px solid #cbd5e1;">
 
-        <!-- Chỉnh Sửa Thông Tin Cá Nhân -->
         <div id="profile-edit-box">
           <h4 style="margin-bottom:10px;">👤 Chỉnh Sửa Thông Tin Cá Nhân</h4>
           <div class="input-group"><label>Họ và Tên:</label><input type="text" id="edit-profile-fullname"></div>
@@ -225,7 +224,7 @@
     </div>
   </div>
 
-  <!-- MODAL XEM TRƯỚC TÀI LIỆU (DOC PREVIEW MODAL) -->
+  <!-- MODAL XEM TRƯỚC TÀI LIỆU -->
   <div id="doc-preview-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header" style="background:#0369a1;">
@@ -239,7 +238,7 @@
     </div>
   </div>
 
-  <!-- MODAL CHI TIẾT & BÌNH LUẬN (DOC DETAILS MODAL) -->
+  <!-- MODAL CHI TIẾT & BÌNH LUẬN -->
   <div id="doc-details-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header" style="background:#1e293b;">
@@ -301,7 +300,7 @@
     </div>
   </div>
 
-  <!-- MODAL BẢNG ADMIN XEM TRẠNG THÁI ONLINE / OFFLINE -->
+  <!-- MODAL ADMIN -->
   <div id="admin-users-modal" class="modal-overlay">
     <div class="modal-card modal-card-xlarge">
       <div class="modal-header" style="background:#881337;">
@@ -309,7 +308,7 @@
         <button class="modal-close-icon" onclick="closeModal('admin-users-modal')">&times;</button>
       </div>
       <div style="padding:15px; display:flex; justify-content:flex-end; gap:10px;">
-        <button onclick="exportUsersToExcel()" style="background:#15803d; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;">📊 Xuất Excel Danh Sách User</button>
+        <button onclick="exportUsersToExcel()" class="btn-excel">📊 Xuất Excel Danh Sách User</button>
       </div>
       <div style="overflow-x:auto; padding:0 20px 20px 20px;">
         <table class="admin-table">
@@ -333,7 +332,7 @@
     </div>
   </div>
 
-  <!-- MODAL TẢI LÊN TÀI LIỆU -->
+  <!-- MODAL TẢI LÊN -->
   <div id="upload-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">

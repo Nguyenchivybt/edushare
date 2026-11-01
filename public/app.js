@@ -1,10 +1,8 @@
-// TRẠNG THÁI HỆ THỐNG & DỮ LIỆU CỦA ĐỐI TƯỢNG
 let currentUser = JSON.parse(localStorage.getItem('edushare_user')) || null;
 let documentsData = [];
 let currentActiveDocId = null;
 let currentOnlineStatus = localStorage.getItem('edushare_status') || 'online';
 
-// KHỞI TẠO NẠP TRANG TRONG DOM
 document.addEventListener('DOMContentLoaded', () => {
   bindAuthForms();
   updateAuthUI();
@@ -40,7 +38,7 @@ function sendChatMessage() {
     } else if (lower.includes('đăng ký') || lower.includes('tài khoản')) {
       reply = "📝 Bạn chỉ cần bấm vào nút 'Đăng Ký' ở góc trên bên phải màn hình để tạo tài khoản Sinh viên/Giảng viên mới.";
     } else if (lower.includes('word') || lower.includes('docx') || lower.includes('lỗi')) {
-      reply = "📄 Hệ thống đã hỗ trợ trình xem trước tệp Word (DOCX) qua Google Viewer / Office Online mượt mà, hạn chế tối đa lỗi tệp nén.";
+      reply = "📄 Hệ thống đã hỗ trợ trình xem trước tệp Word (DOCX) mượt mà, tự động co giãn 100% phù hợp cả điện thoại và máy tính.";
     } else if (lower.includes('sách') || lower.includes('giáo trình')) {
       reply = "📚 Bạn có thể chọn mục '📚 Tài Liệu Học Tập' trên Thanh menu chính để xem danh sách giáo trình mới nhất.";
     }
@@ -50,7 +48,7 @@ function sendChatMessage() {
   }, 500);
 }
 
-/* ==================== 2. CÀI ĐẶT GIAO DIỆN & TRẠNG THÁI ONLINE/OFFLINE ==================== */
+/* ==================== 2. CÀI ĐẶT GIAO DIỆN & TRẠNG THÁI ==================== */
 
 function changeTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -67,7 +65,7 @@ function applySavedTheme() {
 function toggleOnlineStatus(status) {
   currentOnlineStatus = status;
   localStorage.setItem('edushare_status', status);
-  alert(`Đã chuyển trạng thái sang: ${status === 'online' ? '🟢 Online (Đang hoạt động)' : '⚪ Offline (Ngoại tuyến)'}`);
+  alert(`Đã chuyển trạng thái sang: ${status === 'online' ? '🟢 Online' : '⚪ Offline'}`);
   updateAuthUI();
 }
 
@@ -106,7 +104,7 @@ async function openDocPreviewModal(docId) {
   }
 
   if (doc.type === 'PDF') {
-    container.innerHTML = `<iframe src="${doc.url}" width="100%" height="520px" style="border:none; border-radius:6px;"></iframe>`;
+    container.innerHTML = `<iframe src="${doc.url}" width="100%" height="500px" style="border:none; border-radius:6px;"></iframe>`;
   } else if (doc.type === 'DOCX') {
     container.innerHTML = `
       <div id="docx-render-area" style="width:100%; height:500px; overflow-y:auto; background:#f1f5f9; padding:15px; border-radius:6px;">
@@ -131,8 +129,8 @@ async function openDocPreviewModal(docId) {
         document.getElementById('docx-render-area').innerHTML = `
           <div style="text-align:center; padding:30px; color:#dc2626;">
             <p style="font-size:16px; font-weight:bold;">📄 Xem Trước Tệp Word (${doc.type})</p>
-            <p style="font-size:13px; color:#475569; margin:10px 0;">Không thể mở bản hiển thị nhanh trực tiếp trên trình duyệt này.</p>
-            ${currentUser ? `<button onclick="downloadCheck('${doc.id}')" class="btn-submit btn-green" style="width:auto; padding:8px 20px;">📥 Tải Về Tệp Gốc Để Xem</button>` : `<p style="color:#2563eb; font-weight:bold; font-size:13px;">🔒 Vui lòng đăng nhập để tải tệp về thiết bị.</p>`}
+            <p style="font-size:13px; color:#475569; margin:10px 0;">Vui lòng tải tệp về thiết bị để xem với định dạng đầy đủ nhất.</p>
+            ${currentUser ? `<button onclick="downloadCheck('${doc.id}')" class="btn-submit btn-green" style="width:auto; padding:8px 20px;">📥 Tải Về Tệp Gốc</button>` : `<p style="color:#2563eb; font-weight:bold; font-size:13px;">🔒 Vui lòng đăng nhập để tải tệp về.</p>`}
           </div>
         `;
       }
@@ -149,7 +147,7 @@ async function openDocPreviewModal(docId) {
   openModal('doc-preview-modal');
 }
 
-/* ==================== 4. TẢI DỮ LIỆU & RENDER DANH SÁCH TÀI LIỆU ==================== */
+/* ==================== 4. TẢI DỮ LIỆU & RENDER ==================== */
 
 async function loadDocumentsFromServer() {
   try {
@@ -193,7 +191,7 @@ function renderDocuments(docs) {
   if (countText) countText.innerText = `Đang hiển thị ${normalDocs.length} học liệu giáo dục`;
 
   if (normalDocs.length === 0) {
-    container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:30px 0;">Không tìm thấy học liệu phù hợp với điều kiện tìm kiếm.</p>';
+    container.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:30px 0;">Không tìm thấy học liệu phù hợp.</p>';
     return;
   }
 
@@ -217,7 +215,7 @@ function renderDocuments(docs) {
     }
 
     return `
-      <div class="doc-card" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:18px; box-shadow:0 2px 4px rgba(0,0,0,0.04);">
+      <div class="doc-card" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:16px; box-shadow:0 2px 4px rgba(0,0,0,0.04);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span style="background:#2563eb; color:#fff; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:4px;">${doc.type}</span>
           <span style="font-size:12px; color:var(--text-muted);">📅 ${doc.date || ''}</span>
@@ -241,7 +239,7 @@ function renderDocuments(docs) {
   }).join('');
 }
 
-/* ==================== 5. BỘ LỌC PHÂN CẤP & TÌM KIẾM ==================== */
+/* ==================== 5. BỘ LỌC PHÂN CẤP ==================== */
 
 function populateFilterOptions(docs) {
   const selectedSchool = document.getElementById('filter-school').value;
@@ -336,6 +334,7 @@ function filterByCategory(cat) {
     return d.category.toLowerCase().includes(cat.toLowerCase());
   });
   renderDocuments(filtered);
+  closeMobileNav();
   const docSection = document.querySelector('.doc-list-section');
   if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
 }
@@ -343,6 +342,7 @@ function filterByCategory(cat) {
 function filterByGroup(key, value) {
   const filtered = documentsData.filter(d => d[key] === value);
   renderDocuments(filtered);
+  closeMobileNav();
   const docSection = document.querySelector('.doc-list-section');
   if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
 }
@@ -361,6 +361,7 @@ function handleSearch() {
   });
 
   renderDocuments(filtered);
+  closeMobileNav();
   const docSection = document.querySelector('.doc-list-section');
   if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
 }
@@ -376,6 +377,7 @@ function resetFilters(e) {
   document.getElementById('filter-class').value = '';
   populateFilterOptions(documentsData);
   renderDocuments(documentsData);
+  closeMobileNav();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -396,7 +398,7 @@ function handleSortChange() {
   renderDocuments(sorted);
 }
 
-/* ==================== 6. BÌNH LUẬN & ĐÁNH GIÁ ==================== */
+/* ==================== 6. BÌNH LUẬN ==================== */
 
 async function openDocDetailsModal(docId) {
   currentActiveDocId = docId;
@@ -525,7 +527,7 @@ async function submitComment(e) {
   }
 }
 
-/* ==================== 7. XUẤT BÁO CÁO EXCEL ==================== */
+/* ==================== 7. XUẤT EXCEL ==================== */
 
 async function exportUsersToExcel() {
   if (typeof XLSX === 'undefined') {
@@ -592,7 +594,7 @@ async function exportStatsToExcel() {
   }
 }
 
-/* ==================== 8. XỬ LÝ AUTH & TẢI TỆP ==================== */
+/* ==================== 8. AUTH & TẢI TỆP ==================== */
 
 function updateAuthUI() {
   const authContainer = document.getElementById('auth-buttons-container');
@@ -816,10 +818,15 @@ async function deleteUser(id) {
   } catch (err) { alert('Lỗi xóa người dùng!'); }
 }
 
-/* CÁC HÀM TIỆN ÍCH KHÁC */
+/* TIỆN ÍCH MENU MOBILE & MODAL */
 function toggleMobileNav() {
   const links = document.getElementById('main-nav-links');
   if (links) links.classList.toggle('show-mobile');
+}
+
+function closeMobileNav() {
+  const links = document.getElementById('main-nav-links');
+  if (links) links.classList.remove('show-mobile');
 }
 
 function showSubmenuTab(tabId, el) {
