@@ -1,23 +1,14 @@
 {
   "name": "edushare",
   "version": "1.0.0",
-  "description": "Hệ thống Quản lý và Chia sẻ Học liệu Giáo dục - EduShare",
+  "description": "Thư viện học liệu số giáo dục EduShare",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": [
-    "education",
-    "documents",
-    "edushare"
-  ],
-  "author": "Nguyễn Chí Vỹ",
-  "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.6",
-    "express": "^5.3.0",
-    "mongoose": "^9.11.4",
-    "multer": "^2.5.0",
-    "nodemailer": "^10.3.1"
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
   }
 }

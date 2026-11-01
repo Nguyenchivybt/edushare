@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EduShare - Thư Viện Học Liệu Số Mở</title>
+  <title>EduShare - Thư Viện Học Liệu Số Giáo Dục</title>
   <link rel="stylesheet" href="style.css">
   
-  <!-- Thư viện Excel & Docx -->
+  <!-- Thư viện hỗ trợ Xuất Excel, Đọc DOCX & JSZip -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
   <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
 </head>
 <body>
 
-  <!-- Navbar Cấp Cao Nằm Ngang Cân Sóng -->
+  <!-- NAVBAR CẤP CAO NẰM NGANG CÂN SÓNG -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()" style="cursor:pointer;">
       <div class="logo-icon">🎓</div>
@@ -25,7 +25,7 @@
 
     <button class="mobile-toggle-btn" onclick="toggleMobileNav()">☰ Menu</button>
 
-    <!-- Cụm Điều Hướng Nằm Ngang Chuẩn Đẹp -->
+    <!-- Cụm Điều Hướng Nằm Ngang Chuẩn Đẹp (Không Bị Rớt Dòng) -->
     <nav class="nav-links" id="main-nav-links">
       <a href="#" onclick="resetHomePage()" class="active">🏠 Trang Chủ</a>
 
@@ -89,7 +89,7 @@
     </div>
   </header>
 
-  <!-- Hero Banner Trang Chủ -->
+  <!-- HERO BANNER TRANG CHỦ -->
   <section class="hero-section">
     <div class="hero-container">
       <div class="hero-text-box">
@@ -107,13 +107,13 @@
       <div class="hero-image-box">
         <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80" alt="Thư viện học thuật" class="hero-img">
         <div class="hero-img-overlay">
-          <div class="overlay-card"><span>📚 100% Học liệu chuẩn hóa</span></div>
+          <div class="overlay-card"><span>📚 100% Học liệu số chuẩn hóa</span></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Filter Bar: Bộ Lọc Phân Cấp -->
+  <!-- FILTER BAR: BỘ LỌC PHÂN CẤP -->
   <section class="filter-bar">
     <span class="filter-label">▼ BỘ LỌC PHÂN CẤP:</span>
     <select id="filter-school" onchange="handleFilterChange('school')"><option value="">🏛️ Tất cả Trường</option></select>
@@ -125,7 +125,7 @@
   </section>
 
   <main class="main-content">
-    <!-- Bài Báo Khoa Học -->
+    <!-- BÀI BÁO KHOA HỌC TIÊU BIỂU -->
     <section id="articles-section" class="articles-section">
       <div class="section-header">
         <div>
@@ -136,7 +136,7 @@
       <div id="articles-grid" class="articles-grid"></div>
     </section>
 
-    <!-- Danh Sách Học Liệu -->
+    <!-- DANH SÁCH TÀI LIỆU HỌC TẬP -->
     <section class="doc-list-section" style="margin-top: 40px;">
       <div class="section-header">
         <div>
@@ -218,14 +218,14 @@
         <div id="profile-edit-box">
           <h4 style="margin-bottom:10px;">👤 Chỉnh Sửa Thông Tin Cá Nhân</h4>
           <div class="input-group"><label>Họ và Tên:</label><input type="text" id="edit-profile-fullname"></div>
-          <div class="input-group"><label>Email / SĐT:</label><input type="text" id="edit-profile-email"></div>
-          <button onclick="saveUserProfileInfo()" class="btn-submit btn-green" style="margin-top:10px;">Lưu Thay Đổi Thông Tin</button>
+          <div class="input-group" style="margin-top:8px;"><label>Email / SĐT:</label><input type="text" id="edit-profile-email"></div>
+          <button onclick="saveUserProfileInfo()" class="btn-submit btn-green" style="margin-top:12px;">Lưu Thay Đổi Thông Tin</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Các Modal Phụ (Xem Trước, Login, Register, Profile, Admin) -->
+  <!-- MODAL XEM TRƯỚC TÀI LIỆU (DOC PREVIEW MODAL) -->
   <div id="doc-preview-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header" style="background:#0369a1;">
@@ -239,28 +239,50 @@
     </div>
   </div>
 
+  <!-- MODAL CHI TIẾT & BÌNH LUẬN (DOC DETAILS MODAL) -->
+  <div id="doc-details-modal" class="modal-overlay">
+    <div class="modal-card modal-card-large">
+      <div class="modal-header" style="background:#1e293b;">
+        <div class="modal-title" id="detail-doc-title">📄 Chi Tiết Tài Liệu</div>
+        <button class="modal-close-icon" onclick="closeModal('doc-details-modal')">&times;</button>
+      </div>
+      <div style="padding:20px;">
+        <div id="detail-doc-info" style="font-size:13px; color:var(--text-main); margin-bottom:15px;"></div>
+        
+        <h4 style="margin-bottom:10px; font-size:14px; border-bottom:1px solid #e2e8f0; padding-bottom:5px;">💬 Bình Luận & Đánh Giá từ Sinh Viên / Giảng Viên</h4>
+        <div id="comments-list-box" style="max-height:220px; overflow-y:auto; margin-bottom:15px; background:#f8fafc; padding:10px; border-radius:6px;">
+          ⏳ Đang tải bình luận...
+        </div>
+
+        <div id="comment-form-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ĐĂNG NHẬP -->
   <div id="login-modal" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title">🔐 Đăng Nhập EduShare</div>
         <button class="modal-close-icon" onclick="closeModal('login-modal')">&times;</button>
       </div>
-      <form id="login-form">
+      <form id="login-form" style="padding:20px;">
         <div class="input-group"><label>Tên đăng nhập / Email / SĐT (*):</label><input type="text" id="login-username" required placeholder="Nhập tài khoản"></div>
-        <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="login-password" required placeholder="Nhập mật khẩu"></div>
-        <button type="submit" class="btn-submit btn-blue" style="margin-top:10px;">Đăng Nhập Ngay</button>
+        <div class="input-group" style="margin-top:10px;"><label>Mật khẩu (*):</label><input type="password" id="login-password" required placeholder="Nhập mật khẩu"></div>
+        <button type="submit" class="btn-submit btn-blue" style="margin-top:15px;">Đăng Nhập Ngay</button>
         <button type="button" onclick="closeModal('login-modal')" class="btn-cancel" style="margin-top:8px;">Hủy Bỏ</button>
       </form>
     </div>
   </div>
 
+  <!-- MODAL ĐĂNG KÝ -->
   <div id="register-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">
         <div class="modal-title">📝 Đăng Ký Tài Khoản EduShare</div>
         <button class="modal-close-icon" onclick="closeModal('register-modal')">&times;</button>
       </div>
-      <form id="register-form">
+      <form id="register-form" style="padding:20px;">
         <div class="form-grid-2">
           <div class="input-group"><label>Họ và Tên (*):</label><input type="text" id="reg-fullname" required></div>
           <div class="input-group"><label>Giới tính:</label><select id="reg-gender"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
@@ -279,14 +301,17 @@
     </div>
   </div>
 
-  <!-- BẢNG ADMIN XEM TRẠNG THÁI ONLINE/OFFLINE -->
+  <!-- MODAL BẢNG ADMIN XEM TRẠNG THÁI ONLINE / OFFLINE -->
   <div id="admin-users-modal" class="modal-overlay">
     <div class="modal-card modal-card-xlarge">
       <div class="modal-header" style="background:#881337;">
         <div class="modal-title">🛡️ Quản Lý Hệ Thống & Trạng Thái Hoạt Động (Admin)</div>
         <button class="modal-close-icon" onclick="closeModal('admin-users-modal')">&times;</button>
       </div>
-      <div style="overflow-x:auto; padding:20px;">
+      <div style="padding:15px; display:flex; justify-content:flex-end; gap:10px;">
+        <button onclick="exportUsersToExcel()" style="background:#15803d; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;">📊 Xuất Excel Danh Sách User</button>
+      </div>
+      <div style="overflow-x:auto; padding:0 20px 20px 20px;">
         <table class="admin-table">
           <thead>
             <tr>
@@ -294,7 +319,7 @@
               <th>Họ và Tên</th>
               <th>Tài khoản</th>
               <th>Vai trò</th>
-              <th>Trạng thái Hoạt Động AI</th>
+              <th>Trạng thái Hoạt Động</th>
               <th>Duyệt</th>
               <th>Thao tác</th>
             </tr>
@@ -302,18 +327,20 @@
           <tbody id="users-table-body"></tbody>
         </table>
       </div>
-      <div style="padding:0 20px 20px 20px;"><button type="button" onclick="closeModal('admin-users-modal')" class="btn-cancel">Đóng</button></div>
+      <div style="padding:0 20px 20px 20px; text-align:right;">
+        <button type="button" onclick="closeModal('admin-users-modal')" class="btn-cancel" style="width:auto; padding:6px 16px;">Đóng Bảng Admin</button>
+      </div>
     </div>
   </div>
 
-  <!-- Modal Tải Lên -->
+  <!-- MODAL TẢI LÊN TÀI LIỆU -->
   <div id="upload-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">
         <div class="modal-title">📤 Tải Lên Học Liệu Mới</div>
         <button class="modal-close-icon" onclick="closeModal('upload-modal')">&times;</button>
       </div>
-      <form id="upload-form" onsubmit="handleUploadSubmit(event)">
+      <form id="upload-form" onsubmit="handleUploadSubmit(event)" style="padding:20px;">
         <div class="form-grid-2">
           <div class="input-group" style="grid-column: span 2;"><label>Tên tài liệu (*):</label><input type="text" id="up-title" required></div>
           <div class="input-group"><label>Loại tệp (*):</label>
@@ -332,9 +359,9 @@
               <option value="Tài liệu bài thi">Đề thi mẫu</option>
             </select>
           </div>
-          <div class="input-group" style="grid-column: span 2;"><label>Tệp tin (*):</label><input type="file" id="up-file"></div>
+          <div class="input-group" style="grid-column: span 2;"><label>Chọn Tệp Tải Lên (*):</label><input type="file" id="up-file" required></div>
         </div>
-        <button type="submit" class="btn-submit btn-blue" style="margin-top:15px;">Xác Nhận Tải Lên</button>
+        <button type="submit" class="btn-submit btn-blue" style="margin-top:15px;">Xác Nhận Tải Lên Học Liệu</button>
       </form>
     </div>
   </div>
