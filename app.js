@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDocumentsFromServer();
 });
 
-/* ==================== XỬ LÝ CHUYỂN TAB CỘT TRÁI TRONG MEGA DROPDOWN (HÌNH 3) ==================== */
+/* ==================== XỬ LÝ MEGA DROPDOWN MENU ==================== */
 
 function showSubmenuTab(tabId, element) {
   document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
@@ -439,7 +439,7 @@ async function openDocPreviewModal(docId) {
   openModal('doc-preview-modal');
 }
 
-/* ==================== BỘ LỌC PHÂN CẤP & NẠP MENU MEGA ==================== */
+/* ==================== BỘ LỌC PHÂN CẤP & MEGA DROPDOWN ==================== */
 
 function populateFilterOptions(docs) {
   const selectedSchool = document.getElementById('filter-school').value;
@@ -465,7 +465,6 @@ function populateFilterOptions(docs) {
   fillSelect('filter-course', courses, '📦 Tất cả Khóa', selectedCourse);
   fillSelect('filter-class', classes, '👥 Tất cả Lớp');
 
-  // ĐỒNG THỜI TỰ ĐỘNG NẠP DANH SÁCH VÀO MEGA DROPDOWN (HÌNH 3)
   populateMegaDropdownLists(faculties, majors, courses, classes);
 }
 
@@ -564,6 +563,9 @@ function handleSearch() {
   });
 
   renderDocuments(filtered);
+
+  const docSection = document.querySelector('.doc-list-section');
+  if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
 }
 
 function resetFilters(e) {
@@ -577,6 +579,7 @@ function resetFilters(e) {
   document.getElementById('filter-class').value = '';
   populateFilterOptions(documentsData);
   renderDocuments(documentsData);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function resetHomePage() { resetFilters(); }

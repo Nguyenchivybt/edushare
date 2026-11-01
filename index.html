@@ -15,7 +15,7 @@
 </head>
 <body>
 
-  <!-- Navbar -->
+  <!-- Navbar Cấp Cao: Tích hợp Thanh Tìm Kiếm & Nút Tải Lên bên trái User -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()" style="cursor:pointer;">
       <div class="logo-icon">🎓</div>
@@ -25,8 +25,24 @@
       </div>
     </div>
 
+    <!-- Hàng Menu Điều Hướng kèm Thanh Tìm Kiếm Cấp Cao -->
     <nav class="nav-links">
       <a href="#" onclick="resetHomePage()" class="active">🏠 Trang Chủ</a>
+
+      <!-- Thanh Tìm Kiếm Tích Hợp Trên Navbar Cùng Hàng -->
+      <div class="nav-search-group">
+        <input type="text" id="search-input" placeholder="Tìm kiếm giáo trình, bài giảng, đề thi...">
+        <select id="search-type">
+          <option value="all">Tất cả tệp</option>
+          <option value="PDF">PDF</option>
+          <option value="DOCX">Word</option>
+          <option value="PPTX">PowerPoint</option>
+          <option value="Video">Video</option>
+          <option value="Audio">Audio</option>
+          <option value="LINK">Bài báo</option>
+        </select>
+        <button onclick="handleSearch()" class="btn-nav-search">🔍 Tìm</button>
+      </div>
 
       <!-- MENU SỔ DOWN 1: DANH MỤC HỌC LIỆU -->
       <div class="dropdown">
@@ -40,12 +56,11 @@
         </div>
       </div>
 
-      <!-- MENU SỔ DOWN 2: CẤU TRÚC ĐƠN VỊ ĐÀO TẠO (SỔ 2 CỘT PHÂN TẦNG NHƯ HÌNH 3) -->
+      <!-- MENU SỔ DOWN 2: CẤU TRÚC ĐƠN VỊ ĐÀO TẠO -->
       <div class="dropdown mega-dropdown">
         <a href="javascript:void(0)" class="dropdown-btn">🏛️ Đơn Vị Đào Tạo ▼</a>
         <div class="dropdown-content mega-content">
           <div class="submenu-container">
-            <!-- Cột Trái: Chọn Cấp/Tầng Đào Tạo -->
             <div class="submenu-sidebar">
               <div class="submenu-item active" onmouseover="showSubmenuTab('tab-truong', this)">🏛️ 1. Khối Trường</div>
               <div class="submenu-item" onmouseover="showSubmenuTab('tab-khoa', this)">🏢 2. Khối Khoa</div>
@@ -54,7 +69,6 @@
               <div class="submenu-item" onmouseover="showSubmenuTab('tab-lop', this)">👥 5. Khối Lớp Học</div>
             </div>
 
-            <!-- Cột Phải: Danh Sách Sổ NgangTương Ứng -->
             <div class="submenu-body">
               <div id="tab-truong" class="submenu-panel active">
                 <a href="#" onclick="filterByGroup('school', 'Trường Đại học Xây dựng Miền Tây')">🏛️ Trường Đại học Xây dựng Miền Tây</a>
@@ -87,31 +101,42 @@
       <a href="#articles-section">📰 Bài Báo</a>
     </nav>
 
-    <div id="auth-buttons-container" class="auth-buttons"></div>
+    <!-- Góc Phải Navbar: Nút Tải Lên Bên Trái Tài Khoản Người Dùng -->
+    <div class="right-nav-group">
+      <button onclick="openUploadCheck()" class="btn-upload-nav">+ Tải Lên Tài Liệu</button>
+      <div id="auth-buttons-container" class="auth-buttons"></div>
+    </div>
   </header>
 
-  <!-- Hero Banner -->
+  <!-- Hero Section Trang Chủ: Đồ Họa Giáo Dục Học Thuật & Slogan Ấn Tượng -->
   <section class="hero-section">
-    <h1>Kho Học Liệu Giáo Dục & Nghiên Cứu Mở</h1>
-    <p>Tra cứu, chia sẻ giáo trình, bài giảng, bài tập mẫu, đề thi & bài báo khoa học dành cho Giảng viên và Sinh viên.</p>
+    <div class="hero-container">
+      <div class="hero-text-box">
+        <span class="hero-badge">🎓 TRI THỨC MỞ - KẾT NỐI TƯƠNG LAI</span>
+        <h1>Kho Học Liệu Giáo Dục & Nghiên Cứu Mở</h1>
+        
+        <!-- Slogan Giáo Dục -->
+        <div class="hero-slogans">
+          <div class="slogan-tag primary-slogan">✨ "Tiếp nối tri thức - Vững bước tương lai!"</div>
+          <div class="slogan-tag secondary-slogan">📖 "Học đi đôi với Hành"</div>
+        </div>
 
-    <div class="search-box-group">
-      <input type="text" id="search-input" placeholder="Tìm kiếm giáo trình, bài giảng, đề thi, môn học, tác giả...">
-      <select id="search-type">
-        <option value="all">Tất cả loại tệp</option>
-        <option value="PDF">PDF</option>
-        <option value="DOCX">Word (DOCX)</option>
-        <option value="PPTX">PowerPoint (PPTX)</option>
-        <option value="Video">Video bài giảng</option>
-        <option value="Audio">Audio bài giảng</option>
-        <option value="LINK">Bài báo khoa học</option>
-      </select>
-      <button onclick="handleSearch()" class="btn-search">⚙️ Tìm Kiếm</button>
-      <button onclick="openUploadCheck()" class="btn-upload-hero">+ Tải Lên Tài Liệu</button>
+        <p class="hero-description">Nền tảng lưu trữ, tra cứu và chia sẻ giáo trình, bài giảng, bài tập mẫu, đề thi & công trình nghiên cứu khoa học mở dành cho Giảng viên và Sinh viên.</p>
+      </div>
+
+      <!-- Hình Ảnh Minh Họa Giáo Dục Học Thuật Số Độc Đáo -->
+      <div class="hero-image-box">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80" alt="Học Thuật Giáo Dục" class="hero-img">
+        <div class="hero-img-overlay">
+          <div class="overlay-card">
+            <span>📚 100% Học liệu số chuẩn hóa</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Filter Bar (Bộ Lọc Phân Cấp Liền Kề) -->
+  <!-- Filter Bar: Bộ Lọc Phân Cấp -->
   <section class="filter-bar">
     <span class="filter-label">▼ BỘ LỌC PHÂN CẤP:</span>
     <select id="filter-school" onchange="handleFilterChange('school')"><option value="">🏛️ Tất cả Trường</option></select>
