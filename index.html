@@ -27,11 +27,63 @@
 
     <nav class="nav-links">
       <a href="#" onclick="resetHomePage()" class="active">🏠 Trang Chủ</a>
-      <a href="#category-section">📑 Danh Mục</a>
-      <a href="#" onclick="filterByCategory('Tài liệu')">📚 Tài Liệu</a>
-      <a href="#" onclick="filterByCategory('Bài giảng')">📖 Bài Giảng</a>
-      <a href="#" onclick="filterByCategory('Bài tập')">🛠️ Bài Tập</a>
-      <a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Đề Thi</a>
+
+      <!-- MENU SỔ DOWN 1: DANH MỤC HỌC LIỆU -->
+      <div class="dropdown">
+        <a href="javascript:void(0)" class="dropdown-btn">📑 Danh Mục Học Liệu ▼</a>
+        <div class="dropdown-content">
+          <a href="#" onclick="filterByCategory('Tài liệu')">📚 Tài Liệu Học Tập (Giáo trình & Sách)</a>
+          <a href="#" onclick="filterByCategory('Bài giảng')">📖 Bài Giảng & Slide Bài Học</a>
+          <a href="#" onclick="filterByCategory('Bài tập')">🛠️ Bài Tập Mẫu & Đồ Án</a>
+          <a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Đề Thi & Ngân Hàng Câu Hỏi</a>
+          <a href="#articles-section" onclick="filterByCategory('Bài báo tiêu biểu')">📰 Bài Báo Khoa Học Tiêu Biểu</a>
+        </div>
+      </div>
+
+      <!-- MENU SỔ DOWN 2: CẤU TRÚC ĐƠN VỊ ĐÀO TẠO (SỔ 2 CỘT PHÂN TẦNG NHƯ HÌNH 3) -->
+      <div class="dropdown mega-dropdown">
+        <a href="javascript:void(0)" class="dropdown-btn">🏛️ Đơn Vị Đào Tạo ▼</a>
+        <div class="dropdown-content mega-content">
+          <div class="submenu-container">
+            <!-- Cột Trái: Chọn Cấp/Tầng Đào Tạo -->
+            <div class="submenu-sidebar">
+              <div class="submenu-item active" onmouseover="showSubmenuTab('tab-truong', this)">🏛️ 1. Khối Trường</div>
+              <div class="submenu-item" onmouseover="showSubmenuTab('tab-khoa', this)">🏢 2. Khối Khoa</div>
+              <div class="submenu-item" onmouseover="showSubmenuTab('tab-nganh', this)">💾 3. Khối Ngành</div>
+              <div class="submenu-item" onmouseover="showSubmenuTab('tab-khoa-hoc', this)">📦 4. Khối Khóa Học</div>
+              <div class="submenu-item" onmouseover="showSubmenuTab('tab-lop', this)">👥 5. Khối Lớp Học</div>
+            </div>
+
+            <!-- Cột Phải: Danh Sách Sổ NgangTương Ứng -->
+            <div class="submenu-body">
+              <div id="tab-truong" class="submenu-panel active">
+                <a href="#" onclick="filterByGroup('school', 'Trường Đại học Xây dựng Miền Tây')">🏛️ Trường Đại học Xây dựng Miền Tây</a>
+              </div>
+              <div id="tab-khoa" class="submenu-panel">
+                <div id="dropdown-list-faculty">
+                  <p style="color:#94a3b8; font-size:12px; padding:8px;">⏳ Đang nạp danh sách Khoa...</p>
+                </div>
+              </div>
+              <div id="tab-nganh" class="submenu-panel">
+                <div id="dropdown-list-major">
+                  <p style="color:#94a3b8; font-size:12px; padding:8px;">⏳ Đang nạp danh sách Ngành...</p>
+                </div>
+              </div>
+              <div id="tab-khoa-hoc" class="submenu-panel">
+                <div id="dropdown-list-course">
+                  <p style="color:#94a3b8; font-size:12px; padding:8px;">⏳ Đang nạp danh sách Khóa...</p>
+                </div>
+              </div>
+              <div id="tab-lop" class="submenu-panel">
+                <div id="dropdown-list-class">
+                  <p style="color:#94a3b8; font-size:12px; padding:8px;">⏳ Đang nạp danh sách Lớp...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <a href="#articles-section">📰 Bài Báo</a>
     </nav>
 
@@ -59,7 +111,7 @@
     </div>
   </section>
 
-  <!-- Filter Bar (Phân Cấp: Trường ➔ Khoa ➔ Ngành ➔ Khóa ➔ Lớp) -->
+  <!-- Filter Bar (Bộ Lọc Phân Cấp Liền Kề) -->
   <section class="filter-bar">
     <span class="filter-label">▼ BỘ LỌC PHÂN CẤP:</span>
     <select id="filter-school" onchange="handleFilterChange('school')"><option value="">🏛️ Tất cả Trường</option></select>
@@ -71,69 +123,8 @@
   </section>
 
   <main class="main-content">
-    <!-- KHU VỰC DANH MỤC HỌC LIỆU & ĐƠN VỊ ĐÀO TẠO PHÂN CẤP -->
-    <section id="category-section" class="group-category-section">
-      <h3 style="margin-bottom:12px; color:#1e293b;">📑 Danh Mục Loại Học Liệu</h3>
-      <div class="category-grid" style="margin-bottom:30px;">
-        <div class="cat-card" onclick="filterByCategory('Tài liệu')">
-          <div class="cat-icon">📚</div>
-          <h4>Tài Liệu Học Tập</h4>
-          <p>Sách, Giáo trình & Sách tham khảo</p>
-        </div>
-        <div class="cat-card" onclick="filterByCategory('Bài giảng')">
-          <div class="cat-icon">📖</div>
-          <h4>Bài Giảng & Slide</h4>
-          <p>Bài giảng lý thuyết, Video & Audio</p>
-        </div>
-        <div class="cat-card" onclick="filterByCategory('Bài tập')">
-          <div class="cat-icon">🛠️</div>
-          <h4>Bài Tập & Đồ Án</h4>
-          <p>Bài tập thực hành, đồ án môn học</p>
-        </div>
-        <div class="cat-card" onclick="filterByCategory('Tài liệu bài thi')">
-          <div class="cat-icon">🎯</div>
-          <h4>Đề Thi & Ngân Hàng Câu Hỏi</h4>
-          <p>Đề thi giữa kỳ, cuối kỳ & đáp án</p>
-        </div>
-        <div class="cat-card" onclick="filterByCategory('Bài báo tiêu biểu')">
-          <div class="cat-icon">📰</div>
-          <h4>Bài Báo Khoa Học</h4>
-          <p>Công trình nghiên cứu & Tạp chí</p>
-        </div>
-      </div>
-
-      <h3 style="margin-bottom:12px; color:#1e293b;">🏛️ Cấu Trúc Đơn Vị Đào Tạo (Trường ➔ Khoa ➔ Ngành ➔ Khóa ➔ Lớp)</h3>
-      <div class="category-grid">
-        <div class="cat-card" onclick="filterByGroup('school', 'Trường Đại học Xây dựng Miền Tây')">
-          <div class="cat-icon">🏛️</div>
-          <h4>1. Khối Trường</h4>
-          <p>Văn bản & Học liệu cấp Trường</p>
-        </div>
-        <div class="cat-card" onclick="filterByGroup('faculty', 'Công nghệ thông tin')">
-          <div class="cat-icon">🏢</div>
-          <h4>2. Khối Khoa</h4>
-          <p>Chuyên khoa CNTT, Xây dựng, Kiến trúc...</p>
-        </div>
-        <div class="cat-card" onclick="filterByGroup('major', 'Kỹ thuật phần mềm')">
-          <div class="cat-icon">💾</div>
-          <h4>3. Khối Ngành</h4>
-          <p>Ngành KTPM, Đô thị, Cầu đường...</p>
-        </div>
-        <div class="cat-card" onclick="filterByGroup('course', 'K15')">
-          <div class="cat-icon">📦</div>
-          <h4>4. Khối Khóa Học</h4>
-          <p>Các niên khóa K14, K15, K16, K17...</p>
-        </div>
-        <div class="cat-card" onclick="filterByGroup('className', 'ĐH KTPM 2023')">
-          <div class="cat-icon">👥</div>
-          <h4>5. Khối Lớp Học</h4>
-          <p>Nội bộ danh sách các Lớp học phần</p>
-        </div>
-      </div>
-    </section>
-
     <!-- BÀI BÁO KHOA HỌC TIÊU BIỂU -->
-    <section id="articles-section" class="articles-section" style="margin-top: 40px;">
+    <section id="articles-section" class="articles-section">
       <div class="section-header">
         <div>
           <h2>📰 Bài Báo Khoa Học Tiêu Biểu & Nghiên Cứu</h2>
@@ -143,7 +134,7 @@
       <div id="articles-grid" class="articles-grid"></div>
     </section>
 
-    <!-- DANH SÁCH TÀI LIỆU -->
+    <!-- DANH SÁCH TÀI LIỆU HỌC TẬP -->
     <section class="doc-list-section" style="margin-top: 40px;">
       <div class="section-header">
         <div>
@@ -280,7 +271,6 @@
         <button class="modal-close-icon" onclick="closeModal('forgot-modal')">&times;</button>
       </div>
 
-      <!-- Bước 1: Nhập thông tin tài khoản -->
       <form id="forgot-step1-form" style="padding:24px;">
         <p style="font-size:13px; color:#475569; margin-bottom:15px;">Vui lòng nhập Tên đăng nhập, Email hoặc Số điện thoại để nhận mã OTP khôi phục.</p>
         <div class="input-group">
@@ -291,7 +281,6 @@
         <button type="button" onclick="closeModal('forgot-modal')" class="btn-cancel" style="margin-top:8px;">Hủy Bỏ</button>
       </form>
 
-      <!-- Bước 2: Nhập OTP & Đếm ngược 60s -->
       <form id="forgot-step2-form" style="padding:24px; display:none;">
         <p style="font-size:13px; color:#475569; margin-bottom:15px;">Mã OTP đã được tạo. Vui lòng nhập 6 chữ số bên dưới:</p>
         <div class="input-group">
@@ -307,7 +296,6 @@
         <button type="submit" class="btn-submit" style="background:#ea580c;">Xác Nhận OTP</button>
       </form>
 
-      <!-- Bước 3: Tạo Mật Khẩu Mới -->
       <form id="forgot-step3-form" style="padding:24px; display:none;">
         <p style="font-size:13px; color:#166534; font-weight:bold; margin-bottom:15px;">✅ OTP chính xác! Mời đặt lại mật khẩu mới.</p>
         <div class="input-group">

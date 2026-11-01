@@ -11,6 +11,17 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDocumentsFromServer();
 });
 
+/* ==================== XỬ LÝ CHUYỂN TAB CỘT TRÁI TRONG MEGA DROPDOWN (HÌNH 3) ==================== */
+
+function showSubmenuTab(tabId, element) {
+  document.querySelectorAll('.submenu-item').forEach(item => item.classList.remove('active'));
+  document.querySelectorAll('.submenu-panel').forEach(panel => panel.classList.remove('active'));
+
+  if (element) element.classList.add('active');
+  const activePanel = document.getElementById(tabId);
+  if (activePanel) activePanel.classList.add('active');
+}
+
 /* ==================== AUTH UI & ROLE SWITCHER ==================== */
 
 function updateAuthUI() {
@@ -367,7 +378,7 @@ function renderDocuments(docs) {
   }).join('');
 }
 
-/* ==================== TÍNH NĂNG XEM TRƯỚC TỆP ==================== */
+/* ==================== XEM TRƯỚC TỆP ==================== */
 
 async function openDocPreviewModal(docId) {
   const doc = documentsData.find(d => String(d.id) === String(docId));
@@ -384,9 +395,7 @@ async function openDocPreviewModal(docId) {
   }
 
   if (doc.type === 'PDF') {
-    container.innerHTML = `
-      <iframe src="${doc.url}" width="100%" height="520px" style="border:none; border-radius:6px;"></iframe>
-    `;
+    container.innerHTML = `<iframe src="${doc.url}" width="100%" height="520px" style="border:none; border-radius:6px;"></iframe>`;
   } else if (doc.type === 'DOCX') {
     container.innerHTML = `
       <div id="docx-render-area" style="max-height: 500px; overflow-y: auto; background: #e2e8f0; padding: 15px; border-radius: 6px;">
@@ -430,7 +439,7 @@ async function openDocPreviewModal(docId) {
   openModal('doc-preview-modal');
 }
 
-/* ==================== BỘ LỌC PHÂN CẤP TỰ ĐỘNG (CASCADING DROPDOWNS) ==================== */
+/* ==================== BỘ LỌC PHÂN CẤP & NẠP MENU MEGA ==================== */
 
 function populateFilterOptions(docs) {
   const selectedSchool = document.getElementById('filter-school').value;
@@ -438,7 +447,6 @@ function populateFilterOptions(docs) {
   const selectedMajor = document.getElementById('filter-major').value;
   const selectedCourse = document.getElementById('filter-course').value;
 
-  // Lọc dữ liệu động theo tầng phân cấp
   let filteredForSchool = docs;
   let filteredForFaculty = docs.filter(d => !selectedSchool || d.school === selectedSchool);
   let filteredForMajor = filteredForFaculty.filter(d => !selectedFaculty || d.faculty === selectedFaculty);
@@ -456,6 +464,21 @@ function populateFilterOptions(docs) {
   fillSelect('filter-major', majors, '💾 Tất cả Ngành', selectedMajor);
   fillSelect('filter-course', courses, '📦 Tất cả Khóa', selectedCourse);
   fillSelect('filter-class', classes, '👥 Tất cả Lớp');
+
+  // ĐỒNG THỜI TỰ ĐỘNG NẠP DANH SÁCH VÀO MEGA DROPDOWN (HÌNH 3)
+  populateMegaDropdownLists(faculties, majors, courses, classes);
+}
+
+function populateMegaDropdownLists(faculties, majors, courses, classes) {
+  const defaultFaculties = faculties.length ? faculties : ['Công nghệ thông tin', 'Xây dựng', 'Kiến trúc'];
+  const defaultMajors = majors.length ? majors : ['Kỹ thuật phần mềm', 'Quản lý xây dựng', 'Đô thị'];
+  const defaultCourses = courses.length ? courses : ['K14', 'K15', 'K16', 'K17'];
+  const defaultClasses = classes.length ? classes : ['ĐH KTPM 2023', 'ĐH Xây dựng 2023'];
+
+  document.getElementById('dropdown-list-faculty').innerHTML = defaultFaculties.map(f => `<a href="#" onclick="filterByGroup('faculty', '${f}')">🏢 ${f}</a>`).join('');
+  document.getElementById('dropdown-list-major').innerHTML = defaultMajors.map(m => `<a href="#" onclick="filterByGroup('major', '${m}')">💾 ${m}</a>`).join('');
+  document.getElementById('dropdown-list-course').innerHTML = defaultCourses.map(c => `<a href="#" onclick="filterByGroup('course', '${c}')">📦 Khóa ${c}</a>`).join('');
+  document.getElementById('dropdown-list-class').innerHTML = defaultClasses.map(cl => `<a href="#" onclick="filterByGroup('className', '${cl}')">👥 Lớp ${cl}</a>`).join('');
 }
 
 function fillSelect(elementId, list, defaultLabel, currentValue = '') {
@@ -471,7 +494,6 @@ function fillSelect(elementId, list, defaultLabel, currentValue = '') {
 }
 
 function handleFilterChange(changedLevel) {
-  // Khi cấp trên thay đổi, reset cấp dưới nhỏ hơn
   if (changedLevel === 'school') {
     document.getElementById('filter-faculty').value = '';
     document.getElementById('filter-major').value = '';
@@ -515,7 +537,7 @@ function filterByCategory(cat) {
     return itemCat.includes(targetCat) || targetCat.includes(itemCat);
   });
   renderDocuments(filtered);
-  
+
   const docSection = document.querySelector('.doc-list-section');
   if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
 }
@@ -574,7 +596,7 @@ function handleSortChange() {
   renderDocuments(sorted);
 }
 
-/* ==================== XUẤT BÁO CÁO EXCEL (.XLSX) ==================== */
+/* ==================== XUẤT EXCEL & BÌNH LUẬN ==================== */
 
 async function exportUsersToExcel() {
   if (typeof XLSX === 'undefined') {
@@ -654,8 +676,6 @@ async function exportStatsToExcel() {
     alert('Lỗi xuất báo cáo Excel tài liệu: ' + err.message);
   }
 }
-
-/* ==================== BÌNH LUẬN & ĐÁNH GIÁ ==================== */
 
 async function openDocDetailsModal(docId) {
   currentActiveDocId = docId;
@@ -748,9 +768,7 @@ async function deleteComment(commentId, docId) {
     await fetch(`/api/documents/comments/${commentId}`, { method: 'DELETE' });
     alert('Đã xóa bình luận thành công!');
     loadComments(docId);
-  } catch (err) {
-    loadComments(docId);
-  }
+  } catch (err) { loadComments(docId); }
 }
 
 async function submitComment(e) {
@@ -780,7 +798,7 @@ async function submitComment(e) {
   } catch (err) { alert('Lỗi gửi bình luận!'); }
 }
 
-/* ==================== TẢI VỀ, XEM, YÊU THÍCH ==================== */
+/* ==================== TẢI VỀ, XEM & TRANG CÁ NHÂN ==================== */
 
 async function downloadCheck(docId) {
   if (!currentUser) {
@@ -802,9 +820,7 @@ async function downloadCheck(docId) {
     alert('✅ Tải tài liệu thành công!');
     window.open(doc.url, '_blank');
     loadDocumentsFromServer();
-  } catch (err) {
-    window.open(doc.url, '_blank');
-  }
+  } catch (err) { window.open(doc.url, '_blank'); }
 }
 
 async function recordView(docId) {
@@ -834,8 +850,6 @@ async function toggleFavorite(docId) {
     alert(data.message);
   } catch (err) { alert('Lỗi Yêu thích!'); }
 }
-
-/* ==================== TRANG CÁ NHÂN & ADMIN ==================== */
 
 async function openUserProfileModal() {
   if (!currentUser) return;
