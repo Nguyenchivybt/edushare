@@ -27,6 +27,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// MOCK DATA BAN ĐẦU
 let users = [
   { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: '123', role: 'admin', status: 'approved', emailPhone: 'vy@edushare.edu.vn' },
   { id: '2', fullname: 'Sinh Viên Mẫu', username: 'student', password: '123', role: 'student', status: 'approved', emailPhone: 'student@edushare.edu.vn' }
@@ -79,7 +80,8 @@ app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
 
-  const query = message.trim().toLowerCase();
+  const rawQuery = message.trim();
+  const query = rawQuery.toLowerCase();
   let reply = '';
   let matchedDocs = [];
 
@@ -93,59 +95,61 @@ app.post('/api/chatbot', async (req, res) => {
     (d.author && d.author.toLowerCase().includes(query))
   );
 
-  if (query.includes('tài liệu') || query.includes('giáo trình') || query.includes('đề thi') || query.includes('bài giảng') || matchedDocs.length > 0) {
-    if (matchedDocs.length > 0) {
-      reply = `📚 **Tôi tìm thấy ${matchedDocs.length} tài liệu khớp trong kho EduShare:**\n\n`;
-      return res.json({ reply, matchedDocs });
-    }
+  if ((query.includes('tài liệu') || query.includes('giáo trình') || query.includes('đề thi') || query.includes('bài giảng')) && matchedDocs.length > 0) {
+    reply = `📚 **Tôi tìm thấy ${matchedDocs.length} tài liệu khớp trong kho EduShare:**`;
+    return res.json({ reply, matchedDocs });
   }
 
   // 2. GIẢI ĐÁP TÍNH NĂNG EDUSHARE
   if (query.includes('đăng ký') || query.includes('tạo tài khoản')) {
-    reply = "📝 **Hướng dẫn Đăng ký:**\n1. Nhấn vào nút **'Đăng Ký'** ở góc trên bên phải thanh Menu.\n2. Điền đầy đủ thông tin cá nhân và tài khoản.\n3. Nhấn **'Tạo Tài Khoản Mới'** là hoàn tất!";
+    reply = "📝 **Hướng dẫn Đăng ký:**\n1. Nhấn nút **'Đăng Ký'** ở góc trên bên phải thanh Menu.\n2. Điền đầy đủ thông tin cá nhân và nhấn **'Tạo Tài Khoản Mới'**.";
     return res.json({ reply });
   }
   if (query.includes('tải lên') || query.includes('up tài liệu')) {
-    reply = "📤 **Hướng dẫn Tải lên Học liệu:**\n1. Đăng nhập tài khoản của bạn.\n2. Bấm nút **'+ Tải Lên'** màu xanh lá trên Navbar.\n3. Điền tên tài liệu, chọn loại tệp (PDF, DOCX, PPTX) và chọn file từ máy tính/điện thoại.";
+    reply = "📤 **Hướng dẫn Tải lên Học liệu:**\n1. Đăng nhập tài khoản của bạn.\n2. Bấm nút **'+ Tải Lên'** màu xanh lá trên Navbar.\n3. Điền tên tài liệu, chọn loại tệp (PDF, DOCX, PPTX) và tải file lên.";
     return res.json({ reply });
   }
 
-  // 3. LUỒNG TRI THỨC MỞ & CÂU HỎI NGOÀI (Sử dụng luồng tổng hợp thông tin nâng cao)
+  // 3. XỬ LÝ LỌC TỪ KHÓA ĐỂ TRUY VẤN TRI THỨC MỞ (Lọc bỏ từ thừa để tra cứu Wikipedia chính xác)
+  let cleanKeyword = query
+    .replace(/(khái niệm về|khái niệm|là gì|cho biết|tìm hiểu|giải thích|nghĩa là gì|định nghĩa|cho tôi hỏi|cho hỏi|thế nào là)/gi, '')
+    .trim();
+
+  if (!cleanKeyword) cleanKeyword = query;
+
   try {
     const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-    const wikiRes = await fetch(`https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(message)}`);
+    const wikiRes = await fetch(`https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(cleanKeyword)}`);
     const wikiData = await wikiRes.json();
     const pages = wikiData?.query?.pages;
-    let wikiExtract = '';
 
     if (pages) {
       const pageId = Object.keys(pages)[0];
       if (pageId !== '-1' && pages[pageId].extract) {
-        wikiExtract = pages[pageId].extract;
+        let extract = pages[pageId].extract.trim();
+        if (extract.length > 650) extract = extract.substring(0, 650) + '...';
+        
+        reply = `💡 **Khái niệm & Tri thức học thuật (${cleanKeyword.toUpperCase()}):**\n\n${extract}\n\n📌 *Bạn có thể tìm kiếm thêm các tài liệu, bài giảng môn này trên EduShare!*`;
+        return res.json({ reply, matchedDocs });
       }
-    }
-
-    if (wikiExtract) {
-      reply = `💡 **Giải đáp Tri thức mở (Gemini / AI Mode):**\n\n${wikiExtract.substring(0, 500)}...\n\n📌 *Nếu bạn cần tài liệu chuyên sâu môn này, hãy thử gõ tên học phần lên thanh tìm kiếm EduShare nhé!*`;
-      return res.json({ reply });
     }
   } catch (err) {}
 
-  // 4. LUỒNG SUY LUẬN AI MẶC ĐỊNH CHO TẤT CẢ CÂU HỎI PHỨC TẠP
+  // 4. LUỒNG SUY LUẬN MẶC ĐỊNH CHO CÁC MÔN HỌC CHUYÊN NGÀNH
   if (query.includes('sql') || query.includes('cơ sở dữ liệu')) {
     reply = "🗄️ **Cơ Sở Dữ Liệu & SQL Server:**\nCơ sở dữ liệu là tập hợp dữ liệu có cấu trúc. SQL (Structured Query Language) là ngôn ngữ chuẩn để truy vấn, cập nhật và quản lý CSDL.\n\n👉 EduShare có sẵn **Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server 2022** trong danh sách học liệu!";
   } else if (query.includes('cấu trúc dữ liệu') || query.includes('thuật toán') || query.includes('lập trình')) {
     reply = "💻 **Cấu Trúc Dữ Liệu & Giải Thuật:**\nLà môn học cốt lõi trong ngành Kỹ thuật phần mềm giúp tối ưu bộ nhớ và tốc độ chạy của phần mềm (Mảng, Danh sách liên kết, Cây, Đồ thị, Thuật toán Sắp xếp & Tìm kiếm).\n\n📚 EduShare đang có sẵn **Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật** của tác giả Nguyễn Chí Vỹ!";
   } else if (query.includes('chào') || query.includes('hi') || query.includes('hello')) {
-    reply = "👋 Xin chào! Tôi là **Trợ lý AI EduShare** (Kết hợp RAG Tìm kiếm Học liệu & AI Tri thức mở Gemini/ChatGPT). Bạn cần hỗ trợ bài học hay tìm tài liệu nào?";
+    reply = "👋 Xin chào! Tôi là **Trợ lý AI EduShare** (Kết hợp RAG Tìm kiếm Học liệu & AI Tri thức mở Gemini Mode). Bạn cần hỗ trợ bài học hay tìm tài liệu nào?";
   } else {
-    reply = `🤖 **Trợ lý AI EduShare (Chế độ Phân tích Tri thức):**\n\nCảm ơn câu hỏi của bạn về chủ đề: *"${message}"*.\n\n• **Về học liệu EduShare:** Tôi có thể hỗ trợ bạn tìm kiếm toàn bộ bài giảng, giáo trình, đề thi các môn CNTT, Xây dựng, Kiến trúc...\n• **Về thắc mắc học thuật:** Bạn có thể hỏi cụ thể tên khái niệm, lý thuyết hoặc bài tập để tôi tổng hợp và trả lời chi tiết hơn!`;
+    reply = `🤖 **Trợ lý AI EduShare:**\nCảm ơn câu hỏi của bạn về chủ đề *"__${rawQuery}__"*.\n\n• **Tìm học liệu:** Hãy nhập tên môn học hoặc mã học phần lên thanh tìm kiếm trên cùng.\n• **Hỏi đáp tri thức:** Bạn có thể nhập trực tiếp tên khái niệm (Ví dụ: *Triết học*, *Mạng máy tính*, *Lập trình C*...) để AI giải thích ngắn gọn!`;
   }
 
-  return res.json({ reply });
+  return res.json({ reply, matchedDocs });
 });
 
-/* ==================== CÁC API KHÁC ==================== */
+/* ==================== CÁC API AUTH & DOCUMENT ==================== */
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;

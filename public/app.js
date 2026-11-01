@@ -10,12 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
   applySavedTheme();
 });
 
-/* ==================== 1. HỆ THỐNG CHATBOT AI BẬC CAO ==================== */
+/* ==================== 1. CHATBOT AI & BẬT TẮT NÚT NỔI ==================== */
 
 function toggleChatbot() {
   const win = document.getElementById('ai-chatbot-window');
+  const btn = document.getElementById('ai-chatbot-button');
   if (win) {
-    win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
+    if (win.style.display === 'flex') {
+      win.style.display = 'none';
+      if (btn) btn.style.display = 'flex';
+    } else {
+      win.style.display = 'flex';
+      if (btn) btn.style.display = 'none';
+    }
   }
 }
 
@@ -30,7 +37,7 @@ async function sendChatMessage() {
   input.value = '';
 
   const typingId = 'typing-' + Date.now();
-  msgBox.innerHTML += `<div class="chat-msg bot-msg" id="${typingId}">🤖 <em>AI đang suy nghĩ và tổng hợp dữ liệu...</em></div>`;
+  msgBox.innerHTML += `<div class="chat-msg bot-msg" id="${typingId}">🤖 <em>AI đang phân tích và tìm kiếm tri thức...</em></div>`;
   msgBox.scrollTop = msgBox.scrollHeight;
 
   try {
@@ -57,12 +64,12 @@ async function sendChatMessage() {
     }
 
     if (typingElem) {
-      typingElem.innerHTML = `🤖 ${formattedReply} ${docCardsHtml}`;
+      typingElem.innerHTML = `${formattedReply} ${docCardsHtml}`;
     }
   } catch (err) {
     const typingElem = document.getElementById(typingId);
     if (typingElem) {
-      typingElem.innerHTML = `🤖 Rất tiếc, đã có lỗi kết nối mạng! Vui lòng thử lại sau ít phút.`;
+      typingElem.innerHTML = `🤖 Rất tiếc, đã có lỗi kết nối mạng! Vui lòng thử lại sau.`;
     }
   }
 
