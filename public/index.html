@@ -6,14 +6,13 @@
   <title>EduShare - Thư Viện Học Liệu Số Giáo Dục</title>
   <link rel="stylesheet" href="style.css">
   
-  <!-- Thư viện hỗ trợ Xuất Excel, Đọc DOCX & JSZip -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://unpkg.com/jszip/dist/jszip.min.js"></script>
   <script src="https://unpkg.com/docx-preview/dist/docx-preview.min.js"></script>
 </head>
 <body>
 
-  <!-- NAVBAR CẤP CAO NẰM NGANG CÂN SÓNG -->
+  <!-- NAVBAR CẤP CAO -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()">
       <div class="logo-icon">🎓</div>
@@ -25,7 +24,6 @@
 
     <button class="mobile-toggle-btn" onclick="toggleMobileNav()" aria-label="Menu">☰ Menu</button>
 
-    <!-- Cụm Điều Hướng Nằm Ngang Chuẩn Đẹp -->
     <nav class="nav-links" id="main-nav-links">
       <a href="#" onclick="resetHomePage()" class="nav-item active">🏠 Trang Chủ</a>
 
@@ -67,7 +65,9 @@
 
       <a href="#articles-section" class="nav-item">📰 Bài Báo</a>
 
-      <!-- Thanh Tìm Kiếm Co Giãn Tự Động -->
+      <!-- KHU VỰC TÀI KHOẢN DÀNH RIÊNG CHO ĐIỆN THOẠI TRONG MENU HAMBURGER -->
+      <div id="mobile-auth-container" class="mobile-auth-box"></div>
+
       <div class="nav-search-group">
         <input type="text" id="search-input" placeholder="Tìm giáo trình, đề thi...">
         <select id="search-type">
@@ -81,7 +81,6 @@
       </div>
     </nav>
 
-    <!-- Vùng Bên Phải: Nút Tải Lên + Nút Cài Đặt + Tài Khoản -->
     <div class="right-nav-group">
       <button onclick="openUploadCheck()" class="btn-upload-nav">+ Tải Lên</button>
       <button onclick="openModal('settings-modal')" class="btn-settings-nav" title="Cài đặt hệ thống">⚙️ Cài Đặt</button>
@@ -113,7 +112,7 @@
     </div>
   </section>
 
-  <!-- FILTER BAR: BỘ LỌC PHÂN CẤP -->
+  <!-- BỘ LỌC PHÂN CẤP -->
   <section class="filter-bar">
     <span class="filter-label">▼ BỘ LỌC PHÂN CẤP:</span>
     <div class="filter-select-group">
@@ -127,7 +126,6 @@
   </section>
 
   <main class="main-content">
-    <!-- BÀI BÁO KHOA HỌC TIÊU BIỂU -->
     <section id="articles-section" class="articles-section">
       <div class="section-header">
         <div>
@@ -138,7 +136,6 @@
       <div id="articles-grid" class="articles-grid"></div>
     </section>
 
-    <!-- DANH SÁCH TÀI LIỆU HỌC TẬP -->
     <section class="doc-list-section">
       <div class="section-header">
         <div>
@@ -162,7 +159,7 @@
     </section>
   </main>
 
-  <!-- CHATBOT AI THÔNG MINH BẬC CAO -->
+  <!-- CHATBOT AI -->
   <div id="ai-chatbot-button" class="chatbot-floating-btn" onclick="toggleChatbot()">
     🤖 <span>Hỏi AI EduShare</span>
   </div>

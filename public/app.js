@@ -673,26 +673,57 @@ async function exportStatsToExcel() {
 
 function updateAuthUI() {
   const authContainer = document.getElementById('auth-buttons-container');
-  if (!authContainer) return;
-
+  const mobileAuthContainer = document.getElementById('mobile-auth-container');
   const statusBadge = (currentOnlineStatus === 'online') ? '🟢' : '⚪';
 
   if (currentUser) {
     let adminBtn = currentUser.role === 'admin' ? `<button onclick="loadUsersForAdmin()" style="background:#dc3545; color:#fff;">🛡️ Admin</button>` : '';
-    authContainer.innerHTML = `
-      ${adminBtn}
-      <button onclick="openModal('settings-modal')" class="btn-user-nav">${statusBadge} ${escapeHtml(currentUser.fullname)}</button>
-      <button onclick="handleLogout()" style="background:#64748b; color:#fff;">Đăng Xuất</button>
-    `;
+    
+    // UI Desktop
+    if (authContainer) {
+      authContainer.innerHTML = `
+        ${adminBtn}
+        <button onclick="openModal('settings-modal')" class="btn-user-nav">${statusBadge} ${escapeHtml(currentUser.fullname)}</button>
+        <button onclick="handleLogout()" style="background:#64748b; color:#fff;">Đăng Xuất</button>
+      `;
+    }
+
+    // UI Mobile Hamburger Menu
+    if (mobileAuthContainer) {
+      mobileAuthContainer.innerHTML = `
+        <div style="border-top:1px solid rgba(255,255,255,0.1); margin-top:10px; padding-top:10px; display:flex; flex-direction:column; gap:8px;">
+          <span style="color:#93c5fd; font-size:12px; font-weight:bold;">👤 TÀI KHOẢN CỦA TÔI</span>
+          ${currentUser.role === 'admin' ? `<button onclick="loadUsersForAdmin()" style="background:#dc3545; color:#fff; text-align:left; padding:8px; border-radius:4px; font-weight:bold;">🛡️ Quản Lý Admin</button>` : ''}
+          <button onclick="openModal('settings-modal')" style="background:#1e293b; color:#fff; text-align:left; padding:8px; border-radius:4px;">⚙️ ${statusBadge} ${escapeHtml(currentUser.fullname)} (Cài đặt)</button>
+          <button onclick="handleLogout()" style="background:#ef4444; color:#fff; text-align:left; padding:8px; border-radius:4px; font-weight:bold;">🚪 Đăng Xuất</button>
+        </div>
+      `;
+    }
+
     const nameInput = document.getElementById('edit-profile-fullname');
     const emailInput = document.getElementById('edit-profile-email');
     if (nameInput) nameInput.value = currentUser.fullname || '';
     if (emailInput) emailInput.value = currentUser.emailPhone || '';
   } else {
-    authContainer.innerHTML = `
-      <button onclick="openModal('login-modal')" class="btn-login">Đăng Nhập</button>
-      <button onclick="openModal('register-modal')" style="background:#475569; color:#fff;">Đăng Ký</button>
-    `;
+    // Desktop UI
+    if (authContainer) {
+      authContainer.innerHTML = `
+        <button onclick="openModal('login-modal')" class="btn-login">Đăng Nhập</button>
+        <button onclick="openModal('register-modal')" style="background:#475569; color:#fff;">Đăng Ký</button>
+      `;
+    }
+
+    // Mobile Hamburger Menu UI
+    if (mobileAuthContainer) {
+      mobileAuthContainer.innerHTML = `
+        <div style="border-top:1px solid rgba(255,255,255,0.1); margin-top:10px; padding-top:10px; display:flex; flex-direction:column; gap:8px;">
+          <span style="color:#93c5fd; font-size:12px; font-weight:bold;">🔐 TÀI KHOẢN NGHỆ TỆP</span>
+          <button onclick="openModal('login-modal'); closeMobileNav();" style="background:#2563eb; color:#fff; text-align:left; padding:8px; border-radius:4px; font-weight:bold;">🔑 Đăng Nhập</button>
+          <button onclick="openModal('register-modal'); closeMobileNav();" style="background:#16a34a; color:#fff; text-align:left; padding:8px; border-radius:4px; font-weight:bold;">📝 Đăng Ký Tài Khoản</button>
+          <button onclick="openModal('forgot-modal'); closeMobileNav();" style="background:#ea580c; color:#fff; text-align:left; padding:8px; border-radius:4px;">❓ Quên Mật Khẩu?</button>
+        </div>
+      `;
+    }
   }
 }
 
@@ -810,7 +841,7 @@ async function toggleFavorite(docId) {
   }
 
   try {
-    const res = await fetch('/api/users/favorites', {
+    const res = await fetch(`/api/users/favorites`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId: currentUser.id, docId })
