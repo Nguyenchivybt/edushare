@@ -3,16 +3,34 @@ const cors = require('cors');
 const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Cấu hình Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. CẤU HÌNH MULTER LƯU ĐA TỆP LINH HOẠT (HỖ TRỢ ZIP, RAR, MP3, MP4, PDF, DOCX, PPTX)
+// 🔑 KHỞI TẠO GOOGLE GEMINI AI
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "DÁN_API_KEY_GEMINI_CỦA_BẠN_VÀO_ĐÂY";
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
+// System Instruction thiết lập tính cách và chuyên môn cho AI
+const systemInstruction = `
+Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật thông minh, tinh tế và truyền cảm hứng của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
+
+NHIỆM VỤ VÀ TÍNH CÁCH CỦA BẠN:
+1. HIỂU BẢN CHẤT CÂU HỎI: Có khả năng phân tích sâu sắc cả ngôn ngữ viết chuẩn xác và ngôn ngữ nói/khẩu ngữ tự nhiên của người Việt (dù có từ lót, vắn tắt, từ địa phương hay câu hỏi ghép phức tạp).
+2. TRẢ LỜI ĐÚNG TRỌNG TÂM & CHUYÊN SÂU: Phân tích đúng bản chất vấn đề, cung cấp kiến thức chính xác, logic, có chiều sâu học thuật ở mọi lĩnh vực (Lịch sử, Triết học, Công nghệ thông tin, Xây dựng, Kiến trúc, Lập trình, Đời sống...).
+3. TRUYỀN CẢM XÚC & ẤM ÁP: Văn phong tự nhiên, chân thành, gần gũi, giàu tri thức như một người thầy hay người bạn đồng hành. Tránh câu trả lời máy móc, lặp lại mẫu câu rập khuôn.
+4. TỐI ƯU TRÌNH BÀY: Dùng định dạng Markdown (in đậm, gạch đầu dòng, danh sách, icon phù hợp) để bài viết mạch lạc, dễ hiểu.
+5. GIỚI THIỆU TRƯỜNG & DỰ ÁN: Khi được hỏi về EduShare hay MTU, hãy tự hào giới thiệu nền tảng học liệu mở EduShare thuộc Trường Đại học Xây dựng Miền Tây.
+`;
+
+// 📦 CẤU HÌNH MULTER LƯU ĐA TỆP (GIỚI HẠN 100MB)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, 'public', 'uploads');
@@ -29,26 +47,47 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
   storage,
-  limits: { fileSize: 100 * 1024 * 1024 } // Giới hạn 100MB cho tệp nén & video
+  limits: { fileSize: 100 * 1024 * 1024 } // Giới hạn tối đa 100MB
 });
 
+// Hàm tự động nhận diện loại tệp
 function detectFileType(filename) {
+  if (!filename) return 'TẬP TIN';
   const ext = path.extname(filename).toLowerCase();
   if (ext === '.pdf') return 'PDF';
   if (ext === '.docx' || ext === '.doc') return 'DOCX';
   if (ext === '.pptx' || ext === '.ppt') return 'PPTX';
-  if (ext === '.zip' || ext === '.rar' || ext === '.7z') return 'ZIP/RAR';
-  if (['.mp3', '.wav', '.m4a', '.aac'].includes(ext)) return 'AUDIO';
-  if (['.mp4', '.mkv', '.avi', '.mov'].includes(ext)) return 'VIDEO';
+  if (['.zip', '.rar', '.7z', '.tar', '.gz'].includes(ext)) return 'ZIP/RAR';
+  if (['.mp3', '.wav', '.m4a', '.aac', '.flac'].includes(ext)) return 'AUDIO';
+  if (['.mp4', '.mkv', '.avi', '.mov', '.webm'].includes(ext)) return 'VIDEO';
   return 'TẬP TIN';
 }
 
-// DỮ LIỆU BAN ĐẦU
+// 👥 DỮ LIỆU USER NỘI BỘ (MOCK DATA)
 let users = [
-  { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: '123', role: 'admin', status: 'approved', emailPhone: 'nguyenchivytails@gmail.com' },
-  { id: '2', fullname: 'Sinh Viên Mẫu', username: 'student', password: '123', role: 'student', status: 'approved', emailPhone: 'student@edushare.edu.vn' }
+  { 
+    id: '1', 
+    fullname: 'Nguyễn Chí Vỹ', 
+    username: 'admin', 
+    password: '123', 
+    role: 'admin', 
+    status: 'approved', 
+    emailPhone: 'nguyenchivytails@gmail.com',
+    favorites: ['101']
+  },
+  { 
+    id: '2', 
+    fullname: 'Sinh Viên Mẫu', 
+    username: 'student', 
+    password: '123', 
+    role: 'student', 
+    status: 'approved', 
+    emailPhone: 'student@edushare.edu.vn',
+    favorites: []
+  }
 ];
 
+// 📚 DỮ LIỆU TÀI LIỆU (MOCK DATA)
 let documents = [
   {
     id: '101',
@@ -88,116 +127,64 @@ let documents = [
   }
 ];
 
-let comments = {};
-
-// NGÂN HÀNG TRI THỨC HỌC THUẬT MAXIMUM ACCURACY
-const academicDict = {
-  "triết học": "📘 **Triết học** là hệ thống tri thức lý luận chung nhất của con người về thế giới, về vị trí và vai trò của con người trong thế giới đó; nghiên cứu các quy luật vận động, phát triển chung nhất của tự nhiên, xã hội và tư duy.",
-  "kinh tế chính trị": "📙 **Kinh tế chính trị** là môn khoa học nghiên cứu các quan hệ xã hội của sản xuất và trao đổi, các quy luật kinh tế chi phối sự sản xuất, phân phối, lưu thông và tiêu dùng của cải vật chất trong từng giai đoạn phát triển của xã hội.",
-  "chủ nghĩa xã hội khoa học": "📗 **Chủ nghĩa xã hội khoa học** là hệ thống lý luận nghiên cứu các quy luật chính trị - xã hội của quá trình chuyển biến từ chủ nghĩa tư bản lên chủ nghĩa xã hội và chủ nghĩa cộng sản.",
-  "tư tưởng hồ chí minh": "📕 **Tư tưởng Hồ Chí Minh** là hệ thống quan điểm toàn diện và sâu sắc về những vấn đề cơ bản của cách mạng Việt Nam, vận dụng sáng tạo chủ nghĩa Mác - Lênin vào điều kiện cụ thể của Việt Nam.",
-  "lịch sử đảng": "📙 **Lịch sử Đảng Cộng sản Việt Nam** là môn học nghiên cứu quá trình ra đời, lãnh đạo và phát triển của Đảng qua các thời kỳ cách mạng.",
-  "cấu trúc dữ liệu": "💻 **Cấu trúc dữ liệu** là cách tổ chức, quản lý và lưu trữ dữ liệu trong máy tính (như Mảng, Danh sách liên kết, Stack, Queue, Cây, Đồ thị) giúp tối ưu thuật toán xử lý.",
-  "cơ sở dữ liệu": "🗄️ **Cơ sở dữ liệu (Database)** là tập hợp dữ liệu có cấu trúc được lưu trữ trên máy tính nhằm phục vụ khai thác thông tin cho nhiều người dùng.",
-  "sql": "🗄️ **SQL (Structured Query Language)** là ngôn ngữ tiêu chuẩn dùng để truy vấn, cập nhật và quản lý hệ cơ sở dữ liệu quan hệ.",
-  "mạng máy tính": "🌐 **Mạng máy tính** là tập hợp các máy tính kết nối với nhau qua phương tiện truyền dẫn để chia sẻ dữ liệu và tài nguyên.",
-  "kỹ thuật phần mềm": "⚙️ **Kỹ thuật phần mềm** là ngành nghiên cứu quy trình thiết kế, phát triển, thử nghiệm và bảo trì các ứng dụng phần mềm."
+// 💬 DỮ LIỆU BÌNH LUẬN (MOCK DATA)
+let comments = {
+  '101': [
+    {
+      id: 'c1',
+      userId: '2',
+      userName: 'Sinh Viên Mẫu',
+      rating: 5,
+      content: 'Tài liệu rất hay và chi tiết, cám ơn tác giả!',
+      createdAt: '01/11/2026 10:30:00'
+    }
+  ]
 };
 
-/* ==================== API AI CHATBOT MAXIMUM ENGINE (NGÔN NGỮ NÓI + VIẾT) ==================== */
+/* ==================== 1. API AI CHATBOT (BỘ NÃO GEMINI AI) ==================== */
 
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
-  if (!message) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
-
-  const rawQuery = message.trim();
-  const query = rawQuery.toLowerCase();
-  let matchedDocs = [];
-  let foundAnswers = [];
-
-  // LỌC SẠCH KHẨU NGỮ TIẾNG VIỆT
-  const cleanSpokenText = query
-    .replace(/[.,?!:;""''`~()]/g, ' ')
-    .replace(/\b(cho tui hỏi|cho tôi hỏi|cho hỏi|cho em hỏi|thầy ơi|bạn ơi|ad ơi|dạ|ạ|ơi|à|nghe nè|với|nè|nha|nhé|đi|z|vậy|giùm|hộ|cái|gì|là gì|thế nào|được không|giúp|với lại|có đặc điểm gì|như thế nào|khái niệm|định nghĩa|cho biết)\b/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  // 1. KIỂM TRA TỪ ĐIỂN HỌC THUẬT (ĐA KHÁI NIỆM GHẾP)
-  for (let key in academicDict) {
-    if (cleanSpokenText.includes(key) || query.includes(key)) {
-      foundAnswers.push(academicDict[key]);
-      
-      const docs = documents.filter(d => 
-        (d.title && d.title.toLowerCase().includes(key)) ||
-        (d.subject && d.subject.toLowerCase().includes(key))
-      );
-      matchedDocs.push(...docs);
-    }
+  if (!message || !message.trim()) {
+    return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
   }
 
-  if (foundAnswers.length > 0) {
-    let reply = foundAnswers.join('\n\n');
-    const uniqueDocs = [...new Set(matchedDocs)];
-    if (uniqueDocs.length > 0) {
-      reply += `\n\n📚 **Tài liệu học tập liên quan sẵn có trên EduShare:**`;
-    }
-    return res.json({ reply, matchedDocs: uniqueDocs });
-  }
-
-  // 2. TÌM KIẾM TRONG KHO HỌC LIỆU EDUSHARE (RAG)
-  matchedDocs = documents.filter(d => 
-    (d.title && d.title.toLowerCase().includes(cleanSpokenText)) ||
-    (d.subject && d.subject.toLowerCase().includes(cleanSpokenText)) ||
-    (d.category && d.category.toLowerCase().includes(cleanSpokenText))
-  );
-
-  if ((query.includes('tài liệu') || query.includes('giáo trình') || query.includes('đề thi')) && matchedDocs.length > 0) {
-    return res.json({ reply: `📚 **Tôi tìm thấy ${matchedDocs.length} tài liệu phù hợp trong kho EduShare:**`, matchedDocs });
-  }
-
-  // 3. WIKIPEDIA STRICT SEARCH ENGINE (TRÁNH LẠC ĐỀ SANG LỊCH SỬ THẾ GIỚI)
   try {
-    const searchUrl = `https://vi.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=${encodeURIComponent(cleanSpokenText)}`;
-    const searchRes = await fetch(searchUrl);
-    const searchData = await searchRes.json();
-    const searchResults = searchData?.query?.search;
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
+      systemInstruction: systemInstruction
+    });
 
-    if (searchResults && searchResults.length > 0) {
-      // Chỉ chọn bài viết có tiêu đề khớp trực tiếp từ khóa
-      const matchedResult = searchResults.find(r => {
-        const titleLower = r.title.toLowerCase();
-        return cleanSpokenText.split(' ').some(w => w.length > 2 && titleLower.includes(w));
-      });
+    const result = await model.generateContent(message);
+    const responseText = result.response.text();
 
-      if (matchedResult) {
-        const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${encodeURIComponent(matchedResult.title)}`;
-        const wikiRes = await fetch(wikiUrl);
-        const wikiData = await wikiRes.json();
-        const pages = wikiData?.query?.pages;
+    // Tìm kiếm tự động các học liệu liên quan trong kho EduShare
+    const queryLower = message.toLowerCase();
+    const matchedDocs = documents.filter(d => 
+      (d.title && queryLower.includes(d.title.toLowerCase())) ||
+      (d.subject && queryLower.includes(d.subject.toLowerCase())) ||
+      (d.category && queryLower.includes(d.category.toLowerCase()))
+    );
 
-        if (pages) {
-          const pageId = Object.keys(pages)[0];
-          if (pageId !== '-1' && pages[pageId].extract) {
-            let extract = pages[pageId].extract.trim();
-            if (extract.length > 500) extract = extract.substring(0, 500) + '...';
-            
-            return res.json({ reply: `💡 **${matchedResult.title}:**\n\n${extract}`, matchedDocs });
-          }
-        }
-      }
-    }
+    return res.json({ 
+      reply: responseText, 
+      matchedDocs: matchedDocs.slice(0, 5) 
+    });
+
   } catch (err) {
-    console.error("Lỗi tra cứu AI:", err);
-  }
+    console.error("Lỗi AI Gemini API:", err);
 
-  return res.json({ 
-    reply: `🤖 **EduShare AI:** Bạn có thể hỏi trực tiếp về các môn học (như *Triết học*, *Kinh tế chính trị*, *Mạng máy tính*, *Cơ sở dữ liệu*...) để tôi giải đáp ngay!`, 
-    matchedDocs 
-  });
+    // Xử lý fallback khi API Key chưa cấu hình hoặc mất mạng
+    return res.json({ 
+      reply: `🤖 **EduShare AI:** Rất tiếc, hệ thống đang gặp chút gián đoạn kết nối AI. Bạn vui lòng kiểm tra lại biến môi trường \`GEMINI_API_KEY\` hoặc thử lại sau ít phút nhé!`, 
+      matchedDocs: [] 
+    });
+  }
 });
 
-/* ==================== CÁC API AUTH & DOCUMENT ==================== */
+/* ==================== 2. API TÀI KHOẢN & XÁC THỰC ==================== */
 
+// Đăng nhập
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const user = users.find(u => (u.username === username || u.emailPhone === username) && u.password === password);
@@ -208,12 +195,19 @@ app.post('/api/login', (req, res) => {
   }
 });
 
+// Đăng ký
 app.post('/api/register', (req, res) => {
-  const newUser = { id: String(Date.now()), ...req.body, status: 'approved' };
+  const newUser = { 
+    id: String(Date.now()), 
+    ...req.body, 
+    status: 'approved',
+    favorites: []
+  };
   users.push(newUser);
   res.json({ message: 'Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay.' });
 });
 
+// Quên mật khẩu
 app.post('/api/forgot-password', (req, res) => {
   const { account, newPassword } = req.body;
   const user = users.find(u => u.username === account || u.emailPhone === account);
@@ -225,29 +219,62 @@ app.post('/api/forgot-password', (req, res) => {
   }
 });
 
-app.get('/api/users', (req, res) => res.json(users));
+// Lấy danh sách người dùng (Admin)
+app.get('/api/users', (req, res) => {
+  res.json(users);
+});
 
+// Xóa người dùng (Admin)
 app.delete('/api/users/:id', (req, res) => {
   users = users.filter(u => String(u.id) !== String(req.params.id));
   res.json({ message: 'Đã xóa người dùng thành công.' });
 });
 
-app.get('/api/documents', (req, res) => res.json(documents));
+// Yêu thích tài liệu
+app.post('/api/users/favorites', (req, res) => {
+  const { userId, docId } = req.body;
+  const user = users.find(u => String(u.id) === String(userId));
+  if (!user) return res.status(404).json({ message: 'Không tìm thấy người dùng!' });
 
+  if (!user.favorites) user.favorites = [];
+  const index = user.favorites.indexOf(docId);
+  if (index > -1) {
+    user.favorites.splice(index, 1);
+    res.json({ message: 'Đã bỏ khỏi danh sách yêu thích!' });
+  } else {
+    user.favorites.push(docId);
+    res.json({ message: 'Đã thêm vào danh sách yêu thích thành công!' });
+  }
+});
+
+/* ==================== 3. API TÀI LIỆU & QUẢN LÝ TỆP ==================== */
+
+// Lấy tất cả tài liệu
+app.get('/api/documents', (req, res) => {
+  res.json(documents);
+});
+
+// Tải lên tài liệu mới (Hỗ trợ Đa tệp Multer)
 app.post('/api/documents', upload.single('file'), (req, res) => {
-  const fileName = req.file ? req.file.filename : '';
-  const fileUrl = req.file ? `/uploads/${req.file.filename}` : 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-  const detectedType = req.file ? detectFileType(req.file.originalname) : (req.body.type || 'PDF');
+  const fileUrl = req.file 
+    ? `/uploads/${req.file.filename}` 
+    : 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+
+  const detectedType = req.file 
+    ? detectFileType(req.file.originalname) 
+    : (req.body.type || 'PDF');
 
   const newDoc = {
     id: String(Date.now()),
-    title: req.body.title,
+    title: req.body.title || 'Tài liệu mới',
     type: detectedType,
     category: req.body.category || 'Tài liệu',
-    subject: 'Học phần chung',
-    school: 'Trường Đại học Xây dựng Miền Tây',
-    faculty: 'Công nghệ thông tin',
-    major: 'Kỹ thuật phần mềm',
+    subject: req.body.subject || 'Học phần chung',
+    school: req.body.school || 'Trường Đại học Xây dựng Miền Tây',
+    faculty: req.body.faculty || 'Công nghệ thông tin',
+    major: req.body.major || 'Kỹ thuật phần mềm',
+    course: req.body.course || 'K16',
+    className: req.body.className || 'ĐH KTPM 2023',
     author: req.body.author || 'Tác giả',
     authorId: req.body.authorId || '1',
     views: 0,
@@ -255,29 +282,40 @@ app.post('/api/documents', upload.single('file'), (req, res) => {
     date: new Date().toLocaleDateString('vi-VN'),
     url: fileUrl
   };
+
   documents.unshift(newDoc);
   res.json({ message: 'Tải lên tài liệu thành công!', document: newDoc });
 });
 
+// Xóa tài liệu
 app.delete('/api/documents/:id', (req, res) => {
   documents = documents.filter(d => String(d.id) !== String(req.params.id));
+  delete comments[req.params.id];
   res.json({ message: 'Đã xóa tài liệu thành công.' });
 });
 
+// Ghi nhận lượt xem tài liệu
 app.post('/api/documents/:id/view', (req, res) => {
   const doc = documents.find(d => String(d.id) === String(req.params.id));
   if (doc) doc.views = (doc.views || 0) + 1;
   res.json({ success: true });
 });
 
+// Ghi nhận lượt tải tài liệu
 app.post('/api/documents/:id/download', (req, res) => {
   const doc = documents.find(d => String(d.id) === String(req.params.id));
   if (doc) doc.downloads = (doc.downloads || 0) + 1;
   res.json({ success: true });
 });
 
-app.get('/api/documents/:id/comments', (req, res) => res.json(comments[req.params.id] || []));
+/* ==================== 4. API BÌNH LUẬN & ĐÁNH GIÁ ==================== */
 
+// Lấy danh sách bình luận của 1 tài liệu
+app.get('/api/documents/:id/comments', (req, res) => {
+  res.json(comments[req.params.id] || []);
+});
+
+// Gửi bình luận mới
 app.post('/api/documents/:id/comments', (req, res) => {
   const docId = req.params.id;
   if (!comments[docId]) comments[docId] = [];
@@ -286,7 +324,7 @@ app.post('/api/documents/:id/comments', (req, res) => {
     id: String(Date.now()),
     userId: req.body.userId,
     userName: req.body.userName,
-    rating: req.body.rating || 5,
+    rating: Number(req.body.rating) || 5,
     content: req.body.content,
     createdAt: new Date().toLocaleString('vi-VN')
   };
@@ -295,13 +333,23 @@ app.post('/api/documents/:id/comments', (req, res) => {
   res.json({ message: 'Đã gửi bình luận thành công!', comment: newComment });
 });
 
+// Xóa bình luận
 app.delete('/api/documents/comments/:commentId', (req, res) => {
+  const commentId = req.params.commentId;
   for (let docId in comments) {
-    comments[docId] = comments[docId].filter(c => String(c.id) !== String(req.params.commentId));
+    comments[docId] = comments[docId].filter(c => String(c.id) !== String(commentId));
   }
-  res.json({ message: 'Đã xóa bình luận.' });
+  res.json({ message: 'Đã xóa bình luận thành công.' });
 });
 
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+/* ==================== 5. FALLBACK & CHẠY SERVER ==================== */
 
-app.listen(PORT, () => console.log(`🚀 EduShare Server running on http://localhost:${PORT}`));
+// Điều hướng tất cả trang còn lại về index.html (Single Page Application)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Bắt đầu lắng nghe cổng
+app.listen(PORT, () => {
+  console.log(`🚀 EduShare Server đang chạy tại: http://localhost:${PORT}`);
+});
