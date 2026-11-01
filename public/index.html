@@ -12,13 +12,13 @@
 </head>
 <body>
 
-  <!-- NAVBAR CẤP CAO -->
+  <!-- NAVBAR TẦNG 1: CHÍNH THỨC -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()">
       <div class="logo-icon">🎓</div>
       <div class="logo-text-box">
         <span class="logo-title">EduShare</span>
-        <span class="logo-sub">THƯ VIỆN HỌC LIỆU SỐ GIÁO DỤC MTU</span>
+        <span class="logo-sub">THƯ VIỆN HỌC LIỆU SỐ MTU</span>
       </div>
     </div>
 
@@ -33,7 +33,7 @@
           <a href="#" onclick="filterByCategory('Tài liệu')">📚 Tài Liệu Học Tập</a>
           <a href="#" onclick="filterByCategory('Bài giảng')">📖 Bài Giảng & Slide</a>
           <a href="#" onclick="filterByCategory('Bài tập')">🛠️ Bài Tập Mẫu & Đồ Án</a>
-          <a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Đề Thi & Ngân Hàng Câu Hỏi</a>
+          <a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Đề Thi & Đáp Án</a>
           <a href="#articles-section" onclick="filterByCategory('Bài báo tiêu biểu')">📰 Bài Báo Khoa Học</a>
         </div>
       </div>
@@ -63,41 +63,37 @@
         </div>
       </div>
 
-      <!-- MỤC MỚI TRÊN MENU -->
-      <a href="#" onclick="openCommunityModal()" class="nav-item">💬 Cộng Đồng Chat</a>
-      <a href="#" onclick="openFavoritesModal()" class="nav-item" style="color:#f59e0b;">⭐ Album Yêu Thích</a>
-
-      <!-- MENU TÀI KHOẢN MOBILE -->
+      <!-- MENU MOBILE ACCOUNT -->
       <div id="mobile-auth-container" class="mobile-auth-box"></div>
-
-      <div class="nav-search-group">
-        <input type="text" id="search-input" placeholder="Tìm giáo trình, đề thi...">
-        <select id="search-type">
-          <option value="all">Tất cả định dạng</option>
-          <option value="PDF">PDF</option>
-          <option value="DOCX">Word (DOCX)</option>
-          <option value="PPTX">PowerPoint</option>
-          <option value="ZIP/RAR">File nén ZIP/RAR</option>
-          <option value="AUDIO">Âm thanh MP3</option>
-          <option value="VIDEO">Video MP4</option>
-        </select>
-        <button onclick="handleSearch()" class="btn-nav-search">🔍 Tìm</button>
-      </div>
     </nav>
 
     <div class="right-nav-group">
-      <button onclick="openUploadCheck()" class="btn-upload-nav">+ Tải Lên Đa Tệp</button>
+      <button onclick="openUploadCheck()" class="btn-upload-nav">+ Tải Lên Học Liệu</button>
       <button onclick="openModal('settings-modal')" class="btn-settings-nav" title="Cài đặt hệ thống">⚙️ Cài Đặt</button>
       <div id="auth-buttons-container" class="auth-buttons"></div>
     </div>
   </header>
 
-  <!-- THANH TIỆN ÍCH TRUY CẬP NHANH (QUICK ACCESS BAR) -->
-  <div class="quick-access-bar" id="quick-access-bar">
-    <div class="quick-access-container" id="quick-access-items">
-      <!-- RENDER DYNAMIC SHORTCUTS -->
+  <!-- NAVBAR TẦNG 2: BỘ TÌM KIẾM RỘNG RÃI & TIỆN ÍCH LỐI TẮT -->
+  <div class="sub-toolbar">
+    <div class="nav-search-group">
+      <input type="text" id="search-input" placeholder="🔍 Nhập từ khóa tìm giáo trình, đề thi, tác giả...">
+      <select id="search-type">
+        <option value="all">Tất cả định dạng</option>
+        <option value="PDF">PDF</option>
+        <option value="DOCX">Word (DOCX)</option>
+        <option value="PPTX">PowerPoint</option>
+        <option value="ZIP/RAR">File nén ZIP/RAR</option>
+        <option value="AUDIO">Âm thanh MP3</option>
+        <option value="VIDEO">Video MP4</option>
+      </select>
+      <button onclick="handleSearch()" class="btn-nav-search">Tìm Kiếm</button>
     </div>
-    <button class="btn-config-quick" onclick="openModal('quick-config-modal')" title="Tùy chỉnh tiện ích">⚙️ Lối Tắt</button>
+
+    <div class="quick-access-bar" id="quick-access-bar">
+      <div class="quick-access-container" id="quick-access-items"></div>
+      <button class="btn-config-quick" onclick="openModal('quick-config-modal')" title="Tùy chỉnh lối tắt">⚡ Lối Tắt</button>
+    </div>
   </div>
 
   <!-- HERO BANNER TRANG CHỦ -->
@@ -204,7 +200,6 @@
         <button class="modal-close-icon" onclick="closeModal('community-modal')">&times;</button>
       </div>
       <div class="community-layout">
-        <!-- SIDEBAR KÊNH CHAT & DIRECT MESSAGES -->
         <div class="community-sidebar">
           <div class="community-sidebar-header">
             <h4>📢 Nhóm Thảo Luận</h4>
@@ -225,7 +220,6 @@
           </div>
         </div>
 
-        <!-- KHUNG TIN NHẮN CHÍNH -->
         <div class="community-chat-main">
           <div class="chat-main-header">
             <strong id="chat-current-title">📢 Thảo Luận Học Thuật Chung</strong>
@@ -384,7 +378,7 @@
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG KÝ (PHÂN QUYỀN 4 VAI TRÒ) -->
+  <!-- MODAL ĐĂNG KÝ -->
   <div id="register-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">
@@ -477,13 +471,12 @@
             <input type="file" id="up-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp3,.mp4,.zip,.rar,.7z,.txt" required>
           </div>
         </div>
-        <div id="upload-progress-text" style="font-size:12px; color:#2563eb; margin-top:8px; display:none;">⏳ Đang tải tệp lên máy chủ... Vui lòng chờ!</div>
         <button type="submit" class="btn-submit btn-blue" style="margin-top:15px;">Xác Nhận Tải Lên Học Liệu</button>
       </form>
     </div>
   </div>
 
-  <!-- FOOTER -->
+  <!-- FOOTER CHUẨN MTU -->
   <footer class="footer">
     <div class="footer-container">
       <div class="footer-col brand-col">
