@@ -102,15 +102,15 @@ app.post('/api/chatbot', async (req, res) => {
 
   // 2. GIẢI ĐÁP TÍNH NĂNG EDUSHARE
   if (query.includes('đăng ký') || query.includes('tạo tài khoản')) {
-    reply = "📝 **Hướng dẫn Đăng ký:**\n1. Nhấn nút **'Đăng Ký'** ở góc trên bên phải thanh Menu.\n2. Điền đầy đủ thông tin cá nhân và nhấn **'Tạo Tài Khoản Mới'**.";
+    reply = "📝 **Hướng dẫn Đăng ký:**\n1. Nhấn **'Đăng Ký'** ở góc trên bên phải thanh Menu.\n2. Điền thông tin cá nhân và nhấn **'Tạo Tài Khoản Mới'**.";
     return res.json({ reply });
   }
   if (query.includes('tải lên') || query.includes('up tài liệu')) {
-    reply = "📤 **Hướng dẫn Tải lên Học liệu:**\n1. Đăng nhập tài khoản của bạn.\n2. Bấm nút **'+ Tải Lên'** màu xanh lá trên Navbar.\n3. Điền tên tài liệu, chọn loại tệp (PDF, DOCX, PPTX) và tải file lên.";
+    reply = "📤 **Hướng dẫn Tải lên:**\n1. Đăng nhập tài khoản.\n2. Bấm nút **'+ Tải Lên'** màu xanh lá trên Navbar.\n3. Chọn file PDF/DOCX từ thiết bị để tải lên.";
     return res.json({ reply });
   }
 
-  // 3. XỬ LÝ LỌC TỪ KHÓA ĐỂ TRUY VẤN TRI THỨC MỞ (Lọc bỏ từ thừa để tra cứu Wikipedia chính xác)
+  // 3. TRUY VẤN TRI THỨC MỞ WIKIPEDIA (Dùng built-in fetch của Node.js)
   let cleanKeyword = query
     .replace(/(khái niệm về|khái niệm|là gì|cho biết|tìm hiểu|giải thích|nghĩa là gì|định nghĩa|cho tôi hỏi|cho hỏi|thế nào là)/gi, '')
     .trim();
@@ -118,8 +118,8 @@ app.post('/api/chatbot', async (req, res) => {
   if (!cleanKeyword) cleanKeyword = query;
 
   try {
-    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-    const wikiRes = await fetch(`https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&titles=${encodeURIComponent(cleanKeyword)}`);
+    const wikiUrl = `https://vi.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${encodeURIComponent(cleanKeyword)}`;
+    const wikiRes = await fetch(wikiUrl);
     const wikiData = await wikiRes.json();
     const pages = wikiData?.query?.pages;
 
@@ -127,29 +127,29 @@ app.post('/api/chatbot', async (req, res) => {
       const pageId = Object.keys(pages)[0];
       if (pageId !== '-1' && pages[pageId].extract) {
         let extract = pages[pageId].extract.trim();
-        if (extract.length > 650) extract = extract.substring(0, 650) + '...';
+        if (extract.length > 600) extract = extract.substring(0, 600) + '...';
         
-        reply = `💡 **Khái niệm & Tri thức học thuật (${cleanKeyword.toUpperCase()}):**\n\n${extract}\n\n📌 *Bạn có thể tìm kiếm thêm các tài liệu, bài giảng môn này trên EduShare!*`;
+        reply = `💡 **Khái niệm & Tri thức học thuật (${cleanKeyword.toUpperCase()}):**\n\n${extract}\n\n📌 *Bạn có thể tìm kiếm thêm các tài liệu, bài giảng môn này trên thanh tìm kiếm của EduShare!*`;
         return res.json({ reply, matchedDocs });
       }
     }
-  } catch (err) {}
+  } catch (err) {
+    console.error("Lỗi truy vấn Wikipedia:", err);
+  }
 
-  // 4. LUỒNG SUY LUẬN MẶC ĐỊNH CHO CÁC MÔN HỌC CHUYÊN NGÀNH
+  // 4. LUỒNG TRẢ LỜI MẶC ĐỊNH CHO CÁC MÔN HỌC
   if (query.includes('sql') || query.includes('cơ sở dữ liệu')) {
-    reply = "🗄️ **Cơ Sở Dữ Liệu & SQL Server:**\nCơ sở dữ liệu là tập hợp dữ liệu có cấu trúc. SQL (Structured Query Language) là ngôn ngữ chuẩn để truy vấn, cập nhật và quản lý CSDL.\n\n👉 EduShare có sẵn **Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server 2022** trong danh sách học liệu!";
-  } else if (query.includes('cấu trúc dữ liệu') || query.includes('thuật toán') || query.includes('lập trình')) {
-    reply = "💻 **Cấu Trúc Dữ Liệu & Giải Thuật:**\nLà môn học cốt lõi trong ngành Kỹ thuật phần mềm giúp tối ưu bộ nhớ và tốc độ chạy của phần mềm (Mảng, Danh sách liên kết, Cây, Đồ thị, Thuật toán Sắp xếp & Tìm kiếm).\n\n📚 EduShare đang có sẵn **Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật** của tác giả Nguyễn Chí Vỹ!";
-  } else if (query.includes('chào') || query.includes('hi') || query.includes('hello')) {
-    reply = "👋 Xin chào! Tôi là **Trợ lý AI EduShare** (Kết hợp RAG Tìm kiếm Học liệu & AI Tri thức mở Gemini Mode). Bạn cần hỗ trợ bài học hay tìm tài liệu nào?";
+    reply = "🗄️ **Cơ Sở Dữ Liệu & SQL Server:**\nCơ sở dữ liệu là tập hợp dữ liệu có cấu trúc. SQL là ngôn ngữ chuẩn để truy vấn và quản lý CSDL.\n\n👉 EduShare có sẵn **Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server 2022**!";
+  } else if (query.includes('cấu trúc dữ liệu') || query.includes('thuật toán')) {
+    reply = "💻 **Cấu Trúc Dữ Liệu & Giải Thuật:**\nLà môn học cốt lõi giúp tối ưu bộ nhớ và tốc độ chạy của phần mềm.\n\n📚 EduShare có sẵn **Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật**!";
   } else {
-    reply = `🤖 **Trợ lý AI EduShare:**\nCảm ơn câu hỏi của bạn về chủ đề *"__${rawQuery}__"*.\n\n• **Tìm học liệu:** Hãy nhập tên môn học hoặc mã học phần lên thanh tìm kiếm trên cùng.\n• **Hỏi đáp tri thức:** Bạn có thể nhập trực tiếp tên khái niệm (Ví dụ: *Triết học*, *Mạng máy tính*, *Lập trình C*...) để AI giải thích ngắn gọn!`;
+    reply = `🤖 **Trợ lý AI EduShare:**\nCảm ơn câu hỏi của bạn về chủ đề *"__${rawQuery}__"*.\n\n• **Tìm học liệu:** Nhập tên môn học hoặc mã học phần lên thanh tìm kiếm.\n• **Hỏi đáp:** Nhập tên khái niệm (Ví dụ: *Triết học*, *Mạng máy tính*, *Lập trình C*...) để AI giải thích!`;
   }
 
   return res.json({ reply, matchedDocs });
 });
 
-/* ==================== CÁC API AUTH & DOCUMENT ==================== */
+/* ==================== API AUTH & DOCUMENT ==================== */
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
