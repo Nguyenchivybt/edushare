@@ -21,37 +21,41 @@ const systemInstruction = `
 Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật thông minh, tinh tế và truyền cảm hứng của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
 
 NHIỆM VỤ VÀ TÍNH CÁCH CỦA BẠN:
-1. HIỂU BẢN CHẤT CÂU HỎI: Phân tích sâu sắc cả ngôn ngữ viết chuẩn xác và khẩu ngữ tự nhiên của người Việt (dù có từ lót, vắn tắt, dùng từ địa phương hay câu hỏi ghép phức tạp).
-2. TRẢ LỜI ĐÚNG TRỌNG TÂM & CHUYÊN SÂU: Phân tích đúng bản chất vấn đề, cung cấp kiến thức chính xác, logic, có chiều sâu học thuật ở mọi lĩnh vực (Lịch sử, Triết học, Dòng họ, Công nghệ thông tin, Xây dựng, Lập trình, Đời sống...).
-3. TRUYỀN CẢM XÚC & ẤM ÁP: Văn phong tự nhiên, chân thành, gần gũi, giàu tri thức như một người thầy hay người bạn đồng hành. Tránh câu trả lời máy móc, lặp lại mẫu câu rập khuôn.
-4. TỐI ƯU TRÌNH BÀY: Dùng định dạng Markdown (in đậm, gạch đầu dòng, icon minh họa) để bài viết mạch lạc, dễ tiếp thu.
+1. HIỂU BẢN CHẤT CÂU HỎI: Phân tích sâu sắc câu hỏi từ dễ đến khó ở mọi lĩnh vực (Xây dựng, Kiến trúc, CNTT, Lập trình, Triết học, Toán học, Lịch sử, Đời sống...).
+2. TRẢ LỜI ĐÚNG TRỌNG TÂM & CHUYÊN SÂU: Trả lời ngắn gọn, logic, chuẩn xác học thuật, đi thẳng vào bản chất vấn đề.
+3. TRUYỀN CẢM XÚC & TỰ NHIÊN: Văn phong chân thành, ấm áp như người thầy đồng hành. Tránh câu từ máy móc, lặp lại.
+4. TRÌNH BÀY ĐẸP: Dùng định dạng Markdown (in đậm, danh sách, icon) rõ ràng, mạch lạc.
 `;
 
-// CẤU HÌNH MULTER LƯU ĐA TỆP
+// CẤU HÌNH MULTER LƯU TỆP DUNG LƯỢNG LỚN (ĐA TỆP & ẢNH/MEDIA)
+const uploadDir = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, 'public', 'uploads');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
+  destination: (req, file, cb) => cb(null, uploadDir),
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
     cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + ext);
   }
 });
-const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } });
+
+const upload = multer({ 
+  storage, 
+  limits: { fileSize: 100 * 1024 * 1024 } // Giới hạn 100MB
+});
 
 function detectFileType(filename) {
   if (!filename) return 'TẬP TIN';
   const ext = path.extname(filename).toLowerCase();
+  if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext)) return 'HÌNH ẢNH';
   if (ext === '.pdf') return 'PDF';
-  if (ext === '.docx' || ext === '.doc') return 'DOCX';
-  if (ext === '.pptx' || ext === '.ppt') return 'PPTX';
-  if (['.zip', '.rar', '.7z'].includes(ext)) return 'ZIP/RAR';
-  if (['.mp3', '.wav', '.m4a'].includes(ext)) return 'AUDIO';
-  if (['.mp4', '.mkv', '.avi'].includes(ext)) return 'VIDEO';
+  if (['.docx', '.doc'].includes(ext)) return 'DOCX';
+  if (['.pptx', '.ppt'].includes(ext)) return 'PPTX';
+  if (['.mp3', '.wav', '.m4a', '.aac', '.flac'].includes(ext)) return 'AUDIO';
+  if (['.mp4', '.mkv', '.avi', '.mov', '.webm'].includes(ext)) return 'VIDEO';
+  if (['.zip', '.rar', '.7z', '.tar', '.gz'].includes(ext)) return 'ZIP/RAR';
   return 'TẬP TIN';
 }
 
@@ -123,15 +127,13 @@ let documents = [
 
 let comments = {};
 
-// DỮ LIỆU CỘNG ĐỒNG CHAT
 let chatGroups = [
   { id: 'g1', name: '📢 Thảo Luận Học Thuật Chung', description: 'Kênh trao đổi thắc mắc học tập toàn trường' },
   { id: 'g2', name: '💻 Nhóm Lập Trình & CNTT', description: 'Góc giải đáp C++, Web, Database & AI' }
 ];
 
 let chatMessages = [
-  { id: 'm1', targetType: 'group', targetId: 'g1', senderId: '2', senderName: 'TS. Nguyễn Văn Giảng', senderRole: 'teacher', text: 'Chào các bạn sinh viên! Có thắc mắc gì về bài giảng cứ đặt câu hỏi tại đây nhé.', time: '08:30' },
-  { id: 'm2', targetType: 'group', targetId: 'g1', senderId: '1', senderName: 'Nguyễn Chí Vỹ', senderRole: 'admin', text: 'Dạ chào Thầy và các bạn, chúc mọi người tuần học tập hiệu quả!', time: '08:32' }
+  { id: 'm1', targetType: 'group', targetId: 'g1', senderId: '2', senderName: 'TS. Nguyễn Văn Giảng', senderRole: 'teacher', text: 'Chào các bạn sinh viên! Có thắc mắc gì về bài giảng cứ trao đổi và gửi tệp/ảnh vào đây nhé.', fileUrl: '', fileType: '', fileName: '', time: '08:30' }
 ];
 
 // TRA CỨU WIKIPEDIA DỰ PHÒNG
@@ -146,7 +148,7 @@ async function fetchWikiFallback(queryText) {
 
   try {
     const searchUrl = `https://vi.wikipedia.org/w/api.php?action=query&list=search&format=json&origin=*&srsearch=${encodeURIComponent(cleanKeyword)}`;
-    const headers = { 'User-Agent': 'EduShareBot/1.0 (https://edushare.edu.vn; support@edushare.edu.vn)' };
+    const headers = { 'User-Agent': 'EduShareBot/1.0 (https://edushare.edu.vn)' };
 
     const searchRes = await fetch(searchUrl, { headers });
     const searchData = await searchRes.json();
@@ -163,8 +165,8 @@ async function fetchWikiFallback(queryText) {
         const pageId = Object.keys(pages)[0];
         if (pageId !== '-1' && pages[pageId].extract) {
           let extract = pages[pageId].extract.trim();
-          if (extract.length > 700) extract = extract.substring(0, 700) + '...';
-          return `💡 **Thông tin giải đáp về "${bestTitle}":**\n\n${extract}`;
+          if (extract.length > 750) extract = extract.substring(0, 750) + '...';
+          return `💡 **Thông tin giải đáp học thuật về "${bestTitle}":**\n\n${extract}`;
         }
       }
     }
@@ -172,7 +174,7 @@ async function fetchWikiFallback(queryText) {
     console.error("Lỗi Wiki fallback:", err);
   }
 
-  return `🤖 **EduShare AI:** Rất tiếc tôi chưa tìm thấy thông tin chi tiết về từ khóa "${cleanKeyword}". Bạn có thể thử tìm kiếm tài liệu theo tên môn học trong thư viện EduShare nhé!`;
+  return `🤖 **EduShare AI:** Rất tiếc tôi chưa tìm thấy dữ liệu chi tiết về câu hỏi "${cleanKeyword}". Bạn có thể thử tra cứu thêm trong thư viện học liệu EduShare nhé!`;
 }
 
 /* ==================== 1. API AI CHATBOT ==================== */
@@ -205,34 +207,25 @@ app.post('/api/chatbot', async (req, res) => {
       }
     }
   } catch (err) {
-    console.log("⚠️ Gemini API bận hoặc chưa có Key, tự động sang Wiki Engine...");
+    console.log("⚠️ Gemini API bận hoặc chưa có Key, tự động chuyển sang Wiki Engine...");
   }
 
   const fallbackReply = await fetchWikiFallback(message);
   return res.json({ reply: fallbackReply, matchedDocs: matchedDocs.slice(0, 5) });
 });
 
-/* ==================== 2. API CỘNG ĐỒNG TRÒ CHUYỆN & GỢI Ý ==================== */
+/* ==================== 2. API CỘNG ĐỒNG CHAT & ĐÃ TỆP ==================== */
 
-// Lấy danh sách nhóm chat
-app.get('/api/chat/groups', (req, res) => {
-  res.json(chatGroups);
-});
+app.get('/api/chat/groups', (req, res) => res.json(chatGroups));
 
-// Tạo nhóm chat mới
 app.post('/api/chat/groups', (req, res) => {
   const { name, description } = req.body;
-  if (!name) return res.status(400).json({ message: 'Tên nhóm không được để trống!' });
-  const newGroup = {
-    id: 'g' + Date.now(),
-    name,
-    description: description || 'Nhóm thảo luận học tập'
-  };
+  if (!name) return res.status(400).json({ message: 'Tên nhóm không được trống!' });
+  const newGroup = { id: 'g' + Date.now(), name, description: description || 'Nhóm thảo luận học tập' };
   chatGroups.push(newGroup);
-  res.json({ message: 'Đã tạo nhóm trò chuyện thành công!', group: newGroup });
+  res.json({ message: 'Đã tạo nhóm trò chuyện!', group: newGroup });
 });
 
-// Lấy tin nhắn theo đối tượng (Nhóm hoặc Cá nhân)
 app.get('/api/chat/messages', (req, res) => {
   const { targetType, targetId, userId } = req.query;
   let filtered = [];
@@ -250,10 +243,23 @@ app.get('/api/chat/messages', (req, res) => {
   res.json(filtered);
 });
 
-// Gửi tin nhắn mới
-app.post('/api/chat/messages', (req, res) => {
+// API GỬI TIN NHẮN CHAT KÈM TỆP/ẢNH/MEDIA
+app.post('/api/chat/messages', upload.single('file'), (req, res) => {
   const { targetType, targetId, senderId, senderName, senderRole, text } = req.body;
-  if (!text || !text.trim()) return res.status(400).json({ message: 'Nội dung tin nhắn không được trống!' });
+  
+  let fileUrl = '';
+  let fileType = '';
+  let fileName = '';
+
+  if (req.file) {
+    fileUrl = `/uploads/${req.file.filename}`;
+    fileName = req.file.originalname;
+    fileType = detectFileType(req.file.originalname);
+  }
+
+  if (!text && !req.file) {
+    return res.status(400).json({ message: 'Nội dung hoặc tệp đính kèm không được trống!' });
+  }
 
   const newMsg = {
     id: 'm' + Date.now(),
@@ -262,7 +268,10 @@ app.post('/api/chat/messages', (req, res) => {
     senderId: String(senderId),
     senderName,
     senderRole: senderRole || 'student',
-    text: text.trim(),
+    text: text ? text.trim() : '',
+    fileUrl,
+    fileType,
+    fileName,
     time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
   };
 
@@ -270,14 +279,11 @@ app.post('/api/chat/messages', (req, res) => {
   res.json({ success: true, message: newMsg });
 });
 
-// AI Gợi ý Người có thể giải đáp câu hỏi
 app.post('/api/chat/suggest-helpers', (req, res) => {
   const { question } = req.body;
   if (!question) return res.status(400).json({ helpers: [] });
 
   const qLower = question.toLowerCase();
-  
-  // Lọc người dùng phù hợp theo vai trò (Giảng viên/Admin) hoặc chuyên môn
   let suggested = users.filter(u => {
     if (u.role === 'teacher' || u.role === 'admin') return true;
     if (u.expertise && qLower.split(' ').some(word => word.length > 2 && u.expertise.toLowerCase().includes(word))) return true;
@@ -291,12 +297,12 @@ app.post('/api/chat/suggest-helpers', (req, res) => {
       id: u.id,
       fullname: u.fullname,
       role: u.role === 'teacher' ? '👨‍🏫 Giảng viên' : (u.role === 'admin' ? '🛡️ Quản trị viên' : '🎓 Sinh viên Giỏi'),
-      expertise: u.expertise || 'Chuyên gia hỗ trợ học tập'
+      expertise: u.expertise || 'Chuyên gia hỗ trợ'
     }))
   });
 });
 
-/* ==================== 3. API AUTH & USERS ==================== */
+/* ==================== 3. API AUTH & QUẢN LÝ USER ==================== */
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
@@ -306,18 +312,31 @@ app.post('/api/login', (req, res) => {
 });
 
 app.post('/api/register', (req, res) => {
+  const { username, emailPhone } = req.body;
+  const existed = users.find(u => u.username === username || u.emailPhone === emailPhone);
+  if (existed) {
+    return res.status(400).json({ message: 'Tên đăng nhập hoặc Email/SĐT này đã tồn tại!' });
+  }
+
   const newUser = { id: String(Date.now()), ...req.body, status: 'approved', favorites: [] };
   users.push(newUser);
-  res.json({ message: 'Đăng ký tài khoản thành công!' });
+  res.json({ message: 'Đăng ký tài khoản mới thành công! Hãy đăng nhập ngay.' });
 });
 
+// API QUÊN & CẤP LAI MẬT KHẨU TOÀN DIỆN
 app.post('/api/forgot-password', (req, res) => {
   const { account, newPassword } = req.body;
+  if (!account || !newPassword) {
+    return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin!' });
+  }
+
   const user = users.find(u => u.username === account || u.emailPhone === account);
   if (user) {
     user.password = newPassword;
-    res.json({ message: 'Đã cập nhật mật khẩu mới thành công!' });
-  } else res.status(404).json({ message: 'Không tìm thấy tài khoản!' });
+    res.json({ success: true, message: '🎉 Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.' });
+  } else {
+    res.status(404).json({ message: '❌ Không tìm thấy tài khoản hoặc Email/SĐT trùng khớp trong hệ thống!' });
+  }
 });
 
 app.get('/api/users', (req, res) => res.json(users));
@@ -326,10 +345,8 @@ app.put('/api/users/:id/role', (req, res) => {
   const user = users.find(u => String(u.id) === String(req.params.id));
   if (user) {
     user.role = req.body.role || user.role;
-    res.json({ message: 'Đã cập nhật vai trò người dùng!', user });
-  } else {
-    res.status(404).json({ message: 'Không tìm thấy người dùng!' });
-  }
+    res.json({ message: 'Đã cập nhật vai trò!', user });
+  } else res.status(404).json({ message: 'Không tìm thấy user!' });
 });
 
 app.delete('/api/users/:id', (req, res) => {
@@ -337,7 +354,6 @@ app.delete('/api/users/:id', (req, res) => {
   res.json({ message: 'Đã xóa người dùng thành công.' });
 });
 
-// API THÊM / BỎ YÊU THÍCH TÀI LIỆU
 app.post('/api/users/favorites', (req, res) => {
   const { userId, docId } = req.body;
   const user = users.find(u => String(u.id) === String(userId));
@@ -401,15 +417,12 @@ app.delete('/api/documents/:id', (req, res) => {
   res.json({ message: 'Đã xóa tài liệu thành công.' });
 });
 
-// Like / Unlike tài liệu
 app.post('/api/documents/:id/like', (req, res) => {
   const doc = documents.find(d => String(d.id) === String(req.params.id));
   if (doc) {
     doc.likes = (doc.likes || 0) + 1;
     res.json({ likes: doc.likes });
-  } else {
-    res.status(404).json({ message: 'Không tìm thấy tài liệu!' });
-  }
+  } else res.status(404).json({ message: 'Không tìm thấy tài liệu!' });
 });
 
 app.post('/api/documents/:id/view', (req, res) => {
@@ -423,8 +436,6 @@ app.post('/api/documents/:id/download', (req, res) => {
   if (doc) doc.downloads = (doc.downloads || 0) + 1;
   res.json({ success: true });
 });
-
-/* ==================== 5. API BÌNH LUẬN ==================== */
 
 app.get('/api/documents/:id/comments', (req, res) => res.json(comments[req.params.id] || []));
 

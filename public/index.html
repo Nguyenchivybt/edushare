@@ -12,7 +12,7 @@
 </head>
 <body>
 
-  <!-- NAVBAR TẦNG 1: CHÍNH THỨC -->
+  <!-- MAIN NAVBAR -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()">
       <div class="logo-icon">🎓</div>
@@ -63,31 +63,31 @@
         </div>
       </div>
 
-      <!-- MENU MOBILE ACCOUNT -->
       <div id="mobile-auth-container" class="mobile-auth-box"></div>
     </nav>
 
     <div class="right-nav-group">
-      <button onclick="openUploadCheck()" class="btn-upload-nav">+ Tải Lên Học Liệu</button>
-      <button onclick="openModal('settings-modal')" class="btn-settings-nav" title="Cài đặt hệ thống">⚙️ Cài Đặt</button>
+      <button onclick="openUploadCheck()" class="btn-artistic btn-green">+ Tải Lên Đa Tệp</button>
+      <button onclick="openModal('settings-modal')" class="btn-artistic btn-secondary" title="Cài đặt">⚙️ Cài Đặt</button>
       <div id="auth-buttons-container" class="auth-buttons"></div>
     </div>
   </header>
 
-  <!-- NAVBAR TẦNG 2: BỘ TÌM KIẾM RỘNG RÃI & TIỆN ÍCH LỐI TẮT -->
+  <!-- SUB TOOLBAR SEARCH & SHORTCUTS -->
   <div class="sub-toolbar">
     <div class="nav-search-group">
       <input type="text" id="search-input" placeholder="🔍 Nhập từ khóa tìm giáo trình, đề thi, tác giả...">
       <select id="search-type">
         <option value="all">Tất cả định dạng</option>
+        <option value="HÌNH ẢNH">Hình ảnh (JPG/PNG)</option>
         <option value="PDF">PDF</option>
         <option value="DOCX">Word (DOCX)</option>
         <option value="PPTX">PowerPoint</option>
-        <option value="ZIP/RAR">File nén ZIP/RAR</option>
         <option value="AUDIO">Âm thanh MP3</option>
         <option value="VIDEO">Video MP4</option>
+        <option value="ZIP/RAR">File nén ZIP/RAR</option>
       </select>
-      <button onclick="handleSearch()" class="btn-nav-search">Tìm Kiếm</button>
+      <button onclick="handleSearch()" class="btn-artistic btn-blue">Tìm Kiếm</button>
     </div>
 
     <div class="quick-access-bar" id="quick-access-bar">
@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <!-- HERO BANNER TRANG CHỦ -->
+  <!-- HERO SECTION -->
   <section class="hero-section">
     <div class="hero-container">
       <div class="hero-text-box">
@@ -151,7 +151,7 @@
           <p class="sub-text" id="doc-count-text">Đang hiển thị tất cả học liệu khả dụng</p>
         </div>
         <div class="section-controls">
-          <button onclick="exportStatsToExcel()" class="btn-excel">📊 Xuất Excel Thống Kê</button>
+          <button onclick="exportStatsToExcel()" class="btn-artistic btn-green" style="font-size:12px; padding:6px 12px;">📊 Xuất Excel Thống Kê</button>
           <div class="sort-group">
             <label>Sắp xếp:</label>
             <select id="sort-select" onchange="handleSortChange()">
@@ -183,19 +183,19 @@
     </div>
     <div id="chatbot-messages" class="chatbot-messages">
       <div class="chat-msg bot-msg">
-        👋 Xin chào! Tôi là Trợ lý AI EduShare. Nhập tên khái niệm hoặc câu hỏi học thuật từ dễ đến khó, tôi sẽ phân tích và giải đáp ngay cho bạn!
+        👋 Xin chào! Tôi là Trợ lý AI EduShare. Bạn cần thắc mắc khái niệm hay bài tập nào, hãy nhập vào đây tôi sẽ giải đáp chuẩn xác ngay cho bạn!
       </div>
     </div>
     <div class="chatbot-input-box">
       <input type="text" id="chatbot-input" placeholder="Nhập khái niệm hoặc câu hỏi..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
-      <button onclick="sendChatMessage()" class="btn-blue" style="width:auto; padding:8px 14px;">Gửi</button>
+      <button onclick="sendChatMessage()" class="btn-artistic btn-blue" style="padding:6px 12px;">Gửi</button>
     </div>
   </div>
 
-  <!-- MODAL CỘNG ĐỒNG TRÒ CHUYỆN HỌC THUẬT -->
+  <!-- MODAL CỘNG ĐỒNG TRÒ CHUYỆN (HỖ TRỢ UP TẤT CẢ FILE/ẢNH/MEDIA) -->
   <div id="community-modal" class="modal-overlay">
     <div class="modal-card modal-card-xlarge">
-      <div class="modal-header" style="background:#0284c7;">
+      <div class="modal-header" style="background:linear-gradient(135deg, #0284c7, #0369a1);">
         <div class="modal-title">💬 Cộng Đồng Trò Chuyện & Thảo Luận Học Thuật MTU</div>
         <button class="modal-close-icon" onclick="closeModal('community-modal')">&times;</button>
       </div>
@@ -212,10 +212,10 @@
           </div>
           <div id="chat-users-list" class="chat-target-list"></div>
 
-          <div style="margin-top:20px; padding:10px; background:#0f172a; border-radius:6px; border:1px solid #334155;">
+          <div style="margin-top:15px; padding:10px; background:#0f172a; border-radius:8px; border:1px solid #334155;">
             <p style="font-size:11px; color:#38bdf8; font-weight:bold; margin-bottom:5px;">💡 AI Gợi Ý Người Giải Đáp</p>
             <input type="text" id="suggest-question-input" placeholder="Nhập câu hỏi để tìm thầy/bạn hỗ trợ..." style="width:100%; padding:6px; font-size:11px; border-radius:4px; border:1px solid #334155; background:#1e293b; color:#fff; margin-bottom:6px;">
-            <button onclick="findHelperForQuestion()" class="btn-submit btn-blue" style="font-size:11px; padding:6px;">🔍 Tìm Người Hỗ Trợ</button>
+            <button onclick="findHelperForQuestion()" class="btn-artistic btn-blue" style="font-size:11px; padding:6px; width:100%;">🔍 Tìm Người Hỗ Trợ</button>
             <div id="suggested-helpers-box" style="margin-top:8px; font-size:11px;"></div>
           </div>
         </div>
@@ -228,9 +228,18 @@
 
           <div id="community-messages-box" class="community-messages"></div>
 
+          <!-- DẢI XEM TRƯỚC TỆP ĐÍNH KÈM CHAT -->
+          <div id="chat-file-preview-strip" style="display:none; padding:6px 12px; background:#1e293b; border-top:1px solid #334155; font-size:12px; color:#38bdf8; justify-content:space-between; align-items:center;">
+            <span id="chat-file-name-display">📎 Đã chọn tệp: file.pdf</span>
+            <button onclick="clearSelectedChatFile()" style="background:none; border:none; color:#ef4444; font-weight:bold; cursor:pointer;">✖ Xóa</button>
+          </div>
+
           <div class="community-input-bar">
+            <label for="community-file-input" class="btn-attach-file" title="Đính kèm hình ảnh, video, nhạc, PDF, Word, PowerPoint, ZIP...">📎</label>
+            <input type="file" id="community-file-input" style="display:none;" onchange="handleChatFileSelect(this)">
+            
             <input type="text" id="community-msg-input" placeholder="Nhập tin nhắn trao đổi học thuật..." onkeypress="if(event.key==='Enter') sendCommunityMessage()">
-            <button onclick="sendCommunityMessage()" class="btn-submit btn-blue" style="width:auto; padding:8px 20px;">Gửi 🚀</button>
+            <button onclick="sendCommunityMessage()" class="btn-artistic btn-blue" style="padding:8px 16px;">Gửi 🚀</button>
           </div>
         </div>
       </div>
@@ -240,7 +249,7 @@
   <!-- MODAL ALBUM YÊU THÍCH -->
   <div id="favorites-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
-      <div class="modal-header" style="background:#d97706;">
+      <div class="modal-header" style="background:linear-gradient(135deg, #d97706, #b45309);">
         <div class="modal-title">⭐ Album Học Liệu & Bài Báo Yêu Thích</div>
         <button class="modal-close-icon" onclick="closeModal('favorites-modal')">&times;</button>
       </div>
@@ -251,22 +260,22 @@
     </div>
   </div>
 
-  <!-- MODAL CẤU HÌNH TIỆN ÍCH TRUY CẬP NHANH -->
+  <!-- MODAL CẤU HÌNH TIỆN ÍCH LỐI TẮT -->
   <div id="quick-config-modal" class="modal-overlay">
     <div class="modal-card">
-      <div class="modal-header" style="background:#4f46e5;">
+      <div class="modal-header" style="background:linear-gradient(135deg, #4f46e5, #3730a3);">
         <div class="modal-title">⚡ Tùy Chỉnh Tiện Ích Truy Cập Nhanh</div>
         <button class="modal-close-icon" onclick="closeModal('quick-config-modal')">&times;</button>
       </div>
       <div style="padding:20px;">
         <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Chọn các chức năng bạn muốn hiển thị trên thanh Shortcut:</p>
         <div id="quick-checkboxes-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-        <button onclick="saveQuickConfig()" class="btn-submit btn-blue" style="margin-top:15px;">Lưu Thay Đổi Shortcut</button>
+        <button onclick="saveQuickConfig()" class="btn-artistic btn-blue" style="margin-top:15px; width:100%;">Lưu Thay Đổi Shortcut</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL CÀI ĐẶT -->
+  <!-- MODAL CÀI ĐẶT HỆ THỐNG -->
   <div id="settings-modal" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header" style="background:#334155;">
@@ -276,29 +285,29 @@
       <div style="padding:20px;">
         <div class="setting-item">
           <label><strong>🎨 Giao Diện Hệ Thống:</strong></label>
-          <select id="theme-selector" onchange="changeTheme(this.value)" style="width:100%; padding:8px; border-radius:6px; margin-top:5px;">
+          <select id="theme-selector" onchange="changeTheme(this.value)" style="width:100%; padding:8px; border-radius:6px; margin-top:5px; background:var(--bg-main); color:var(--text-main); border:1px solid var(--border-color);">
             <option value="dark">🌙 Giao diện Tối (Dark Mode)</option>
             <option value="light">☀️ Giao diện Sáng (Light Mode)</option>
           </select>
         </div>
 
-        <hr style="margin:15px 0; border:none; border-top:1px solid #cbd5e1;">
+        <hr style="margin:15px 0; border:none; border-top:1px solid var(--border-color);">
 
         <div class="setting-item">
           <label><strong>🟢 Trạng Thái Hoạt Động:</strong></label>
-          <select id="status-selector" onchange="toggleOnlineStatus(this.value)" style="width:100%; padding:8px; border-radius:6px; margin-top:5px;">
+          <select id="status-selector" onchange="toggleOnlineStatus(this.value)" style="width:100%; padding:8px; border-radius:6px; margin-top:5px; background:var(--bg-main); color:var(--text-main); border:1px solid var(--border-color);">
             <option value="online">🟢 Online (Đang hoạt động)</option>
             <option value="offline">⚪ Offline (Ngoại tuyến / Tự do)</option>
           </select>
         </div>
 
-        <hr style="margin:15px 0; border:none; border-top:1px solid #cbd5e1;">
+        <hr style="margin:15px 0; border:none; border-top:1px solid var(--border-color);">
 
         <div id="profile-edit-box">
           <h4 style="margin-bottom:10px;">👤 Chỉnh Sửa Thông Tin Cá Nhân</h4>
           <div class="input-group"><label>Họ và Tên:</label><input type="text" id="edit-profile-fullname"></div>
           <div class="input-group" style="margin-top:8px;"><label>Email / SĐT:</label><input type="text" id="edit-profile-email"></div>
-          <button onclick="saveUserProfileInfo()" class="btn-submit btn-green" style="margin-top:12px;">Lưu Thay Đổi Thông Tin</button>
+          <button onclick="saveUserProfileInfo()" class="btn-artistic btn-green" style="margin-top:12px; width:100%;">Lưu Thay Đổi Thông Tin</button>
         </div>
       </div>
     </div>
@@ -312,13 +321,13 @@
         <button class="modal-close-icon" onclick="closeModal('doc-preview-modal')">&times;</button>
       </div>
       <div style="padding:15px;" id="preview-content-box"></div>
-      <div style="padding:10px 20px; background:#f8fafc; text-align:right;">
-        <button type="button" onclick="closeModal('doc-preview-modal')" class="btn-cancel" style="width:auto; padding:6px 16px;">Đóng Xem Trước</button>
+      <div style="padding:10px 20px; background:var(--bg-card); text-align:right;">
+        <button type="button" onclick="closeModal('doc-preview-modal')" class="btn-artistic btn-secondary">Đóng Xem Trước</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL CHI TIẾT & BÌNH LUẬN -->
+  <!-- MODAL BÌNH LUẬN -->
   <div id="doc-details-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header" style="background:#1e293b;">
@@ -328,8 +337,8 @@
       <div style="padding:20px;">
         <div id="detail-doc-info" style="font-size:13px; color:var(--text-main); margin-bottom:15px;"></div>
         
-        <h4 style="margin-bottom:10px; font-size:14px; border-bottom:1px solid #e2e8f0; padding-bottom:5px;">💬 Bình Luận & Đánh Giá từ Sinh Viên / Giảng Viên</h4>
-        <div id="comments-list-box" style="max-height:220px; overflow-y:auto; margin-bottom:15px; background:#f8fafc; padding:10px; border-radius:6px;">
+        <h4 style="margin-bottom:10px; font-size:14px; border-bottom:1px solid var(--border-color); padding-bottom:5px;">💬 Bình Luận & Đánh Giá từ Sinh Viên / Giảng Viên</h4>
+        <div id="comments-list-box" style="max-height:220px; overflow-y:auto; margin-bottom:15px; background:var(--bg-main); padding:10px; border-radius:6px;">
           ⏳ Đang tải bình luận...
         </div>
 
@@ -341,7 +350,7 @@
   <!-- MODAL ĐĂNG NHẬP -->
   <div id="login-modal" class="modal-overlay">
     <div class="modal-card">
-      <div class="modal-header">
+      <div class="modal-header" style="background:linear-gradient(135deg, #2563eb, #1d4ed8);">
         <div class="modal-title">🔐 Đăng Nhập EduShare</div>
         <button class="modal-close-icon" onclick="closeModal('login-modal')">&times;</button>
       </div>
@@ -350,44 +359,46 @@
         <div class="input-group" style="margin-top:10px;"><label>Mật khẩu (*):</label><input type="password" id="login-password" required placeholder="Nhập mật khẩu"></div>
         
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:12px;">
-          <a href="#" onclick="switchModal('login-modal', 'forgot-modal')" style="color:#2563eb; font-weight:600; text-decoration:none;">🔑 Quên mật khẩu?</a>
-          <a href="#" onclick="switchModal('login-modal', 'register-modal')" style="color:#16a34a; font-weight:600; text-decoration:none;">📝 Chưa có tài khoản? Đăng ký ngay</a>
+          <a href="#" onclick="switchModal('login-modal', 'forgot-modal')" style="color:#38bdf8; font-weight:600; text-decoration:none;">🔑 Quên mật khẩu?</a>
+          <a href="#" onclick="switchModal('login-modal', 'register-modal')" style="color:#22c55e; font-weight:600; text-decoration:none;">📝 Chưa có tài khoản? Đăng ký</a>
         </div>
 
-        <button type="submit" class="btn-submit btn-blue" style="margin-top:16px;">Đăng Nhập Ngay</button>
-        <button type="button" onclick="closeModal('login-modal')" class="btn-cancel" style="margin-top:8px;">Hủy Bỏ</button>
+        <button type="submit" class="btn-artistic btn-blue" style="margin-top:16px; width:100%;">Đăng Nhập Ngay</button>
+        <button type="button" onclick="closeModal('login-modal')" class="btn-artistic btn-secondary" style="margin-top:8px; width:100%;">Hủy Bỏ</button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL QUÊN MẬT KHẨU -->
+  <!-- MODAL QUÊN & CẤP LẠI MẬT KHẨU (FIX LỖI TRIỆT ĐỂ) -->
   <div id="forgot-modal" class="modal-overlay">
     <div class="modal-card">
-      <div class="modal-header" style="background:#ea580c;">
-        <div class="modal-title">🔑 Khôi Phục Mật Khẩu</div>
+      <div class="modal-header" style="background:linear-gradient(135deg, #ea580c, #c2410c);">
+        <div class="modal-title">🔑 Khôi Phục & Đặt Lại Mật Khẩu</div>
         <button class="modal-close-icon" onclick="closeModal('forgot-modal')">&times;</button>
       </div>
       <form id="forgot-form" style="padding:20px;" onsubmit="handleForgotPassword(event)">
-        <p style="font-size:13px; color:#475569; margin-bottom:12px;">Nhập Tên đăng nhập hoặc Email/SĐT đã đăng ký để đặt lại mật khẩu mới:</p>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Nhập Tên đăng nhập hoặc Email/SĐT đã đăng ký để cài đặt lại mật khẩu mới:</p>
         <div class="input-group"><label>Tên đăng nhập hoặc Email/SĐT (*):</label><input type="text" id="forgot-account" required placeholder="Nhập tài khoản hoặc Email"></div>
         <div class="input-group" style="margin-top:10px;"><label>Mật khẩu mới (*):</label><input type="password" id="forgot-newpass" required placeholder="Nhập mật khẩu mới"></div>
         
-        <button type="submit" class="btn-submit btn-blue" style="margin-top:16px; background:#ea580c;">Xác Nhận Đặt Lại Mật Khẩu</button>
-        <button type="button" onclick="switchModal('forgot-modal', 'login-modal')" class="btn-cancel" style="margin-top:8px;">Quay lại Đăng Nhập</button>
+        <div id="forgot-msg-box" style="display:none; font-size:12px; margin-top:10px; padding:8px; border-radius:6px;"></div>
+
+        <button type="submit" class="btn-artistic btn-warning" style="margin-top:16px; width:100%;">Xác Nhận Đặt Lại Mật Khẩu</button>
+        <button type="button" onclick="switchModal('forgot-modal', 'login-modal')" class="btn-artistic btn-secondary" style="margin-top:8px; width:100%;">Quay lại Đăng Nhập</button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG KÝ -->
+  <!-- MODAL ĐĂNG KÝ TÀI KHOẢN -->
   <div id="register-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
-      <div class="modal-header">
+      <div class="modal-header" style="background:linear-gradient(135deg, #16a34a, #15803d);">
         <div class="modal-title">📝 Đăng Ký Tài Khoản EduShare</div>
         <button class="modal-close-icon" onclick="closeModal('register-modal')">&times;</button>
       </div>
       <form id="register-form" style="padding:20px;">
         <div class="form-grid-2">
-          <div class="input-group"><label>Họ và Tên (*):</label><input type="text" id="reg-fullname" required></div>
+          <div class="input-group"><label>Họ và Tên (*):</label><input type="text" id="reg-fullname" required placeholder="Nhập họ tên đầy đủ"></div>
           <div class="input-group"><label>Giới tính:</label><select id="reg-gender"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
           <div class="input-group"><label>Vai Trò (*):</label>
             <select id="reg-role">
@@ -395,34 +406,34 @@
               <option value="teacher">👨‍🏫 Giáo viên / Giảng viên</option>
             </select>
           </div>
-          <div class="input-group"><label>Email / SĐT (*):</label><input type="text" id="reg-email-phone" required></div>
+          <div class="input-group"><label>Email / SĐT (*):</label><input type="text" id="reg-email-phone" required placeholder="Nhập Email hoặc SĐT"></div>
           <div class="input-group"><label>Trường Học:</label><input type="text" id="reg-school" value="Trường Đại học Xây dựng Miền Tây"></div>
-          <div class="input-group"><label>Khoa / Viện:</label><input type="text" id="reg-faculty"></div>
-          <div class="input-group"><label>Ngành Học / Chuyên môn:</label><input type="text" id="reg-major" placeholder="Ví dụ: Lập trình Web, Xây dựng..."></div>
-          <div class="input-group"><label>Khóa / Lớp:</label><input type="text" id="reg-class"></div>
-          <div class="input-group"><label>Tên đăng nhập (*):</label><input type="text" id="reg-username" required></div>
-          <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="reg-password" required></div>
+          <div class="input-group"><label>Khoa / Viện:</label><input type="text" id="reg-faculty" placeholder="Ví dụ: Công nghệ thông tin"></div>
+          <div class="input-group"><label>Ngành Học / Chuyên môn:</label><input type="text" id="reg-major" placeholder="Ví dụ: Kỹ thuật phần mềm"></div>
+          <div class="input-group"><label>Khóa / Lớp:</label><input type="text" id="reg-class" placeholder="Ví dụ: K16 - ĐH KTPM 2023"></div>
+          <div class="input-group"><label>Tên đăng nhập (*):</label><input type="text" id="reg-username" required placeholder="Tên đăng nhập duy nhất"></div>
+          <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="reg-password" required placeholder="Tối thiểu 3 ký tự"></div>
         </div>
 
         <div style="text-align:right; margin-top:10px; font-size:12px;">
-          <a href="#" onclick="switchModal('register-modal', 'login-modal')" style="color:#2563eb; font-weight:600; text-decoration:none;">🔑 Đã có tài khoản? Đăng nhập tại đây</a>
+          <a href="#" onclick="switchModal('register-modal', 'login-modal')" style="color:#38bdf8; font-weight:600; text-decoration:none;">🔑 Đã có tài khoản? Đăng nhập tại đây</a>
         </div>
 
-        <button type="submit" class="btn-submit btn-green" style="margin-top:12px;">Tạo Tài Khoản Mới</button>
-        <button type="button" onclick="closeModal('register-modal')" class="btn-cancel" style="margin-top:8px;">Hủy Bỏ</button>
+        <button type="submit" class="btn-artistic btn-green" style="margin-top:12px; width:100%;">Tạo Tài Khoản Mới</button>
+        <button type="button" onclick="closeModal('register-modal')" class="btn-artistic btn-secondary" style="margin-top:8px; width:100%;">Hủy Bỏ</button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL ADMIN QUẢN LÝ USER -->
+  <!-- MODAL ADMIN -->
   <div id="admin-users-modal" class="modal-overlay">
     <div class="modal-card modal-card-xlarge">
       <div class="modal-header" style="background:#881337;">
         <div class="modal-title">🛡️ Quản Lý Hệ Thống & Phân Quyền Người Dùng (Admin)</div>
         <button class="modal-close-icon" onclick="closeModal('admin-users-modal')">&times;</button>
       </div>
-      <div style="padding:15px; display:flex; justify-content:flex-end; gap:10px;">
-        <button onclick="exportUsersToExcel()" class="btn-excel">📊 Xuất Excel Danh Sách User</button>
+      <div style="padding:12px 20px; display:flex; justify-content:flex-end;">
+        <button onclick="exportUsersToExcel()" class="btn-artistic btn-green" style="font-size:12px; padding:6px 12px;">📊 Xuất Excel Danh Sách User</button>
       </div>
       <div style="overflow-x:auto; padding:0 20px 20px 20px;">
         <table class="admin-table">
@@ -432,7 +443,7 @@
               <th>Họ và Tên</th>
               <th>Tài khoản</th>
               <th>Vai trò</th>
-              <th>Trạng thái Hoạt Động</th>
+              <th>Trạng thái</th>
               <th>Đổi Vai Trò</th>
               <th>Thao tác</th>
             </tr>
@@ -440,22 +451,19 @@
           <tbody id="users-table-body"></tbody>
         </table>
       </div>
-      <div style="padding:0 20px 20px 20px; text-align:right;">
-        <button type="button" onclick="closeModal('admin-users-modal')" class="btn-cancel" style="width:auto; padding:6px 16px;">Đóng Bảng Admin</button>
-      </div>
     </div>
   </div>
 
-  <!-- MODAL TẢI LÊN ĐA TỆP -->
+  <!-- MODAL TẢI LÊN TÀI LIỆU (TẤT CẢ FILE/ẢNH/MEDIA) -->
   <div id="upload-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
-      <div class="modal-header">
-        <div class="modal-title">📤 Tải Lên Học Liệu Mới (Hỗ trợ Đa Tệp)</div>
+      <div class="modal-header" style="background:linear-gradient(135deg, #059669, #047857);">
+        <div class="modal-title">📤 Tải Lên Học Liệu Mới (Hỗ trợ Tất Cả Loại Tệp)</div>
         <button class="modal-close-icon" onclick="closeModal('upload-modal')">&times;</button>
       </div>
       <form id="upload-form" onsubmit="handleUploadSubmit(event)" style="padding:20px;">
         <div class="form-grid-2">
-          <div class="input-group" style="grid-column: span 2;"><label>Tên tài liệu (*):</label><input type="text" id="up-title" placeholder="Nhập tên giáo trình, đề thi..." required></div>
+          <div class="input-group" style="grid-column: span 2;"><label>Tên tài liệu / bài báo (*):</label><input type="text" id="up-title" placeholder="Nhập tên tài liệu..." required></div>
           <div class="input-group"><label>Chuyên mục (*):</label>
             <select id="up-category">
               <option value="Tài liệu">Tài liệu học tập</option>
@@ -465,18 +473,18 @@
               <option value="Bài báo tiêu biểu">Bài báo khoa học</option>
             </select>
           </div>
-          <div class="input-group"><label>Môn Học / Chủ đề:</label><input type="text" id="up-subject" placeholder="Ví dụ: Triết học, SQL, Xây dựng..."></div>
+          <div class="input-group"><label>Môn Học / Chủ đề:</label><input type="text" id="up-subject" placeholder="Ví dụ: Cấu trúc dữ liệu, SQL..."></div>
           <div class="input-group" style="grid-column: span 2;">
-            <label>Chọn Tệp Tải Lên (PDF, DOCX, PPTX, MP3, MP4, ZIP, RAR...):</label>
-            <input type="file" id="up-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp3,.mp4,.zip,.rar,.7z,.txt" required>
+            <label>Chọn Tệp Tải Lên (PDF, DOCX, PPTX, JPG, PNG, MP3, MP4, ZIP, RAR...):</label>
+            <input type="file" id="up-file" accept=".pdf,.doc,.docx,.ppt,.pptx,.mp3,.mp4,.jpg,.jpeg,.png,.gif,.webp,.zip,.rar,.7z,.txt" required>
           </div>
         </div>
-        <button type="submit" class="btn-submit btn-blue" style="margin-top:15px;">Xác Nhận Tải Lên Học Liệu</button>
+        <button type="submit" class="btn-artistic btn-blue" style="margin-top:15px; width:100%;">Xác Nhận Tải Lên Học Liệu</button>
       </form>
     </div>
   </div>
 
-  <!-- FOOTER CHUẨN MTU -->
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-container">
       <div class="footer-col brand-col">
