@@ -73,7 +73,7 @@
     </div>
   </header>
 
-  <!-- SUB TOOLBAR SEARCH & SHORTCUTS TẦNG 2 -->
+  <!-- SUB TOOLBAR TẦNG 2 -->
   <div class="sub-toolbar">
     <div class="nav-search-group">
       <input type="text" id="search-input" placeholder="🔍 Nhập từ khóa tìm giáo trình, đề thi, tác giả...">
@@ -142,7 +142,7 @@
       <div id="articles-grid" class="articles-grid"></div>
     </section>
 
-    <section class="doc-list-section">
+    <section class="doc-list-section" style="margin-top:24px;">
       <div class="section-header">
         <h2>📚 Danh Sách Tài Liệu Học Tập & Đề Thi</h2>
         <div class="section-controls">
@@ -178,6 +178,75 @@
     <div class="chatbot-input-box">
       <input type="text" id="chatbot-input" placeholder="Hỏi AI câu hỏi học thuật..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
       <button onclick="sendChatMessage()" class="btn-artistic btn-blue"><span class="icon-lg">🚀</span></button>
+    </div>
+  </div>
+
+  <!-- MODAL XEM TRƯỚC HỌC LIỆU (PREVIEW MODAL) -->
+  <div id="preview-modal" class="modal-overlay">
+    <div class="modal-card modal-card-large">
+      <div class="modal-header">
+        <div class="modal-title" id="preview-title">👁️ Xem Trực Tuyến Học Liệu</div>
+        <button class="modal-close-icon" onclick="closeModal('preview-modal')">&times;</button>
+      </div>
+      <div id="preview-body" style="padding:16px; min-height:300px; max-height:70vh; overflow-y:auto; text-align:center;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL CHỈNH SỬA TÀI LIỆU (EDIT MODAL) -->
+  <div id="edit-doc-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header" style="background:#2563eb;">
+        <div class="modal-title">📝 Chỉnh Sửa Thông Tin Học Liệu</div>
+        <button class="modal-close-icon" onclick="closeModal('edit-doc-modal')">&times;</button>
+      </div>
+      <form id="edit-doc-form" onsubmit="handleEditSubmit(event)" style="padding:20px;">
+        <input type="hidden" id="edit-doc-id">
+        <div class="input-group"><label>Tên tài liệu (*):</label><input type="text" id="edit-doc-title" required></div>
+        <div class="input-group" style="margin-top:10px;"><label>Môn học (*):</label><input type="text" id="edit-doc-subject" required></div>
+        <div class="input-group" style="margin-top:10px;"><label>Chuyên mục (*):</label>
+          <select id="edit-doc-category">
+            <option value="Tài liệu">Tài liệu học tập</option>
+            <option value="Bài giảng">Bài giảng & Slide</option>
+            <option value="Bài tập">Bài tập mẫu</option>
+            <option value="Tài liệu bài thi">Đề thi mẫu</option>
+            <option value="Bài báo tiêu biểu">Bài báo khoa học</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-artistic btn-blue" style="margin-top:15px; width:100%;">Lưu Cập Nhật</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL CÀI ĐẶT LỐI TẮT -->
+  <div id="quick-config-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header" style="background:#7c3aed;">
+        <div class="modal-title">⚡ Cấu Hình Lối Tắt Nhanh</div>
+        <button class="modal-close-icon" onclick="closeModal('quick-config-modal')">&times;</button>
+      </div>
+      <div style="padding:20px;">
+        <div class="input-group"><label>Tên lối tắt:</label><input type="text" id="quick-title-input" placeholder="VD: Đề thi CNTT"></div>
+        <div class="input-group" style="margin-top:10px;"><label>Từ khóa tìm kiếm:</label><input type="text" id="quick-keyword-input" placeholder="VD: CNTT"></div>
+        <button onclick="addQuickShortcut()" class="btn-artistic btn-blue" style="margin-top:12px; width:100%;">+ Thêm Lối Tắt</button>
+        <div id="quick-shortcuts-list" style="margin-top:15px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CÀI ĐẶT TÀI KHOẢN & HỆ THỐNG -->
+  <div id="settings-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header" style="background:#475569;">
+        <div class="modal-title">⚙️ Cài Đặt Hệ Thống</div>
+        <button class="modal-close-icon" onclick="closeModal('settings-modal')">&times;</button>
+      </div>
+      <div style="padding:20px; font-size:13px; line-height:1.6;">
+        <p>🎓 <strong>EduShare MTU - Phiên bản 2.5</strong></p>
+        <p>Hệ thống Thư viện Học liệu số dành cho Giảng viên & Sinh viên Trường Đại học Xây dựng Miền Tây.</p>
+        <hr style="border-color:var(--border-color); margin:12px 0;">
+        <label><input type="checkbox" checked onclick="alert('Đã cập nhật cấu hình thông báo!')"> Bật thông báo học liệu mới</label><br>
+        <label><input type="checkbox" checked onclick="alert('Đã lưu chế độ giao diện tối!')"> Giao diện tối (Dark Mode)</label>
+      </div>
     </div>
   </div>
 
@@ -274,7 +343,7 @@
               <option value="Bài báo tiêu biểu">Bài báo khoa học</option>
             </select>
           </div>
-          <div class="input-group"><label>Môn Học:</label><input type="text" id="up-subject"></div>
+          <div class="input-group"><label>Môn Học:</label><input type="text" id="up-subject" placeholder="VD: Cấu trúc dữ liệu"></div>
           <div class="input-group" style="grid-column: span 2;">
             <label>Chọn Tệp Tải Lên (PDF, DOCX, PPTX, JPG, MP3, MP4...):</label>
             <input type="file" id="up-file" required>

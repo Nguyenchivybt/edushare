@@ -19,10 +19,10 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const systemInstruction = `
 Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật thông minh của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
-Hãy giải đáp câu hỏi học thuật ngắn gọn, chính xác, lịch sự, đúng trọng tâm và trình bày đẹp bằng Markdown.
+Hãy giải đáp câu hỏi học thuật ngắn gọn, chính xác, lịch sự và trình bày đẹp bằng Markdown.
 `;
 
-// CẤU HÌNH MULTER UPLOAD TỆP ĐA PHƯƠNG TIỆN
+// CẤU HÌNH MULTER UPLOAD TỆP
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -54,7 +54,7 @@ function detectFileType(filename) {
   return 'TẬP TIN';
 }
 
-// DATABASE MẪU NỘI BỘ
+// MOCK DATABASE DỮ LIỆU CƠ SỞ
 let users = [
   { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: '123', role: 'admin', status: 'approved', emailPhone: 'nguyenchivytails@gmail.com', favorites: ['101'], authProvider: 'local' },
   { id: '2', fullname: 'TS. Nguyễn Văn Giảng', username: 'lecturer', password: '123', role: 'teacher', status: 'approved', emailPhone: 'giang.nv@mtu.edu.vn', favorites: [], authProvider: 'local' },
@@ -73,9 +73,9 @@ let documents = [
     major: 'Kỹ thuật phần mềm',
     author: 'Nguyễn Chí Vỹ',
     authorId: '1',
-    views: 156,
-    downloads: 62,
-    likes: 29,
+    views: 182,
+    downloads: 74,
+    likes: 35,
     date: '01/11/2026',
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   },
@@ -90,9 +90,9 @@ let documents = [
     major: 'Kỹ thuật phần mềm',
     author: 'Giảng viên CNTT',
     authorId: '2',
-    views: 110,
-    downloads: 45,
-    likes: 18,
+    views: 124,
+    downloads: 51,
+    likes: 22,
     date: '01/11/2026',
     url: 'https://calibre-ebook.com/downloads/demos/demo.docx'
   },
@@ -104,25 +104,67 @@ let documents = [
     subject: 'Xây dựng',
     school: 'Trường Đại học Xây dựng Miền Tây',
     faculty: 'Xây dựng',
+    major: 'Kỹ thuật xây dựng',
     author: 'TS. Nguyễn Văn Giảng',
     authorId: '2',
-    views: 245,
-    downloads: 88,
-    likes: 41,
+    views: 290,
+    downloads: 105,
+    likes: 58,
     date: '01/11/2026',
     isArticle: true,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   }
 ];
 
-let chatGroups = [
-  { id: 'g1', name: '📢 Thảo Luận Học Thuật Chung', description: 'Kênh trao đổi thắc mắc học tập toàn trường' },
-  { id: 'g2', name: '💻 Nhóm Lập Trình & CNTT', description: 'Góc giải đáp C++, Web, Database & AI' }
-];
+/* API THỰC HIỆN TẤT CẢ THAO TÁC HỌC LIỆU (CRUD FULL) */
 
-let chatMessages = [
-  { id: 'm1', targetType: 'group', targetId: 'g1', senderId: '2', senderName: 'TS. Nguyễn Văn Giảng', senderRole: 'teacher', text: 'Chào các bạn sinh viên! Có thắc mắc gì về bài giảng cứ gửi vào đây nhé.', fileUrl: '', fileType: '', fileName: '', time: '08:30' }
-];
+app.get('/api/documents', (req, res) => res.json(documents));
+
+app.post('/api/documents', upload.single('file'), (req, res) => {
+  const fileUrl = req.file ? `/uploads/${req.file.filename}` : 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+  const detectedType = req.file ? detectFileType(req.file.originalname) : (req.body.type || 'PDF');
+  
+  const newDoc = {
+    id: String(Date.now()),
+    title: req.body.title || 'Tài liệu mới',
+    type: detectedType,
+    category: req.body.category || 'Tài liệu',
+    subject: req.body.subject || 'Học phần chung',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: req.body.faculty || 'Công nghệ thông tin',
+    major: req.body.major || 'Kỹ thuật phần mềm',
+    author: req.body.author || 'Người dùng EduShare',
+    authorId: req.body.authorId || '1',
+    views: 1,
+    downloads: 0,
+    likes: 0,
+    isArticle: req.body.category === 'Bài báo tiêu biểu',
+    date: new Date().toLocaleDateString('vi-VN'),
+    url: fileUrl
+  };
+  documents.unshift(newDoc);
+  res.json({ success: true, message: '🎉 Tải lên học liệu thành công!', document: newDoc });
+});
+
+app.put('/api/documents/:id', (req, res) => {
+  const { id } = req.params;
+  const index = documents.findIndex(d => d.id === id);
+  if (index !== -1) {
+    documents[index] = { ...documents[index], ...req.body };
+    return res.json({ success: true, message: '🎉 Cập nhật thông tin tài liệu thành công!', document: documents[index] });
+  }
+  res.status(404).json({ success: false, message: '❌ Không tìm thấy tài liệu!' });
+});
+
+app.delete('/api/documents/:id', (req, res) => {
+  const { id } = req.params;
+  const initialLength = documents.length;
+  documents = documents.filter(d => d.id !== id);
+  if (documents.length < initialLength) {
+    return res.json({ success: true, message: '🗑️ Đã xóa tài liệu khỏi hệ thống!' });
+  }
+  res.status(404).json({ success: false, message: '❌ Không tìm thấy tài liệu để xóa!' });
+});
 
 /* API SOCIAL AUTH (GOOGLE & FACEBOOK) */
 app.post('/api/auth/google', (req, res) => {
@@ -147,7 +189,7 @@ app.post('/api/auth/facebook', (req, res) => {
   res.json({ message: '🎉 Đăng nhập Facebook thành công!', user });
 });
 
-/* API CHATBOT & THƯ VIỆN */
+/* API CHATBOT AI & ĐĂNG NHẬP */
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
@@ -165,7 +207,7 @@ app.post('/api/chatbot', async (req, res) => {
   } catch (err) {}
 
   return res.json({
-    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Bạn có thể xem các tài liệu liên quan bên dưới!`,
+    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Bạn có thể xem các tài liệu học tập liên quan bên dưới!`,
     matchedDocs: matchedDocs.slice(0, 4)
   });
 });
@@ -196,39 +238,6 @@ app.post('/api/forgot-password', (req, res) => {
   } else {
     res.status(404).json({ message: '❌ Không tìm thấy tài khoản!' });
   }
-});
-
-app.get('/api/documents', (req, res) => res.json(documents));
-
-app.post('/api/documents', upload.single('file'), (req, res) => {
-  const fileUrl = req.file ? `/uploads/${req.file.filename}` : 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-  const detectedType = req.file ? detectFileType(req.file.originalname) : (req.body.type || 'PDF');
-  
-  const newDoc = {
-    id: String(Date.now()),
-    title: req.body.title || 'Tài liệu mới',
-    type: detectedType,
-    category: req.body.category || 'Tài liệu',
-    subject: req.body.subject || 'Học phần chung',
-    school: 'Trường Đại học Xây dựng Miền Tây',
-    author: req.body.author || 'Tác giả',
-    authorId: req.body.authorId || '1',
-    views: 0,
-    downloads: 0,
-    likes: 0,
-    isArticle: req.body.category === 'Bài báo tiêu biểu',
-    date: new Date().toLocaleDateString('vi-VN'),
-    url: fileUrl
-  };
-  documents.unshift(newDoc);
-  res.json({ message: 'Tải lên học liệu thành công!', document: newDoc });
-});
-
-app.get('/api/users', (req, res) => res.json(users));
-app.get('/api/chat/groups', (req, res) => res.json(chatGroups));
-app.get('/api/chat/messages', (req, res) => {
-  const { targetType, targetId } = req.query;
-  res.json(chatMessages.filter(m => m.targetType === targetType && String(m.targetId) === String(targetId)));
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
