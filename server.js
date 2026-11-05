@@ -13,16 +13,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔑 KHỞI TẠO GOOGLE GEMINI AI
+// KHỞI TẠO GEMINI AI
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSy_YOUR_API_KEY_HERE";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const systemInstruction = `
-Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật thông minh, tinh tế của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
-Hãy trả lời câu hỏi học thuật ngắn gọn, đúng trọng tâm, trình bày đẹp mắt bằng Markdown và tạo cảm hứng học tập cho sinh viên.
+Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật thông minh của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
+Hãy giải đáp câu hỏi học thuật ngắn gọn, chính xác, lịch sự, đúng trọng tâm và trình bày đẹp bằng Markdown.
 `;
 
-// CẤU HÌNH MULTER LƯU TỆP ĐA PHƯƠNG TIỆN
+// CẤU HÌNH MULTER UPLOAD TỆP ĐA PHƯƠNG TIỆN
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -54,11 +54,11 @@ function detectFileType(filename) {
   return 'TẬP TIN';
 }
 
-// MOCK DATABASE
+// DATABASE MẪU NỘI BỘ
 let users = [
   { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: '123', role: 'admin', status: 'approved', emailPhone: 'nguyenchivytails@gmail.com', favorites: ['101'], authProvider: 'local' },
   { id: '2', fullname: 'TS. Nguyễn Văn Giảng', username: 'lecturer', password: '123', role: 'teacher', status: 'approved', emailPhone: 'giang.nv@mtu.edu.vn', favorites: [], authProvider: 'local' },
-  { id: '3', fullname: 'Trần Văn Sinh Viên', username: 'student', password: '123', role: 'student', status: 'approved', emailPhone: 'student@mtu.edu.vn', favorites: ['102'], authProvider: 'local' }
+  { id: '3', fullname: 'Sinh Viên MTU', username: 'student', password: '123', role: 'student', status: 'approved', emailPhone: 'student@mtu.edu.vn', favorites: ['102'], authProvider: 'local' }
 ];
 
 let documents = [
@@ -73,9 +73,9 @@ let documents = [
     major: 'Kỹ thuật phần mềm',
     author: 'Nguyễn Chí Vỹ',
     authorId: '1',
-    views: 142,
-    downloads: 56,
-    likes: 24,
+    views: 156,
+    downloads: 62,
+    likes: 29,
     date: '01/11/2026',
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   },
@@ -90,9 +90,9 @@ let documents = [
     major: 'Kỹ thuật phần mềm',
     author: 'Giảng viên CNTT',
     authorId: '2',
-    views: 98,
-    downloads: 39,
-    likes: 12,
+    views: 110,
+    downloads: 45,
+    likes: 18,
     date: '01/11/2026',
     url: 'https://calibre-ebook.com/downloads/demos/demo.docx'
   },
@@ -106,44 +106,31 @@ let documents = [
     faculty: 'Xây dựng',
     author: 'TS. Nguyễn Văn Giảng',
     authorId: '2',
-    views: 230,
-    downloads: 81,
-    likes: 35,
+    views: 245,
+    downloads: 88,
+    likes: 41,
     date: '01/11/2026',
     isArticle: true,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   }
 ];
 
-let comments = {};
 let chatGroups = [
   { id: 'g1', name: '📢 Thảo Luận Học Thuật Chung', description: 'Kênh trao đổi thắc mắc học tập toàn trường' },
   { id: 'g2', name: '💻 Nhóm Lập Trình & CNTT', description: 'Góc giải đáp C++, Web, Database & AI' }
 ];
 
 let chatMessages = [
-  { id: 'm1', targetType: 'group', targetId: 'g1', senderId: '2', senderName: 'TS. Nguyễn Văn Giảng', senderRole: 'teacher', text: 'Chào các bạn sinh viên! Có thắc mắc gì về bài giảng cứ trao đổi và gửi tệp/ảnh vào đây nhé.', fileUrl: '', fileType: '', fileName: '', time: '08:30' }
+  { id: 'm1', targetType: 'group', targetId: 'g1', senderId: '2', senderName: 'TS. Nguyễn Văn Giảng', senderRole: 'teacher', text: 'Chào các bạn sinh viên! Có thắc mắc gì về bài giảng cứ gửi vào đây nhé.', fileUrl: '', fileType: '', fileName: '', time: '08:30' }
 ];
 
-/* ==================== API SOCIAL AUTH (GOOGLE & FACEBOOK) ==================== */
-
+/* API SOCIAL AUTH (GOOGLE & FACEBOOK) */
 app.post('/api/auth/google', (req, res) => {
-  const { credential, email, name, picture } = req.body;
-  const userEmail = email || `google.user.${Date.now()}@gmail.com`;
-  
-  let user = users.find(u => u.emailPhone === userEmail || u.username === userEmail);
+  const { email, name, picture } = req.body;
+  const userEmail = email || `google.${Date.now()}@gmail.com`;
+  let user = users.find(u => u.emailPhone === userEmail);
   if (!user) {
-    user = {
-      id: String(Date.now()),
-      fullname: name || 'Người dùng Google',
-      username: userEmail.split('@')[0],
-      emailPhone: userEmail,
-      role: 'student',
-      status: 'approved',
-      authProvider: 'google',
-      avatar: picture || '',
-      favorites: []
-    };
+    user = { id: String(Date.now()), fullname: name || 'Người dùng Google', username: userEmail.split('@')[0], emailPhone: userEmail, role: 'student', status: 'approved', authProvider: 'google', favorites: [] };
     users.push(user);
   }
   res.json({ message: '🎉 Đăng nhập Google thành công!', user });
@@ -152,37 +139,21 @@ app.post('/api/auth/google', (req, res) => {
 app.post('/api/auth/facebook', (req, res) => {
   const { name, email, id } = req.body;
   const userEmail = email || `fb.${id || Date.now()}@facebook.com`;
-
   let user = users.find(u => u.emailPhone === userEmail);
   if (!user) {
-    user = {
-      id: String(Date.now()),
-      fullname: name || 'Người dùng Facebook',
-      username: `fb_${id || Date.now()}`,
-      emailPhone: userEmail,
-      role: 'student',
-      status: 'approved',
-      authProvider: 'facebook',
-      favorites: []
-    };
+    user = { id: String(Date.now()), fullname: name || 'Người dùng Facebook', username: `fb_${id || Date.now()}`, emailPhone: userEmail, role: 'student', status: 'approved', authProvider: 'facebook', favorites: [] };
     users.push(user);
   }
   res.json({ message: '🎉 Đăng nhập Facebook thành công!', user });
 });
 
-/* ==================== API CHATBOT & THƯ VIỆN ==================== */
-
+/* API CHATBOT & THƯ VIỆN */
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
-  if (!message || !message.trim()) {
-    return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
-  }
+  if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
 
   const queryLower = message.toLowerCase();
-  const matchedDocs = documents.filter(d => 
-    (d.title && queryLower.includes(d.title.toLowerCase())) ||
-    (d.subject && queryLower.includes(d.subject.toLowerCase()))
-  );
+  const matchedDocs = documents.filter(d => (d.title && queryLower.includes(d.title.toLowerCase())) || (d.subject && queryLower.includes(d.subject.toLowerCase())));
 
   try {
     if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_API_KEY")) {
@@ -194,7 +165,7 @@ app.post('/api/chatbot', async (req, res) => {
   } catch (err) {}
 
   return res.json({
-    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Bạn có thể xem thêm tài liệu liên quan bên dưới!`,
+    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Bạn có thể xem các tài liệu liên quan bên dưới!`,
     matchedDocs: matchedDocs.slice(0, 4)
   });
 });
@@ -213,7 +184,7 @@ app.post('/api/register', (req, res) => {
   }
   const newUser = { id: String(Date.now()), ...req.body, status: 'approved', favorites: [], authProvider: 'local' };
   users.push(newUser);
-  res.json({ message: 'Đăng ký tài khoản mới thành công!' });
+  res.json({ message: 'Đăng ký tài khoản thành công!' });
 });
 
 app.post('/api/forgot-password', (req, res) => {
@@ -223,7 +194,7 @@ app.post('/api/forgot-password', (req, res) => {
     user.password = newPassword;
     res.json({ success: true, message: '🎉 Đã khôi phục mật khẩu thành công!' });
   } else {
-    res.status(404).json({ message: '❌ Không tìm thấy thông tin tài khoản!' });
+    res.status(404).json({ message: '❌ Không tìm thấy tài khoản!' });
   }
 });
 
@@ -255,31 +226,11 @@ app.post('/api/documents', upload.single('file'), (req, res) => {
 
 app.get('/api/users', (req, res) => res.json(users));
 app.get('/api/chat/groups', (req, res) => res.json(chatGroups));
-
 app.get('/api/chat/messages', (req, res) => {
   const { targetType, targetId } = req.query;
   res.json(chatMessages.filter(m => m.targetType === targetType && String(m.targetId) === String(targetId)));
 });
 
-app.post('/api/chat/messages', upload.single('file'), (req, res) => {
-  const { targetType, targetId, senderId, senderName, senderRole, text } = req.body;
-  const newMsg = {
-    id: 'm' + Date.now(),
-    targetType,
-    targetId: String(targetId),
-    senderId: String(senderId),
-    senderName,
-    senderRole: senderRole || 'student',
-    text: text ? text.trim() : '',
-    fileUrl: req.file ? `/uploads/${req.file.filename}` : '',
-    fileType: req.file ? detectFileType(req.file.originalname) : '',
-    fileName: req.file ? req.file.originalname : '',
-    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
-  };
-  chatMessages.push(newMsg);
-  res.json({ success: true, message: newMsg });
-});
-
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.listen(PORT, () => console.log(`🚀 EduShare Server v2.0 đang chạy tại: http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 EduShare Server đang chạy tại: http://localhost:${PORT}`));

@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>EduShare - Thư Viện Học Liệu Số MTU</title>
   <link rel="stylesheet" href="style.css">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
-  <!-- NAVBAR TẦNG 1: LOGO, MENU VÀ TÀI KHOẢN -->
+  <!-- NAVBAR CHÍNH TẦNG 1 -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()">
-      <div class="logo-icon glow-animation">🎓</div>
+      <div class="logo-icon float-anim">🎓</div>
       <div class="logo-text-box">
         <span class="logo-title">EduShare</span>
         <span class="logo-sub">THƯ VIỆN HỌC LIỆU SỐ MTU</span>
@@ -41,17 +40,24 @@
         <div class="dropdown-content mega-content">
           <div class="submenu-container">
             <div class="submenu-sidebar">
-              <div class="submenu-item active" onclick="showSubmenuTab('tab-truong', this)">🏛️ Khối Trường</div>
-              <div class="submenu-item" onclick="showSubmenuTab('tab-khoa', this)">🏢 Khối Khoa</div>
-              <div class="submenu-item" onclick="showSubmenuTab('tab-nganh', this)">💾 Khối Ngành</div>
+              <div class="submenu-item active" onclick="showSubmenuTab('tab-truong', this)">🏛️ 1. Khối Trường</div>
+              <div class="submenu-item" onclick="showSubmenuTab('tab-khoa', this)">🏢 2. Khối Khoa</div>
+              <div class="submenu-item" onclick="showSubmenuTab('tab-nganh', this)">💾 3. Khối Ngành</div>
             </div>
 
             <div class="submenu-body">
               <div id="tab-truong" class="submenu-panel active">
                 <a href="#" onclick="filterByGroup('school', 'Trường Đại học Xây dựng Miền Tây')">🏛️ Trường Đại học Xây dựng Miền Tây</a>
               </div>
-              <div id="tab-khoa" class="submenu-panel"><div id="dropdown-list-faculty">🏢 Khoa CNTT, Khoa Xây Dựng, Khoa Kiến Trúc</div></div>
-              <div id="tab-nganh" class="submenu-panel"><div id="dropdown-list-major">💾 Kỹ thuật phần mềm, Xây dựng cầu đường...</div></div>
+              <div id="tab-khoa" class="submenu-panel">
+                <a href="#" onclick="filterByGroup('faculty', 'Công nghệ thông tin')">🏢 Khoa CNTT</a>
+                <a href="#" onclick="filterByGroup('faculty', 'Xây dựng')">🏢 Khoa Xây Dựng</a>
+                <a href="#" onclick="filterByGroup('faculty', 'Kiến trúc')">🏢 Khoa Kiến Trúc</a>
+              </div>
+              <div id="tab-nganh" class="submenu-panel">
+                <a href="#" onclick="filterByGroup('major', 'Kỹ thuật phần mềm')">💾 Ngành Kỹ Thuật Phần Mềm</a>
+                <a href="#" onclick="filterByGroup('major', 'Kỹ thuật xây dựng')">🏗️ Ngành Kỹ Thuật Xây Dựng</a>
+              </div>
             </div>
           </div>
         </div>
@@ -67,10 +73,10 @@
     </div>
   </header>
 
-  <!-- NAVBAR TẦNG 2: SEARCH VÀ SHORTCUTS -->
+  <!-- SUB TOOLBAR SEARCH & SHORTCUTS TẦNG 2 -->
   <div class="sub-toolbar">
     <div class="nav-search-group">
-      <input type="text" id="search-input" placeholder="🔍 Tìm kiếm giáo trình, đề thi, tác giả...">
+      <input type="text" id="search-input" placeholder="🔍 Nhập từ khóa tìm giáo trình, đề thi, tác giả...">
       <select id="search-type">
         <option value="all">Tất cả định dạng</option>
         <option value="HÌNH ẢNH">🖼️ Hình ảnh (JPG/PNG)</option>
@@ -89,11 +95,11 @@
     </div>
   </div>
 
-  <!-- HERO SECTION WITH EDUCATIONAL SHOWCASE -->
+  <!-- HERO SECTION -->
   <section class="hero-section">
     <div class="hero-container">
       <div class="hero-text-box">
-        <span class="hero-badge float-animation">🎓 TRI THỨC MỞ - KẾT NỐI TƯƠNG LAI</span>
+        <span class="hero-badge float-anim">🎓 TRI THỨC MỞ - KẾT NỐI TƯƠNG LAI</span>
         <h1>Kho Học Liệu Giáo Dục & Nghiên Cứu Mở MTU</h1>
         
         <div class="hero-slogans">
@@ -105,11 +111,11 @@
       </div>
 
       <div class="hero-gallery-box">
-        <div class="gallery-card card-animated">
-          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80" alt="Sinh viên nghiên cứu">
+        <div class="gallery-card">
+          <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80" alt="Thư viện hiện đại">
           <div class="gallery-overlay">📚 Thư viện số hiện đại</div>
         </div>
-        <div class="gallery-card card-animated delay-1">
+        <div class="gallery-card">
           <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80" alt="Học tập trực tuyến">
           <div class="gallery-overlay">💻 Học liệu số 24/7</div>
         </div>
@@ -147,7 +153,7 @@
     </section>
   </main>
 
-  <!-- CHATBOT AI CHUẨN XÁC -->
+  <!-- CHATBOT AI -->
   <div id="ai-chatbot-button" class="chatbot-floating-btn pulse-glow" onclick="toggleChatbot()">
     <span class="icon-xl">🤖</span> <span>Hỏi AI EduShare</span>
   </div>
@@ -155,14 +161,14 @@
   <div id="ai-chatbot-window" class="chatbot-window">
     <div class="chatbot-header">
       <div>
-        <strong>🤖 Trợ Lý AI EduShare (Smart AI)</strong>
+        <strong>🤖 Trợ Lý AI EduShare</strong>
         <p style="font-size:10px; color:#93c5fd; margin:0;">Giải đáp học thuật & Tra cứu thông minh</p>
       </div>
       <button class="modal-close-icon" onclick="toggleChatbot()">&times;</button>
     </div>
     <div id="chatbot-messages" class="chatbot-messages">
       <div class="chat-msg bot-msg">
-        👋 Xin chào! Tôi là Trợ lý AI EduShare. Chọn gợi ý nhanh hoặc nhập câu hỏi của bạn nhé:
+        👋 Xin chào! Tôi là Trợ lý AI EduShare. Nhập câu hỏi hoặc chọn gợi ý bên dưới:
         <div class="prompt-chips">
           <button onclick="quickPrompt('Tìm giáo trình Cấu trúc dữ liệu')">📚 Giáo trình CTDL</button>
           <button onclick="quickPrompt('Đề thi SQL Server mới nhất')">🎯 Đề thi SQL</button>
@@ -175,7 +181,7 @@
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG NHẬP (TÍCH HỢP GOOGLE & FACEBOOK) -->
+  <!-- MODAL ĐĂNG NHẬP -->
   <div id="login-modal" class="modal-overlay">
     <div class="modal-card">
       <div class="modal-header">
@@ -184,13 +190,11 @@
       </div>
       
       <div style="padding:20px;">
-        <!-- SOCIAL LOGIN BUTTONS -->
         <div class="social-login-group">
           <button onclick="loginWithGoogle()" class="btn-social btn-google">
             <svg class="social-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
             Đăng nhập bằng Google
           </button>
-          
           <button onclick="loginWithFacebook()" class="btn-social btn-facebook">
             <svg class="social-icon" viewBox="0 0 24 24"><path fill="#ffffff" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
             Đăng nhập bằng Facebook
@@ -214,7 +218,7 @@
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG KÝ (TÍCH HỢP GOOGLE & FACEBOOK) -->
+  <!-- MODAL ĐĂNG KÝ -->
   <div id="register-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">
@@ -223,20 +227,6 @@
       </div>
 
       <div style="padding:20px;">
-        <div class="social-login-group">
-          <button onclick="loginWithGoogle()" class="btn-social btn-google">
-            <svg class="social-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-            Tạo tài khoản bằng Google
-          </button>
-          
-          <button onclick="loginWithFacebook()" class="btn-social btn-facebook">
-            <svg class="social-icon" viewBox="0 0 24 24"><path fill="#ffffff" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-            Tạo tài khoản bằng Facebook
-          </button>
-        </div>
-
-        <div class="divider-text"><span>HOẶC ĐIỀN THÔNG TIN TẠO MỚI</span></div>
-
         <form id="register-form">
           <div class="form-grid-2">
             <div class="input-group"><label>Họ và Tên (*):</label><input type="text" id="reg-fullname" required></div>
@@ -244,7 +234,7 @@
             <div class="input-group"><label>Tên đăng nhập (*):</label><input type="text" id="reg-username" required></div>
             <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="reg-password" required></div>
           </div>
-          <button type="submit" class="btn-artistic btn-green" style="margin-top:15px; width:100%;">Tạo Tài Khoản Mới</button>
+          <button type="submit" class="btn-artistic btn-green-glow" style="margin-top:15px; width:100%;">Tạo Tài Khoản Mới</button>
         </form>
       </div>
     </div>

@@ -1,4 +1,4 @@
-/* ==================== 1. KHÓA BẢO VỆ CHỐNG TRÀN MÀN HÌNH ==================== */
+/* ==================== 1. ĐỊNH DẠNG KHÓA CỨNG CHỐNG TRÀN LỀ ==================== */
 :root {
   --bg-main: #0f172a;
   --bg-card: #1e293b;
@@ -33,92 +33,7 @@ body {
   flex-direction: column;
 }
 
-/* ==================== 2. KÍCH THƯỚC ICON & KEYFRAME ANIMATIONS ==================== */
-.icon-lg { font-size: 1.25rem; display: inline-block; vertical-align: middle; }
-.icon-xl { font-size: 1.5rem; display: inline-block; vertical-align: middle; }
-
-@keyframes glowPulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
-  70% { transform: scale(1.03); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
-  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
-}
-
-@keyframes floatAnim {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
-}
-
-.glow-animation { animation: floatAnim 3s ease-in-out infinite; }
-.float-animation { animation: floatAnim 4s ease-in-out infinite; }
-.pulse-glow { animation: glowPulse 2s infinite; }
-
-/* ==================== 3. NÚT BẤM NGHỆ THUẬT & SOCIAL LOGIN ==================== */
-.btn-artistic {
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.btn-artistic:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
-}
-
-.btn-blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; }
-.btn-green-glow { background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; }
-.btn-warning { background: linear-gradient(135deg, #ea580c, #c2410c); color: #fff; }
-.btn-secondary { background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border-color); }
-
-/* Nút Google & Facebook OAuth */
-.social-login-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.btn-social {
-  width: 100%;
-  padding: 10px 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border: 1px solid var(--border-color);
-  transition: transform 0.2s ease, background 0.2s ease;
-}
-
-.btn-social:hover { transform: translateY(-2px); }
-
-.btn-google { background: #ffffff; color: #1f2937; }
-.btn-facebook { background: #1877f2; color: #ffffff; border: none; }
-.social-icon { width: 18px; height: 18px; flex-shrink: 0; }
-
-.divider-text {
-  text-align: center;
-  border-bottom: 1px solid var(--border-color);
-  line-height: 0.1em;
-  margin: 15px 0 20px 0;
-}
-
-.divider-text span { background: var(--bg-card); padding: 0 10px; font-size: 11px; color: var(--text-muted); font-weight: bold; }
-
-/* ==================== 4. HEADER NAVBAR & SUB TOOLBAR ==================== */
+/* ==================== 2. FIX CHÍNH: DROPDOWN & NAVBAR ==================== */
 .navbar {
   position: sticky;
   top: 0;
@@ -150,9 +65,86 @@ body {
 }
 
 .nav-links { display: flex; align-items: center; gap: 8px; }
-.nav-item { color: var(--text-main); text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 10px; border-radius: 6px; }
-.nav-item:hover { background: var(--bg-hover); color: var(--accent); }
 
+.nav-item {
+  color: var(--text-main) !important;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.nav-item:hover { background: var(--bg-hover); color: var(--accent) !important; }
+
+/* FIX LỖI DROPDOWN HOVER CHUẨN XÁC */
+.dropdown {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.dropdown-content {
+  display: none !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  background-color: var(--bg-card) !important;
+  min-width: 230px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  padding: 8px 0 !important;
+  z-index: 10000 !important;
+}
+
+.dropdown-content a {
+  color: #f8fafc !important;
+  padding: 10px 16px !important;
+  text-decoration: none !important;
+  display: block !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-content a:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--accent) !important;
+}
+
+/* HIỂN THỊ DROPDOWN KHI HOVER */
+.dropdown:hover .dropdown-content {
+  display: block !important;
+}
+
+/* MEGA DROPDOWN */
+.mega-dropdown .mega-content {
+  min-width: 480px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.submenu-container { display: flex; min-height: 180px; }
+.submenu-sidebar { width: 160px; background-color: var(--bg-hover); border-right: 1px solid var(--border-color); }
+
+.submenu-item {
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.submenu-item:hover, .submenu-item.active { background-color: var(--primary); color: #ffffff !important; }
+
+.submenu-body { flex: 1; padding: 10px; max-height: 220px; overflow-y: auto; }
+.submenu-panel { display: none; }
+.submenu-panel.active { display: block; }
+.submenu-panel a { padding: 8px 12px !important; border-radius: 4px; }
+
+/* ==================== 3. SUB TOOLBAR SEARCH & SHORTCUTS ==================== */
 .sub-toolbar {
   background: rgba(30, 41, 59, 0.95);
   backdrop-filter: blur(10px);
@@ -166,9 +158,10 @@ body {
 }
 
 .nav-search-group { display: flex; align-items: center; gap: 6px; flex: 1; max-width: 620px; }
+
 .nav-search-group input {
-  background: rgba(15, 23, 42, 0.9);
-  color: #fff;
+  background: rgba(15, 23, 42, 0.9) !important;
+  color: #ffffff !important;
   border: 1px solid var(--border-color);
   padding: 8px 12px;
   border-radius: 6px;
@@ -177,9 +170,11 @@ body {
   flex: 1;
 }
 
+.nav-search-group input::placeholder { color: #94a3b8 !important; }
+
 .nav-search-group select {
-  background: rgba(15, 23, 42, 0.9);
-  color: #fff;
+  background: rgba(15, 23, 42, 0.9) !important;
+  color: #ffffff !important;
   border: 1px solid var(--border-color);
   padding: 8px;
   border-radius: 6px;
@@ -189,32 +184,49 @@ body {
 .quick-access-bar { display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 .quick-access-container { display: flex; gap: 6px; }
 
-/* ==================== 5. HERO SHOWCASE GALLERY ==================== */
-.hero-section {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border-bottom: 1px solid var(--border-color);
-  padding: 30px 20px;
-}
+/* ==================== 4. BUTTONS & ANIMATIONS ==================== */
+.icon-lg { font-size: 1.2rem; display: inline-block; vertical-align: middle; }
+.icon-xl { font-size: 1.5rem; display: inline-block; vertical-align: middle; }
 
-.hero-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 20px;
+@keyframes floatAnim { 0% { transform: translateY(0); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
+.float-anim { animation: floatAnim 3s ease-in-out infinite; }
+
+.btn-artistic {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.hero-badge {
-  background: rgba(56, 189, 248, 0.15);
-  color: var(--accent);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: bold;
-}
+.btn-artistic:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3); }
 
+.btn-blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; }
+.btn-green-glow { background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; }
+.btn-warning { background: linear-gradient(135deg, #ea580c, #c2410c); color: #fff; }
+.btn-secondary { background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border-color); }
+
+.social-login-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
+.btn-social { width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--border-color); }
+.btn-google { background: #fff; color: #1f2937; }
+.btn-facebook { background: #1877f2; color: #fff; border: none; }
+.social-icon { width: 18px; height: 18px; }
+
+.divider-text { text-align: center; border-bottom: 1px solid var(--border-color); line-height: 0.1em; margin: 15px 0 20px 0; }
+.divider-text span { background: var(--bg-card); padding: 0 10px; font-size: 11px; color: var(--text-muted); font-weight: bold; }
+
+/* ==================== 5. HERO GALLERY ==================== */
+.hero-section { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 1px solid var(--border-color); padding: 30px 20px; }
+.hero-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; align-items: center; }
+.hero-badge { background: rgba(56, 189, 248, 0.15); color: var(--accent); border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
 .hero-text-box h1 { font-size: 28px; font-weight: 800; margin: 12px 0; }
 .hero-slogans { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .slogan-tag { font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 6px; }
@@ -224,9 +236,9 @@ body {
 .hero-gallery-box { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .gallery-card { position: relative; border-radius: 10px; overflow: hidden; height: 160px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 .gallery-card img { width: 100%; height: 100%; object-fit: cover; }
-.gallery-overlay { position: absolute; bottom: 0; width: 100%; background: rgba(15,23,42,0.8); padding: 6px; font-size: 11px; color: #fff; text-align: center; }
+.gallery-overlay { position: absolute; bottom: 0; width: 100%; background: rgba(15,23,42,0.85); padding: 6px; font-size: 11px; color: #fff; text-align: center; }
 
-/* ==================== 6. BỘ LỌC, MAIN CONTENT & CHATBOT ==================== */
+/* ==================== 6. MAIN CONTENT & CHATBOT ==================== */
 .filter-bar { background: var(--bg-card); border-bottom: 1px solid var(--border-color); padding: 12px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .filter-label { font-size: 12px; font-weight: 800; color: var(--accent); }
 .filter-select-group select { background: var(--bg-main); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 10px; border-radius: 6px; font-size: 12px; }
@@ -234,16 +246,8 @@ body {
 .main-content { max-width: 1200px; width: 100%; margin: 0 auto; padding: 24px 20px; flex: 1; }
 .document-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
 
-.chatbot-floating-btn {
-  position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #fff; padding: 10px 18px; border-radius: 30px; font-size: 13px; font-weight: 700; cursor: pointer; z-index: 9999; display: flex; align-items: center; gap: 8px;
-}
-
-.chatbot-window {
-  position: fixed; bottom: 75px; right: 20px; width: 360px; height: 480px; background: var(--bg-card);
-  border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 10000; overflow: hidden;
-}
-
+.chatbot-floating-btn { position: fixed; bottom: 20px; right: 20px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; padding: 10px 18px; border-radius: 30px; font-size: 13px; font-weight: 700; cursor: pointer; z-index: 9999; display: flex; align-items: center; gap: 8px; }
+.chatbot-window { position: fixed; bottom: 75px; right: 20px; width: 360px; height: 480px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 10000; overflow: hidden; }
 .chatbot-header { background: #1e293b; color: #fff; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
 .chatbot-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: var(--bg-main); }
 .chat-msg { max-width: 85%; padding: 8px 12px; border-radius: 8px; font-size: 13px; line-height: 1.4; }
@@ -267,7 +271,7 @@ body {
 
 .footer { background: var(--bg-card); border-top: 1px solid var(--border-color); padding: 20px; text-align: center; font-size: 12px; color: var(--text-muted); margin-top: auto; }
 
-/* ==================== 7. RESPONSIVE MOBILE FIX 100% ==================== */
+/* ==================== 7. RESPONSIVE MOBILE FIX ==================== */
 @media (max-width: 991px) {
   .hero-container { grid-template-columns: 1fr; }
   .mobile-toggle-btn { display: block; }

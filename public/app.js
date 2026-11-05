@@ -7,8 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDocumentsFromServer();
 });
 
-/* ==================== 1. ĐĂNG NHẬP GOOGLE & FACEBOOK ==================== */
-
+/* SOCIAL AUTH */
 async function loginWithGoogle() {
   const fakeGoogleUser = {
     name: 'Sinh Viên Google',
@@ -55,8 +54,7 @@ async function loginWithFacebook() {
   } catch (err) { alert('Lỗi đăng nhập Facebook!'); }
 }
 
-/* ==================== 2. CHATBOT AI CẢI TIẾN ==================== */
-
+/* CHATBOT AI */
 function toggleChatbot() {
   const win = document.getElementById('ai-chatbot-window');
   if (win) win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
@@ -100,8 +98,7 @@ async function sendChatMessage() {
   msgBox.scrollTop = msgBox.scrollHeight;
 }
 
-/* ==================== 3. AUTH & UTILS ==================== */
-
+/* AUTH & UTILS */
 function updateAuthUI() {
   const authContainer = document.getElementById('auth-buttons-container');
   if (!authContainer) return;
@@ -167,6 +164,14 @@ function renderDocuments(docs) {
       <a href="${doc.url}" target="_blank" class="btn-artistic btn-green-glow" style="font-size:11px; padding:4px 8px; margin-top:8px; text-decoration:none; display:inline-block;">📥 Tải Học Liệu</a>
     </div>
   `).join('');
+}
+
+function showSubmenuTab(tabId, el) {
+  document.querySelectorAll('.submenu-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.submenu-panel').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const panel = document.getElementById(tabId);
+  if (panel) panel.classList.add('active');
 }
 
 function handleLogout() {
