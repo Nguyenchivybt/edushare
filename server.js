@@ -9,8 +9,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // CẤU HÌNH GOOGLE GEMINI AI
@@ -70,7 +70,8 @@ let users = [
     major: 'Kỹ thuật phần mềm',
     studentClass: 'KTPM2024',
     address: 'Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long',
-    emailPhone: 'nguyenchivybt2006@gmail.com', 
+    emailPhone: 'nguyenchivybt2006@gmail.com',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen',
     authProvider: 'local' 
   },
   { 
@@ -86,7 +87,8 @@ let users = [
     major: 'Kỹ thuật xây dựng',
     studentClass: 'GV-XD',
     address: 'Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long',
-    emailPhone: 'giang.nv@mtu.edu.vn', 
+    emailPhone: 'giang.nv@mtu.edu.vn',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Giang',
     authProvider: 'local' 
   },
   { 
@@ -102,7 +104,8 @@ let users = [
     major: 'Kỹ thuật phần mềm',
     studentClass: 'DH2024',
     address: 'Tỉnh Vĩnh Long',
-    emailPhone: '0862204069', 
+    emailPhone: '0862204069',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=StudentVy',
     authProvider: 'local' 
   }
 ];
@@ -259,6 +262,7 @@ app.post('/api/register', (req, res) => {
     studentClass: studentClass || 'DH2024',
     address: address || 'Tỉnh Vĩnh Long',
     role: role || 'student',
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
     authProvider: 'local'
   };
   users.push(newUser);
@@ -273,7 +277,37 @@ app.post('/api/login', (req, res) => {
   else res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
 });
 
-/* FIX LOGIC CẤP MÃ OTP QUÊN MẬT KHẨU */
+/* CẬP NHẬT THÔNG TIN CÁ NHÂN & ĐỔI MẬT KHẨU TRONG PROFILE */
+app.post('/api/user/update-profile', (req, res) => {
+  const { id, fullname, gender, dob, emailPhone, address, oldPassword, newPassword, confirmNewPassword, avatar } = req.body;
+  
+  const user = users.find(u => u.id === id);
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản người dùng!' });
+  }
+
+  // Nếu người dùng yêu cầu đổi mật khẩu
+  if (newPassword && newPassword.trim()) {
+    if (user.password !== oldPassword) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu cũ nhập vào không chính xác!' });
+    }
+    if (newPassword !== confirmNewPassword) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu mới và Xác nhận mật khẩu mới không khớp!' });
+    }
+    user.password = newPassword.trim();
+  }
+
+  user.fullname = fullname || user.fullname;
+  user.gender = gender || user.gender;
+  user.dob = dob || user.dob;
+  user.emailPhone = emailPhone || user.emailPhone;
+  user.address = address || user.address;
+  if (avatar) user.avatar = avatar;
+
+  res.json({ success: true, message: '🎉 Đã cập nhật thông tin cá nhân và cài đặt thành công!', user });
+});
+
+/* LOGIC CẤP MÃ OTP QUÊN MẬT KHẨU */
 app.post('/api/forgot-password/request-otp', (req, res) => {
   const { accountKey } = req.body;
   const key = (accountKey || '').trim().toLowerCase();
@@ -284,14 +318,13 @@ app.post('/api/forgot-password/request-otp', (req, res) => {
 
   let user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
 
-  // Cơ chế dự phòng đảm bảo cấp OTP thành công cho người dùng
   if (!user) {
     user = {
       fullname: accountKey,
       username: key,
       emailPhone: accountKey
     };
-    users.push({ ...user, id: String(Date.now()), password: '123', role: 'student' });
+    users.push({ ...user, id: String(Date.now()), password: '123', role: 'student', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${key}` });
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -356,6 +389,7 @@ app.post('/api/auth/google', (req, res) => {
     major: 'Kỹ thuật phần mềm',
     studentClass: 'DH2024',
     address: 'Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long',
+    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocI8P-demo=s96-c',
     authProvider: 'google'
   };
   res.json({ success: true, message: '🎉 Đăng nhập thành công bằng tài khoản Google!', user });
@@ -374,6 +408,7 @@ app.post('/api/auth/facebook', (req, res) => {
     major: 'Kỹ thuật phần mềm',
     studentClass: 'DH2024',
     address: 'Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long',
+    avatar: 'https://platform-lookaside.fbsbx.com/platform/profilepic/?psid=demo',
     authProvider: 'facebook'
   };
   res.json({ success: true, message: '🎉 Đăng nhập thành công bằng tài khoản Facebook!', user });
