@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// KHỞI TẠO GOOGLE GEMINI AI
+// GOOGLE GEMINI AI
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSy_YOUR_API_KEY_HERE";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
@@ -22,7 +22,7 @@ Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật thông
 Hãy giải đáp câu hỏi học thuật ngắn gọn, chính xác, hỗ trợ tra cứu tệp bài giảng, đề thi, bài báo khoa học và các liên kết tin tức giáo dục.
 `;
 
-// CẤU HÌNH MULTER UPLOAD ĐA TỆP (BATCH UPLOAD)
+// UPLOAD ĐA TỆP MULTI-FILE
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -53,15 +53,20 @@ function detectFileType(filename) {
   return 'TẬP TIN';
 }
 
-// CƠ SỞ DỮ LIỆU TÀI KHOẢN (CÓ PHÂN QUYỀN RBAC & THÔNG TIN ĐẦY ĐỦ)
+// CƠ SỞ DỮ LIỆU TÀI KHOẢN & MÃ OTP QUÊN MẬT KHẨU
 let users = [
   { 
     id: '1', 
     fullname: 'Nguyễn Chí Vỹ', 
     username: 'admin', 
-    password: '123', 
+    password: 'adminpassword123', 
     role: 'admin', 
     gender: 'Nam',
+    dob: '2006-01-06',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Công nghệ thông tin',
+    major: 'Kỹ thuật phần mềm',
+    studentClass: 'KTPM2024',
     address: 'Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long',
     emailPhone: '0862204069', 
     authProvider: 'local' 
@@ -69,26 +74,38 @@ let users = [
   { 
     id: '2', 
     fullname: 'TS. Nguyễn Văn Giảng', 
-    username: 'lecturer', 
+    username: 'giangnv', 
     password: '123', 
     role: 'teacher', 
     gender: 'Nam',
+    dob: '1980-05-15',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Xây dựng',
+    major: 'Kỹ thuật xây dựng',
+    studentClass: 'GV-XD',
     address: 'Trường Đại học Xây dựng Miền Tây',
     emailPhone: 'giang.nv@mtu.edu.vn', 
     authProvider: 'local' 
   },
   { 
     id: '3', 
-    fullname: 'Sinh Viên MTU', 
-    username: 'student', 
+    fullname: 'Nguyenchivysinhvien', 
+    username: 'Nguyenchivysinhvien', 
     password: '123', 
     role: 'student', 
     gender: 'Nam',
-    address: 'Phước Hậu, Vĩnh Long',
-    emailPhone: 'student@mtu.edu.vn', 
+    dob: '2006-01-06',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Công nghệ thông tin',
+    major: 'Kỹ thuật phần mềm',
+    studentClass: 'DH2024',
+    address: 'Vĩnh Long',
+    emailPhone: 'sv.vy@mtu.edu.vn', 
     authProvider: 'local' 
   }
 ];
+
+let otpStore = {}; // Lưu trữ OTP quên mật khẩu tạm thời
 
 let documents = [
   {
@@ -142,16 +159,13 @@ let documents = [
   }
 ];
 
-/* ==================== API CRUD HỌC LIỆU & ĐA TỆP ==================== */
-
+/* API HỌC LIỆU */
 app.get('/api/documents', (req, res) => res.json(documents));
 
-// Đăng tải đa tệp cùng lúc (Multiple Files Upload + Link bài báo)
 app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
   const { title, category, subject, faculty, major, author, authorId, articleLink } = req.body;
   const createdDocs = [];
 
-  // Nếu chọn các tệp đính kèm
   if (req.files && req.files.length > 0) {
     req.files.forEach((file, index) => {
       const fileUrl = `/uploads/${file.filename}`;
@@ -178,7 +192,6 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
     });
   }
 
-  // Nếu có dán Link bài báo / Tin tức
   if (articleLink && articleLink.trim()) {
     const linkDoc = {
       id: String(Date.now() + 99),
@@ -224,17 +237,16 @@ app.delete('/api/documents/:id', (req, res) => {
   res.status(404).json({ success: false, message: '❌ Không tìm thấy học liệu!' });
 });
 
-/* ==================== API AUTHENTICATION & KHÔI PHỤC ==================== */
-
+/* API XÁC THỰC & ĐĂNG KÝ & QUÊN MẬT KHẨU */
 app.post('/api/register', (req, res) => {
-  const { username, emailPhone, password, confirmPassword, fullname, gender, address, role } = req.body;
+  const { username, emailPhone, password, confirmPassword, fullname, gender, dob, school, faculty, major, studentClass, address, role } = req.body;
   
   if (password !== confirmPassword) {
     return res.status(400).json({ message: 'Mật khẩu xác nhận không trùng khớp!' });
   }
 
   if (users.some(u => u.username === username || u.emailPhone === emailPhone)) {
-    return res.status(400).json({ message: 'Tài khoản hoặc Email/SĐT đã tồn tại!' });
+    return res.status(400).json({ message: 'Tên tài khoản, Email hoặc SĐT đã tồn tại trên hệ thống!' });
   }
 
   const newUser = {
@@ -244,12 +256,17 @@ app.post('/api/register', (req, res) => {
     password,
     emailPhone,
     gender: gender || 'Nam',
+    dob: dob || '',
+    school: school || 'Trường Đại học Xây dựng Miền Tây',
+    faculty: faculty || 'Công nghệ thông tin',
+    major: major || 'Kỹ thuật phần mềm',
+    studentClass: studentClass || '',
     address: address || '',
     role: role || 'student',
     authProvider: 'local'
   };
   users.push(newUser);
-  res.json({ success: true, message: '🎉 Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay.', user: newUser });
+  res.json({ success: true, message: '🎉 Đăng ký tài khoản thành công!', user: newUser });
 });
 
 app.post('/api/login', (req, res) => {
@@ -259,12 +276,79 @@ app.post('/api/login', (req, res) => {
   else res.status(400).json({ message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
 });
 
+// XỬ LÝ QUÊN MẬT KHẨU - BƯỚC 1: GỬI MÃ OTP
+app.post('/api/forgot-password/request-otp', (req, res) => {
+  const { accountKey } = req.body;
+  const user = users.find(u => u.username === accountKey || u.emailPhone === accountKey);
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'Sai cú pháp hoặc không tìm thấy tài khoản! Vui lòng nhập lại.' });
+  }
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  otpStore[accountKey] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+
+  res.json({ 
+    success: true, 
+    message: `🎉 Mã xác nhận (OTP) đã gửi thành công tới ${user.emailPhone}!`, 
+    demoOtp: otp 
+  });
+});
+
+// XỬ LÝ QUÊN MẬT KHẨU - BƯỚC 2: XÁC NHẬN OTP
+app.post('/api/forgot-password/verify-otp', (req, res) => {
+  const { accountKey, otp } = req.body;
+  const record = otpStore[accountKey];
+
+  if (!record) {
+    return res.status(400).json({ success: false, message: 'Mã xác nhận không tồn tại hoặc đã hết hạn! Vui lòng bấm Gửi lại.' });
+  }
+
+  if (Date.now() > record.expires) {
+    delete otpStore[accountKey];
+    return res.status(400).json({ success: false, message: 'Mã xác nhận đã quá hạn! Vui lòng yêu cầu mã mới.' });
+  }
+
+  if (record.otp !== otp.trim()) {
+    return res.status(400).json({ success: false, message: 'Mã xác nhận không đúng! Vui lòng nhập lại.' });
+  }
+
+  res.json({ success: true, message: '✅ Mã xác nhận chính xác! Hãy tạo mật khẩu mới.' });
+});
+
+// XỬ LÝ QUÊN MẬT KHẨU - BƯỚC 3: ĐẶT MẬT KHẨU MỚI
+app.post('/api/forgot-password/reset-password', (req, res) => {
+  const { accountKey, newPassword, confirmPassword } = req.body;
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Mật khẩu mới và xác nhận mật khẩu không trùng khớp!' });
+  }
+
+  const user = users.find(u => u.username === accountKey || u.emailPhone === accountKey);
+  if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
+
+  user.password = newPassword;
+  delete otpStore[accountKey];
+
+  res.json({ success: true, message: '🎉 Đổi mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.' });
+});
+
+// MÔ PHỎNG DỊCH VỤ MẠNG XÃ HỘI GOOGLE & FACEBOOK
 app.post('/api/auth/google', (req, res) => {
   const { email, name } = req.body;
-  const userEmail = email || `google.${Date.now()}@gmail.com`;
+  const userEmail = email || `google_user@mtu.edu.vn`;
   let user = users.find(u => u.emailPhone === userEmail);
   if (!user) {
-    user = { id: String(Date.now()), fullname: name || 'Người dùng Google', username: userEmail.split('@')[0], emailPhone: userEmail, role: 'student', authProvider: 'google' };
+    user = { 
+      id: String(Date.now()), 
+      fullname: name || 'Google User MTU', 
+      username: 'google_' + Date.now(), 
+      emailPhone: userEmail, 
+      role: 'student', 
+      gender: 'Nam',
+      school: 'Trường Đại học Xây dựng Miền Tây',
+      authProvider: 'google' 
+    };
     users.push(user);
   }
   res.json({ message: '🎉 Đăng nhập Google thành công!', user });
@@ -272,17 +356,25 @@ app.post('/api/auth/google', (req, res) => {
 
 app.post('/api/auth/facebook', (req, res) => {
   const { name, email, id } = req.body;
-  const userEmail = email || `fb.${id || Date.now()}@facebook.com`;
+  const userEmail = email || `fb_user@mtu.edu.vn`;
   let user = users.find(u => u.emailPhone === userEmail);
   if (!user) {
-    user = { id: String(Date.now()), fullname: name || 'Người dùng Facebook', username: `fb_${id || Date.now()}`, emailPhone: userEmail, role: 'student', authProvider: 'facebook' };
+    user = { 
+      id: String(Date.now()), 
+      fullname: name || 'Facebook User MTU', 
+      username: 'fb_' + Date.now(), 
+      emailPhone: userEmail, 
+      role: 'student', 
+      gender: 'Nam',
+      school: 'Trường Đại học Xây dựng Miền Tây',
+      authProvider: 'facebook' 
+    };
     users.push(user);
   }
   res.json({ message: '🎉 Đăng nhập Facebook thành công!', user });
 });
 
-/* ==================== API CHATBOT AI ==================== */
-
+/* API CHATBOT AI */
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
