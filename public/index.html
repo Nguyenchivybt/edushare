@@ -439,7 +439,7 @@
           </div>
           <div id="groupChatMessagesBox" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
           <div class="p-2.5 border-t border-slate-200 dark:border-slate-700 flex space-x-2">
-            <input type="text" id="groupChatInput" placeholder="Nhập tin nhắn..." class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-3 py-1.5 text-xs">
+            <input type="text" id="groupChatInput" onkeypress="if(event.key==='Enter') sendGroupChatMessage()" placeholder="Nhập tin nhắn..." class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-3 py-1.5 text-xs">
             <button onclick="sendGroupChatMessage()" class="bg-emerald-600 text-white font-bold px-3 py-1.5 rounded text-xs">Gửi</button>
           </div>
         </div>
@@ -522,7 +522,7 @@
     </div>
   </footer>
 
-  <!-- MODAL ĐỌC TÀI LIỆU TRỰC TIẾP (KHÔNG TỰ ĐỘNG KÍCH HOẠT TẢI XUỐNG) -->
+  <!-- MODAL ĐỌC TÀI LIỆU TRỰC TIẾP -->
   <div id="viewDocModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
     <div class="bg-slate-900 text-white rounded-2xl w-full max-w-4xl p-4 shadow-2xl relative border border-slate-700 flex flex-col h-[88vh]">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
@@ -675,6 +675,26 @@
     </div>
   </div>
 
+  <!-- MODAL TẠO NHÓM CHAT MỚI -->
+  <div id="createGroupModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 border border-slate-700 relative shadow-2xl">
+      <button onclick="closeCreateGroupModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold mb-3 text-emerald-400 flex items-center space-x-2">
+        <i class="fa-solid fa-users"></i>
+        <span>Tạo Nhóm Chat Thảo Luận Mới</span>
+      </h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Tên Nhóm Chat:</label>
+          <input type="text" id="newGroupNameInput" placeholder="Nhập tên nhóm (VD: Nhóm Đồ Án IT...)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <button onclick="submitCreateGroup()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs shadow transition">
+          <i class="fa-solid fa-check-circle mr-1"></i>Xác Nhận Tạo Nhóm
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let currentUser = null;
     let documentsData = [
@@ -698,6 +718,13 @@
     let communitySubTab = 'posts';
     let currentActiveDocForComment = null;
 
+    /* BIẾN STATE CHAT & NHÓM CHAT */
+    let activeGroupId = null;
+    let groupsData = [];
+    let localLiveChatMsgs = [
+      { sender: 'Nguyễn Chí Vỹ', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', time: '10:00' }
+    ];
+
     window.onload = function() {
       loadSavedTheme();
       checkSavedUser();
@@ -716,6 +743,237 @@
       });
     };
 
+    /* XỬ LÝ KÊNH CHAT TRỰC TUYẾN (PUBLIC LIVE CHAT) */
+    async function fetchLiveChat() {
+      try {
+        const res = await fetch('/api/chat/public');
+        if (res.ok) {
+          const msgs = await res.json();
+          renderLiveChatMessages(msgs);
+        } else {
+          renderLiveChatMessages(localLiveChatMsgs);
+        }
+      } catch (err) {
+        renderLiveChatMessages(localLiveChatMsgs);
+      }
+    }
+
+    function renderLiveChatMessages(msgs) {
+      const box = document.getElementById('liveChatMessagesBox');
+      if (!box) return;
+      if (!msgs || msgs.length === 0) {
+        box.innerHTML = `<div class="text-center text-slate-400 py-4">Chưa có tin nhắn nào. Hãy gửi tin nhắn đầu tiên!</div>`;
+        return;
+      }
+      box.innerHTML = msgs.map(m => {
+        const isMe = currentUser && (m.sender === currentUser.fullname || m.sender === currentUser.username);
+        return `
+          <div class="p-2.5 rounded-xl border border-slate-700 max-w-[85%] mb-2 ${isMe ? 'ml-auto bg-blue-600 text-white' : 'bg-slate-800 text-slate-100'}">
+            <div class="flex justify-between items-center text-[11px] font-bold ${isMe ? 'text-blue-100' : 'text-amber-400'} mb-0.5">
+              <span>${m.sender}</span>
+              <span class="text-[9px] opacity-75 ml-2">${m.time || ''}</span>
+            </div>
+            <p class="text-xs leading-relaxed">${m.text}</p>
+          </div>
+        `;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendLiveChatMessage() {
+      const input = document.getElementById('liveChatInput');
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+
+      const senderName = currentUser ? currentUser.fullname : 'Khách MTU';
+      const avatarUrl = currentUser ? currentUser.avatar : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest';
+      const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+      try {
+        const res = await fetch('/api/chat/public/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sender: senderName, avatar: avatarUrl, text })
+        });
+        if (res.ok) {
+          input.value = '';
+          fetchLiveChat();
+        } else {
+          localLiveChatMsgs.push({ sender: senderName, text, time });
+          input.value = '';
+          renderLiveChatMessages(localLiveChatMsgs);
+        }
+      } catch (err) {
+        localLiveChatMsgs.push({ sender: senderName, text, time });
+        input.value = '';
+        renderLiveChatMessages(localLiveChatMsgs);
+      }
+    }
+
+    /* XỬ LÝ NHÓM CHAT & TẠO NHÓM MỚI (GROUP CHAT) */
+    function openCreateGroupModal() {
+      const modal = document.getElementById('createGroupModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeCreateGroupModal() {
+      const modal = document.getElementById('createGroupModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    async function submitCreateGroup() {
+      const input = document.getElementById('newGroupNameInput');
+      const name = input ? input.value.trim() : '';
+      if (!name) return alert('Vui lòng nhập tên nhóm chat!');
+
+      try {
+        const res = await fetch('/api/chat/groups/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            creatorId: currentUser ? currentUser.id : '1',
+            memberIds: []
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          input.value = '';
+          closeCreateGroupModal();
+          fetchGroups();
+          alert('✅ Đã tạo nhóm chat mới thành công!');
+        } else {
+          alert(data.message || 'Lỗi tạo nhóm');
+        }
+      } catch (err) {
+        const newG = {
+          id: 'g_' + Date.now(),
+          name: name,
+          members: [currentUser ? currentUser.id : '1'],
+          messages: []
+        };
+        groupsData.push(newG);
+        input.value = '';
+        closeCreateGroupModal();
+        renderGroupList(groupsData);
+        selectGroup(newG.id);
+        alert('✅ Đã tạo nhóm chat mới thành công!');
+      }
+    }
+
+    async function fetchGroups() {
+      try {
+        const res = await fetch('/api/chat/groups');
+        if (res.ok) {
+          groupsData = await res.json();
+          renderGroupList(groupsData);
+          if (activeGroupId) {
+            selectGroup(activeGroupId);
+          }
+        } else {
+          renderGroupList(groupsData);
+        }
+      } catch (err) {
+        renderGroupList(groupsData);
+      }
+    }
+
+    function renderGroupList(groups) {
+      const container = document.getElementById('groupListContainer');
+      if (!container) return;
+      if (!groups || groups.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 py-2">Chưa có nhóm chat nào. Bấm "+ Tạo Nhóm" để tạo nhóm đầu tiên!</p>`;
+        return;
+      }
+
+      container.innerHTML = groups.map(g => `
+        <div onclick="selectGroup('${g.id}')" class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 cursor-pointer flex items-center justify-between transition ${activeGroupId === g.id ? 'border-emerald-500 bg-slate-700' : ''}">
+          <div class="font-bold text-slate-200 truncate"><i class="fa-solid fa-user-group text-emerald-400 mr-2"></i>${g.name}</div>
+          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">${(g.messages || []).length} tin</span>
+        </div>
+      `).join('');
+    }
+
+    function selectGroup(groupId) {
+      activeGroupId = groupId;
+      const group = groupsData.find(g => g.id === groupId);
+      if (!group) return;
+
+      const titleEl = document.getElementById('groupChatTitle');
+      if (titleEl) {
+        titleEl.innerHTML = `<i class="fa-solid fa-users text-amber-400 mr-2"></i><span>Nhóm: <strong>${group.name}</strong></span>`;
+      }
+      renderGroupMessages(group.messages || []);
+      renderGroupList(groupsData);
+    }
+
+    function renderGroupMessages(messages) {
+      const box = document.getElementById('groupChatMessagesBox');
+      if (!box) return;
+      if (!messages || messages.length === 0) {
+        box.innerHTML = `<div class="text-center text-slate-400 py-4">Chưa có tin nhắn trong nhóm này. Hãy gửi tin nhắn đầu tiên!</div>`;
+        return;
+      }
+
+      box.innerHTML = messages.map(m => {
+        const isMe = currentUser && (m.sender === currentUser.fullname || m.sender === currentUser.username);
+        return `
+          <div class="p-2 rounded-lg border border-slate-700 max-w-[85%] mb-1.5 ${isMe ? 'ml-auto bg-emerald-600 text-white' : 'bg-slate-900 text-slate-100'}">
+            <div class="flex justify-between items-center text-[10px] font-bold ${isMe ? 'text-emerald-100' : 'text-amber-400'} mb-0.5">
+              <span>${m.sender}</span>
+              <span class="text-[9px] opacity-75 ml-2">${m.time || ''}</span>
+            </div>
+            <p class="text-xs">${m.text}</p>
+          </div>
+        `;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    async function sendGroupChatMessage() {
+      if (!activeGroupId) return alert('Vui lòng chọn 1 nhóm chat từ danh sách bên trái!');
+      const input = document.getElementById('groupChatInput');
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+
+      const senderName = currentUser ? currentUser.fullname : 'Khách MTU';
+      const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+      try {
+        const res = await fetch('/api/chat/groups/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ groupId: activeGroupId, sender: senderName, text })
+        });
+        const data = await res.json();
+        if (data.success) {
+          input.value = '';
+          const group = groupsData.find(g => g.id === activeGroupId);
+          if (group) {
+            group.messages = data.group.messages;
+            renderGroupMessages(group.messages);
+          }
+          fetchGroups();
+        } else {
+          const group = groupsData.find(g => g.id === activeGroupId);
+          if (group) {
+            group.messages = group.messages || [];
+            group.messages.push({ sender: senderName, text, time });
+            input.value = '';
+            renderGroupMessages(group.messages);
+          }
+        }
+      } catch (err) {
+        const group = groupsData.find(g => g.id === activeGroupId);
+        if (group) {
+          group.messages = group.messages || [];
+          group.messages.push({ sender: senderName, text, time });
+          input.value = '';
+          renderGroupMessages(group.messages);
+        }
+      }
+    }
+
     /* XỬ LÝ GỢI Ý TÌM KIẾM THÔNG MINH AUTO-COMPLETE */
     function handleSearchInput(val) {
       const box = document.getElementById('searchSuggestionsBox');
@@ -729,7 +987,6 @@
 
       renderDocuments();
 
-      // Tìm kiếm trùng khớp trong cả Học liệu và Bài báo khoa học
       const docMatches = documentsData.filter(d => d.title.toLowerCase().includes(query) || d.subject.toLowerCase().includes(query));
       const artMatches = articlesData.filter(a => a.title.toLowerCase().includes(query) || a.author.toLowerCase().includes(query));
 
@@ -816,7 +1073,7 @@
       renderShortcuts();
     }
 
-    /* QUẢN LÝ BÀI BÁO KHOA HỌC (THÊM / XÓA) */
+    /* QUẢN LÝ BÀI BÁO KHOA HỌC */
     function renderQuickArticles() {
       const grid = document.getElementById('quickArticleGrid');
       if (articlesData.length === 0) {
@@ -866,7 +1123,7 @@
       }
     }
 
-    /* NÂNG CẤP CHATBOT AI THÔNG MINH HƠN */
+    /* CHATBOT AI */
     function toggleChatbot() { document.getElementById('chatbotDrawer').classList.toggle('hidden'); }
 
     function sendChatMessage() {
@@ -1031,6 +1288,8 @@
       if (tab === 'forum') {
         docsSec.classList.add('hidden');
         forumSec.classList.remove('hidden');
+        if (communitySubTab === 'livechat') fetchLiveChat();
+        if (communitySubTab === 'groups') fetchGroups();
       } else {
         forumSec.classList.add('hidden');
         docsSec.classList.remove('hidden');
@@ -1048,6 +1307,9 @@
       document.getElementById('subTabPosts').className = sub === 'posts' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
       document.getElementById('subTabLiveChat').className = sub === 'livechat' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
       document.getElementById('subTabGroups').className = sub === 'groups' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
+
+      if (sub === 'livechat') fetchLiveChat();
+      if (sub === 'groups') fetchGroups();
     }
 
     function renderDocuments() {
@@ -1185,8 +1447,6 @@
     }
 
     async function fetchForumPosts() {}
-    async function fetchLiveChat() {}
-    async function fetchGroups() {}
 
     function handleAvatarLocalUpload(e) {
       const file = e.target.files[0];

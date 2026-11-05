@@ -345,6 +345,7 @@ app.post('/api/forum/create', (req, res) => {
   res.json({ success: true, message: '🎉 Đã đăng bài viết thảo luận thành công!', post: newPost });
 });
 
+/* CHAT TRỰC TUYẾN & NHÓM CHAT API */
 app.get('/api/chat/public', (req, res) => res.json(liveChatMessages));
 
 app.post('/api/chat/public/send', (req, res) => {
@@ -363,6 +364,36 @@ app.post('/api/chat/public/send', (req, res) => {
 });
 
 app.get('/api/chat/groups', (req, res) => res.json(chatGroups));
+
+app.post('/api/chat/groups/create', (req, res) => {
+  const { name, creatorId, memberIds } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Tên nhóm không được để trống' });
+  const newGroup = {
+    id: 'g_' + Date.now(),
+    name: name.trim(),
+    members: [creatorId || '1', ...(memberIds || [])],
+    messages: []
+  };
+  chatGroups.push(newGroup);
+  res.json({ success: true, group: newGroup });
+});
+
+app.post('/api/chat/groups/send', (req, res) => {
+  const { groupId, sender, text } = req.body;
+  const group = chatGroups.find(g => g.id === groupId);
+  if (!group) return res.status(404).json({ success: false, message: 'Không tìm thấy nhóm chat' });
+  if (!text || !text.trim()) return res.status(400).json({ success: false, message: 'Nội dung không được để trống' });
+
+  const msg = {
+    id: 'gm_' + Date.now(),
+    sender: sender || 'Thành viên MTU',
+    text: text.trim(),
+    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+  };
+  group.messages = group.messages || [];
+  group.messages.push(msg);
+  res.json({ success: true, message: msg, group });
+});
 
 app.post('/api/register', (req, res) => {
   const { username, emailPhone, password, confirmPassword, fullname, gender, dob, school, faculty, major, studentClass, address, role } = req.body;
