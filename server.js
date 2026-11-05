@@ -13,16 +13,18 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// GOOGLE GEMINI AI
+// CẤU HÌNH GOOGLE GEMINI AI
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSy_YOUR_API_KEY_HERE";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const systemInstruction = `
-Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật thông minh của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
-Hãy giải đáp câu hỏi học thuật ngắn gọn, chính xác, hỗ trợ tra cứu tệp bài giảng, đề thi, bài báo khoa học và các liên kết tin tức giáo dục.
+Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật của Thư viện học liệu số EduShare (Trường Đại học Xây dựng Miền Tây - MTU).
+Tác giả phát triển: Nguyễn Chí Vỹ (SĐT: 0862204069, Địa chỉ: Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long).
+Địa chỉ trường MTU: Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long (SĐT: 0270 3 825 903).
+Hãy hỗ trợ người dùng tra cứu tài liệu, giải đáp câu hỏi học thuật, phân tích file upload (PDF, Word, Slides, MP3, MP4, Hình ảnh) và liên kết bài báo khoa học.
 `;
 
-// UPLOAD ĐA TỆP MULTI-FILE
+// CẤU HÌNH LƯU TRỮ TỆP TẢI LÊN MULTI-FILE
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -53,7 +55,7 @@ function detectFileType(filename) {
   return 'TẬP TIN';
 }
 
-// CƠ SỞ DỮ LIỆU TÀI KHOẢN & MÃ OTP QUÊN MẬT KHẨU
+// DATABASE TẠM THỜI TÀI KHOẢN & MÃ OTP
 let users = [
   { 
     id: '1', 
@@ -83,7 +85,7 @@ let users = [
     faculty: 'Xây dựng',
     major: 'Kỹ thuật xây dựng',
     studentClass: 'GV-XD',
-    address: 'Trường Đại học Xây dựng Miền Tây',
+    address: 'Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long',
     emailPhone: 'giang.nv@mtu.edu.vn', 
     authProvider: 'local' 
   },
@@ -99,34 +101,34 @@ let users = [
     faculty: 'Công nghệ thông tin',
     major: 'Kỹ thuật phần mềm',
     studentClass: 'DH2024',
-    address: 'Vĩnh Long',
+    address: 'Tỉnh Vĩnh Long',
     emailPhone: 'sv.vy@mtu.edu.vn', 
     authProvider: 'local' 
   }
 ];
 
-let otpStore = {}; // Lưu trữ OTP quên mật khẩu tạm thời
+let otpStore = {};
 
 let documents = [
   {
     id: '101',
     title: 'Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật',
     type: 'PDF',
-    category: 'Tài liệu',
+    category: 'Tài liệu bài giảng',
     subject: 'Cấu trúc dữ liệu',
     school: 'Trường Đại học Xây dựng Miền Tây',
     faculty: 'Công nghệ thông tin',
     major: 'Kỹ thuật phần mềm',
     author: 'Nguyễn Chí Vỹ',
     authorId: '1',
-    views: 210,
-    downloads: 85,
+    views: 310,
+    downloads: 120,
     date: '01/11/2026',
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   },
   {
     id: '102',
-    title: 'Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server 2022',
+    title: 'Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server',
     type: 'DOCX',
     category: 'Tài liệu bài thi',
     subject: 'Cơ sở dữ liệu',
@@ -135,8 +137,8 @@ let documents = [
     major: 'Kỹ thuật phần mềm',
     author: 'TS. Nguyễn Văn Giảng',
     authorId: '2',
-    views: 145,
-    downloads: 62,
+    views: 185,
+    downloads: 74,
     date: '01/11/2026',
     url: 'https://calibre-ebook.com/downloads/demos/demo.docx'
   },
@@ -151,15 +153,15 @@ let documents = [
     major: 'Kỹ thuật xây dựng',
     author: 'TS. Nguyễn Văn Giảng',
     authorId: '2',
-    views: 320,
-    downloads: 140,
+    views: 450,
+    downloads: 210,
     date: '01/11/2026',
     isArticle: true,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   }
 ];
 
-/* API HỌC LIỆU */
+/* API DANH SÁCH HỌC LIỆU */
 app.get('/api/documents', (req, res) => res.json(documents));
 
 app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
@@ -174,7 +176,7 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
         id: String(Date.now() + index),
         title: req.files.length > 1 ? `${title} (Tệp ${index + 1}: ${file.originalname})` : title,
         type: detectedType,
-        category: category || 'Tài liệu',
+        category: category || 'Tài liệu bài giảng',
         subject: subject || 'Chung',
         school: 'Trường Đại học Xây dựng Miền Tây',
         faculty: faculty || 'Công nghệ thông tin',
@@ -195,7 +197,7 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
   if (articleLink && articleLink.trim()) {
     const linkDoc = {
       id: String(Date.now() + 99),
-      title: `${title} [Liên kết ngoài]`,
+      title: `${title} [Liên kết báo khoa học]`,
       type: 'LINK',
       category: category || 'Bài báo tiêu biểu',
       subject: subject || 'Nghiên cứu',
@@ -214,17 +216,7 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
     createdDocs.push(linkDoc);
   }
 
-  res.json({ success: true, message: `🎉 Đã đăng tải thành công ${createdDocs.length} học liệu!`, documents: createdDocs });
-});
-
-app.put('/api/documents/:id', (req, res) => {
-  const { id } = req.params;
-  const index = documents.findIndex(d => d.id === id);
-  if (index !== -1) {
-    documents[index] = { ...documents[index], ...req.body };
-    return res.json({ success: true, message: '🎉 Đã cập nhật học liệu!', document: documents[index] });
-  }
-  res.status(404).json({ success: false, message: '❌ Không tìm thấy học liệu!' });
+  res.json({ success: true, message: `🎉 Đã tải lên thành công ${createdDocs.length} tài liệu!`, documents: createdDocs });
 });
 
 app.delete('/api/documents/:id', (req, res) => {
@@ -237,21 +229,25 @@ app.delete('/api/documents/:id', (req, res) => {
   res.status(404).json({ success: false, message: '❌ Không tìm thấy học liệu!' });
 });
 
-/* API XÁC THỰC & ĐĂNG KÝ & QUÊN MẬT KHẨU */
+/* API ĐĂNG KÝ & ĐĂNG NHẬP & QUÊN MẬT KHẨU OTP */
 app.post('/api/register', (req, res) => {
   const { username, emailPhone, password, confirmPassword, fullname, gender, dob, school, faculty, major, studentClass, address, role } = req.body;
   
+  if (!username || !emailPhone || !password) {
+    return res.status(400).json({ message: 'Vui lòng điền đầy đủ các thông tin bắt buộc!' });
+  }
+
   if (password !== confirmPassword) {
-    return res.status(400).json({ message: 'Mật khẩu xác nhận không trùng khớp!' });
+    return res.status(400).json({ message: 'Mật khẩu và Xác nhận mật khẩu không trùng khớp!' });
   }
 
   if (users.some(u => u.username === username || u.emailPhone === emailPhone)) {
-    return res.status(400).json({ message: 'Tên tài khoản, Email hoặc SĐT đã tồn tại trên hệ thống!' });
+    return res.status(400).json({ message: 'Tên đăng nhập, Email hoặc SĐT đã tồn tại trên hệ thống!' });
   }
 
   const newUser = {
     id: String(Date.now()),
-    fullname,
+    fullname: fullname || username,
     username,
     password,
     emailPhone,
@@ -266,115 +262,110 @@ app.post('/api/register', (req, res) => {
     authProvider: 'local'
   };
   users.push(newUser);
-  res.json({ success: true, message: '🎉 Đăng ký tài khoản thành công!', user: newUser });
+  res.json({ success: true, message: '🎉 Đăng ký tài khoản EduShare thành công!', user: newUser });
 });
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const user = users.find(u => (u.username === username || u.emailPhone === username) && u.password === password);
-  if (user) res.json({ message: 'Đăng nhập thành công', user });
-  else res.status(400).json({ message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
+  if (user) res.json({ success: true, message: 'Đăng nhập thành công!', user });
+  else res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
 });
 
-// XỬ LÝ QUÊN MẬT KHẨU - BƯỚC 1: GỬI MÃ OTP
+// GỬI MÃ XÁC NHẬN OTP
 app.post('/api/forgot-password/request-otp', (req, res) => {
   const { accountKey } = req.body;
-  const user = users.find(u => u.username === accountKey || u.emailPhone === accountKey);
+  const key = (accountKey || '').trim();
+  const user = users.find(u => u.username === key || u.emailPhone === key);
 
   if (!user) {
-    return res.status(404).json({ success: false, message: 'Sai cú pháp hoặc không tìm thấy tài khoản! Vui lòng nhập lại.' });
+    return res.status(404).json({ success: false, message: 'Sai cú pháp hoặc không tìm thấy tài khoản! Vui lòng kiểm tra lại.' });
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore[accountKey] = { otp, expires: Date.now() + 5 * 60 * 1000 };
+  otpStore[key] = { otp, expires: Date.now() + 5 * 60 * 1000 };
 
   res.json({ 
     success: true, 
-    message: `🎉 Mã xác nhận (OTP) đã gửi thành công tới ${user.emailPhone}!`, 
+    message: `Mã xác thực OTP đã gửi đến thông tin của ${user.fullname}! (Mã demo: ${otp})`, 
     demoOtp: otp 
   });
 });
 
-// XỬ LÝ QUÊN MẬT KHẨU - BƯỚC 2: XÁC NHẬN OTP
+// XÁC NHẬN MÃ OTP
 app.post('/api/forgot-password/verify-otp', (req, res) => {
   const { accountKey, otp } = req.body;
-  const record = otpStore[accountKey];
+  const key = (accountKey || '').trim();
+  const record = otpStore[key];
 
   if (!record) {
     return res.status(400).json({ success: false, message: 'Mã xác nhận không tồn tại hoặc đã hết hạn! Vui lòng bấm Gửi lại.' });
   }
 
   if (Date.now() > record.expires) {
-    delete otpStore[accountKey];
-    return res.status(400).json({ success: false, message: 'Mã xác nhận đã quá hạn! Vui lòng yêu cầu mã mới.' });
+    delete otpStore[key];
+    return res.status(400).json({ success: false, message: 'Mã xác nhận đã quá hạn 5 phút! Vui lòng bấm Gửi lại mã.' });
   }
 
-  if (record.otp !== otp.trim()) {
+  if (record.otp !== (otp || '').trim()) {
     return res.status(400).json({ success: false, message: 'Mã xác nhận không đúng! Vui lòng nhập lại.' });
   }
 
-  res.json({ success: true, message: '✅ Mã xác nhận chính xác! Hãy tạo mật khẩu mới.' });
+  res.json({ success: true, message: '✅ Xác nhận mã OTP thành công! Vui lòng nhập mật khẩu mới.' });
 });
 
-// XỬ LÝ QUÊN MẬT KHẨU - BƯỚC 3: ĐẶT MẬT KHẨU MỚI
+// ĐẶT LẠI MẬT KHẨU MỚI
 app.post('/api/forgot-password/reset-password', (req, res) => {
   const { accountKey, newPassword, confirmPassword } = req.body;
+  const key = (accountKey || '').trim();
 
-  if (newPassword !== confirmPassword) {
+  if (!newPassword || newPassword !== confirmPassword) {
     return res.status(400).json({ success: false, message: 'Mật khẩu mới và xác nhận mật khẩu không trùng khớp!' });
   }
 
-  const user = users.find(u => u.username === accountKey || u.emailPhone === accountKey);
+  const user = users.find(u => u.username === key || u.emailPhone === key);
   if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng!' });
 
   user.password = newPassword;
-  delete otpStore[accountKey];
+  delete otpStore[key];
 
-  res.json({ success: true, message: '🎉 Đổi mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.' });
+  res.json({ success: true, message: '🎉 Khôi phục mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.' });
 });
 
-// MÔ PHỎNG DỊCH VỤ MẠNG XÃ HỘI GOOGLE & FACEBOOK
+// MÔ PHỎNG ĐĂNG NHẬP GOOGLE VÀ FACEBOOK
 app.post('/api/auth/google', (req, res) => {
-  const { email, name } = req.body;
-  const userEmail = email || `google_user@mtu.edu.vn`;
-  let user = users.find(u => u.emailPhone === userEmail);
-  if (!user) {
-    user = { 
-      id: String(Date.now()), 
-      fullname: name || 'Google User MTU', 
-      username: 'google_' + Date.now(), 
-      emailPhone: userEmail, 
-      role: 'student', 
-      gender: 'Nam',
-      school: 'Trường Đại học Xây dựng Miền Tây',
-      authProvider: 'google' 
-    };
-    users.push(user);
-  }
-  res.json({ message: '🎉 Đăng nhập Google thành công!', user });
+  const user = {
+    id: 'g_' + Date.now(),
+    fullname: 'Nguyễn Chí Vỹ (Google User)',
+    username: 'google_vy',
+    emailPhone: 'nguyenchivybt2006@gmail.com',
+    role: 'student',
+    gender: 'Nam',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Công nghệ thông tin',
+    major: 'Kỹ thuật phần mềm',
+    authProvider: 'google'
+  };
+  res.json({ success: true, message: '🎉 Đăng nhập Google thành công!', user });
 });
 
 app.post('/api/auth/facebook', (req, res) => {
-  const { name, email, id } = req.body;
-  const userEmail = email || `fb_user@mtu.edu.vn`;
-  let user = users.find(u => u.emailPhone === userEmail);
-  if (!user) {
-    user = { 
-      id: String(Date.now()), 
-      fullname: name || 'Facebook User MTU', 
-      username: 'fb_' + Date.now(), 
-      emailPhone: userEmail, 
-      role: 'student', 
-      gender: 'Nam',
-      school: 'Trường Đại học Xây dựng Miền Tây',
-      authProvider: 'facebook' 
-    };
-    users.push(user);
-  }
-  res.json({ message: '🎉 Đăng nhập Facebook thành công!', user });
+  const user = {
+    id: 'fb_' + Date.now(),
+    fullname: 'Nguyễn Chí Vỹ (Facebook User)',
+    username: 'fb_vy',
+    emailPhone: '0862204069',
+    role: 'student',
+    gender: 'Nam',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Công nghệ thông tin',
+    major: 'Kỹ thuật phần mềm',
+    authProvider: 'facebook'
+  };
+  res.json({ success: true, message: '🎉 Đăng nhập Facebook thành công!', user });
 });
 
-/* API CHATBOT AI */
+/* API CHATBOT AI KHAI THÁC DỮ LIỆU MTU */
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
@@ -392,11 +383,11 @@ app.post('/api/chatbot', async (req, res) => {
   } catch (err) {}
 
   return res.json({
-    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Dưới đây là các tài liệu bài giảng/nghiên cứu phù hợp trong kho học liệu MTU!`,
+    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận thắc mắc "${message}". Dưới đây là danh sách tài liệu tham khảo phù hợp nhất từ kho học liệu MTU!`,
     matchedDocs: matchedDocs.slice(0, 4)
   });
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.listen(PORT, () => console.log(`🚀 EduShare Server đang chạy tại: http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server EduShare đang khởi chạy tại: http://localhost:${PORT}`));
