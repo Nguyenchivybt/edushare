@@ -126,6 +126,11 @@ let documents = [
     authorId: '1',
     views: 310,
     downloads: 120,
+    likes: 45,
+    dislikes: 2,
+    comments: [
+      { id: 'c1', user: 'Sinh viên IT', text: 'Tài liệu rất hay và rõ ràng!', date: '02/11/2026' }
+    ],
     date: '01/11/2026',
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   },
@@ -142,6 +147,9 @@ let documents = [
     authorId: '2',
     views: 185,
     downloads: 74,
+    likes: 28,
+    dislikes: 1,
+    comments: [],
     date: '01/11/2026',
     url: 'https://calibre-ebook.com/downloads/demos/demo.docx'
   },
@@ -158,13 +166,34 @@ let documents = [
     authorId: '2',
     views: 450,
     downloads: 210,
+    likes: 89,
+    dislikes: 0,
+    comments: [
+      { id: 'c2', user: 'Kỹ sư Xây Dựng', text: 'Bài báo mang tính ứng dụng thực tiễn cao.', date: '03/11/2026' }
+    ],
     date: '01/11/2026',
     isArticle: true,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   }
 ];
 
-/* API HỌC LIỆU */
+let forumPosts = [
+  {
+    id: 'f1',
+    author: 'Nguyễn Chí Vỹ',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen',
+    role: 'admin',
+    date: '04/11/2026',
+    title: 'Chào mừng các bạn đến với Cộng đồng trao đổi học thuật MTU!',
+    content: 'Đây là không gian dành cho Sinh viên và Giảng viên cùng thảo luận bài giảng, đề thi, đồ án và các công nghệ mới.',
+    likes: 12,
+    replies: [
+      { id: 'r1', user: 'Nguyenchivysinhvien', text: 'Cảm ơn admin Vỹ! Hệ thống EduShare rất tuyệt vời!', date: '04/11/2026' }
+    ]
+  }
+];
+
+/* API HỌC LIỆU & BÌNH LUẬN & THÍCH */
 app.get('/api/documents', (req, res) => res.json(documents));
 
 app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
@@ -188,6 +217,9 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
         authorId: authorId || '1',
         views: 1,
         downloads: 0,
+        likes: 0,
+        dislikes: 0,
+        comments: [],
         isArticle: category === 'Bài báo tiêu biểu',
         date: new Date().toLocaleDateString('vi-VN'),
         url: fileUrl
@@ -211,6 +243,9 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
       authorId: authorId || '1',
       views: 1,
       downloads: 0,
+      likes: 0,
+      dislikes: 0,
+      comments: [],
       isArticle: true,
       date: new Date().toLocaleDateString('vi-VN'),
       url: articleLink.trim()
@@ -222,6 +257,36 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
   res.json({ success: true, message: `🎉 Đã tải lên thành công ${createdDocs.length} tài liệu!`, documents: createdDocs });
 });
 
+app.post('/api/documents/reaction', (req, res) => {
+  const { docId, type } = req.body;
+  const doc = documents.find(d => d.id === docId);
+  if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy tài liệu' });
+  
+  if (type === 'like') doc.likes = (doc.likes || 0) + 1;
+  else if (type === 'dislike') doc.dislikes = (doc.dislikes || 0) + 1;
+
+  res.json({ success: true, likes: doc.likes, dislikes: doc.dislikes });
+});
+
+app.post('/api/documents/comment', (req, res) => {
+  const { docId, user, text } = req.body;
+  const doc = documents.find(d => d.id === docId);
+  if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy tài liệu' });
+
+  if (!text || !text.trim()) return res.status(400).json({ success: false, message: 'Nội dung bình luận không được rỗng' });
+
+  const newComment = {
+    id: 'c_' + Date.now(),
+    user: user || 'Thành viên MTU',
+    text: text.trim(),
+    date: new Date().toLocaleDateString('vi-VN')
+  };
+  doc.comments = doc.comments || [];
+  doc.comments.push(newComment);
+
+  res.json({ success: true, comments: doc.comments });
+});
+
 app.delete('/api/documents/:id', (req, res) => {
   const { id } = req.params;
   const initialLen = documents.length;
@@ -230,6 +295,43 @@ app.delete('/api/documents/:id', (req, res) => {
     return res.json({ success: true, message: '🗑️ Đã xóa học liệu thành công!' });
   }
   res.status(404).json({ success: false, message: '❌ Không tìm thấy học liệu!' });
+});
+
+/* API CỘNG ĐỒNG TRAO ĐỔI */
+app.get('/api/forum', (req, res) => res.json(forumPosts));
+
+app.post('/api/forum/create', (req, res) => {
+  const { author, avatar, role, title, content } = req.body;
+  if (!title || !content) return res.status(400).json({ success: false, message: 'Vui lòng nhập tiêu đề và nội dung bài viết!' });
+
+  const newPost = {
+    id: 'f_' + Date.now(),
+    author: author || 'Sinh viên MTU',
+    avatar: avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Student',
+    role: role || 'student',
+    date: new Date().toLocaleDateString('vi-VN'),
+    title,
+    content,
+    likes: 0,
+    replies: []
+  };
+  forumPosts.unshift(newPost);
+  res.json({ success: true, message: '🎉 Đã đăng bài viết thảo luận mới!', post: newPost });
+});
+
+app.post('/api/forum/reply', (req, res) => {
+  const { postId, user, text } = req.body;
+  const post = forumPosts.find(p => p.id === postId);
+  if (!post) return res.status(404).json({ success: false, message: 'Bài viết không tồn tại' });
+
+  const reply = {
+    id: 'r_' + Date.now(),
+    user: user || 'Thành viên MTU',
+    text: text.trim(),
+    date: new Date().toLocaleDateString('vi-VN')
+  };
+  post.replies.push(reply);
+  res.json({ success: true, replies: post.replies });
 });
 
 /* API ĐĂNG KÝ & ĐĂNG NHẬP */
@@ -286,7 +388,6 @@ app.post('/api/user/update-profile', (req, res) => {
     return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản người dùng!' });
   }
 
-  // Nếu người dùng yêu cầu đổi mật khẩu
   if (newPassword && newPassword.trim()) {
     if (user.password !== oldPassword) {
       return res.status(400).json({ success: false, message: 'Mật khẩu cũ nhập vào không chính xác!' });
