@@ -13,16 +13,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// KHỞI TẠO GEMINI AI
+// KHỞI TẠO GOOGLE GEMINI AI
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSy_YOUR_API_KEY_HERE";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const systemInstruction = `
 Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật thông minh của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
-Hãy giải đáp câu hỏi học thuật ngắn gọn, chính xác, lịch sự và trình bày đẹp bằng Markdown.
+Hãy giải đáp câu hỏi học thuật ngắn gọn, chính xác, hỗ trợ tra cứu tệp bài giảng, đề thi, bài báo khoa học và các liên kết tin tức giáo dục.
 `;
 
-// CẤU HÌNH MULTER UPLOAD TỆP
+// CẤU HÌNH MULTER UPLOAD ĐA TỆP (BATCH UPLOAD)
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -42,23 +42,52 @@ const upload = multer({
 });
 
 function detectFileType(filename) {
-  if (!filename) return 'TẬP TIN';
+  if (!filename) return 'LINK';
   const ext = path.extname(filename).toLowerCase();
   if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext)) return 'HÌNH ẢNH';
   if (ext === '.pdf') return 'PDF';
-  if (['.docx', '.doc'].includes(ext)) return 'DOCX';
+  if (['.docx', '.doc', '.txt'].includes(ext)) return 'DOCX';
   if (['.pptx', '.ppt'].includes(ext)) return 'PPTX';
   if (['.mp3', '.wav', '.m4a', '.flac'].includes(ext)) return 'AUDIO';
   if (['.mp4', '.mkv', '.avi', '.mov'].includes(ext)) return 'VIDEO';
-  if (['.zip', '.rar', '.7z'].includes(ext)) return 'ZIP/RAR';
   return 'TẬP TIN';
 }
 
-// MOCK DATABASE DỮ LIỆU CƠ SỞ
+// CƠ SỞ DỮ LIỆU TÀI KHOẢN (CÓ PHÂN QUYỀN RBAC & THÔNG TIN ĐẦY ĐỦ)
 let users = [
-  { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: '123', role: 'admin', status: 'approved', emailPhone: 'nguyenchivytails@gmail.com', favorites: ['101'], authProvider: 'local' },
-  { id: '2', fullname: 'TS. Nguyễn Văn Giảng', username: 'lecturer', password: '123', role: 'teacher', status: 'approved', emailPhone: 'giang.nv@mtu.edu.vn', favorites: [], authProvider: 'local' },
-  { id: '3', fullname: 'Sinh Viên MTU', username: 'student', password: '123', role: 'student', status: 'approved', emailPhone: 'student@mtu.edu.vn', favorites: ['102'], authProvider: 'local' }
+  { 
+    id: '1', 
+    fullname: 'Nguyễn Chí Vỹ', 
+    username: 'admin', 
+    password: '123', 
+    role: 'admin', 
+    gender: 'Nam',
+    address: 'Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long',
+    emailPhone: '0862204069', 
+    authProvider: 'local' 
+  },
+  { 
+    id: '2', 
+    fullname: 'TS. Nguyễn Văn Giảng', 
+    username: 'lecturer', 
+    password: '123', 
+    role: 'teacher', 
+    gender: 'Nam',
+    address: 'Trường Đại học Xây dựng Miền Tây',
+    emailPhone: 'giang.nv@mtu.edu.vn', 
+    authProvider: 'local' 
+  },
+  { 
+    id: '3', 
+    fullname: 'Sinh Viên MTU', 
+    username: 'student', 
+    password: '123', 
+    role: 'student', 
+    gender: 'Nam',
+    address: 'Phước Hậu, Vĩnh Long',
+    emailPhone: 'student@mtu.edu.vn', 
+    authProvider: 'local' 
+  }
 ];
 
 let documents = [
@@ -73,9 +102,8 @@ let documents = [
     major: 'Kỹ thuật phần mềm',
     author: 'Nguyễn Chí Vỹ',
     authorId: '1',
-    views: 182,
-    downloads: 74,
-    likes: 35,
+    views: 210,
+    downloads: 85,
     date: '01/11/2026',
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   },
@@ -88,11 +116,10 @@ let documents = [
     school: 'Trường Đại học Xây dựng Miền Tây',
     faculty: 'Công nghệ thông tin',
     major: 'Kỹ thuật phần mềm',
-    author: 'Giảng viên CNTT',
+    author: 'TS. Nguyễn Văn Giảng',
     authorId: '2',
-    views: 124,
-    downloads: 51,
-    likes: 22,
+    views: 145,
+    downloads: 62,
     date: '01/11/2026',
     url: 'https://calibre-ebook.com/downloads/demos/demo.docx'
   },
@@ -107,43 +134,74 @@ let documents = [
     major: 'Kỹ thuật xây dựng',
     author: 'TS. Nguyễn Văn Giảng',
     authorId: '2',
-    views: 290,
-    downloads: 105,
-    likes: 58,
+    views: 320,
+    downloads: 140,
     date: '01/11/2026',
     isArticle: true,
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   }
 ];
 
-/* API THỰC HIỆN TẤT CẢ THAO TÁC HỌC LIỆU (CRUD FULL) */
+/* ==================== API CRUD HỌC LIỆU & ĐA TỆP ==================== */
 
 app.get('/api/documents', (req, res) => res.json(documents));
 
-app.post('/api/documents', upload.single('file'), (req, res) => {
-  const fileUrl = req.file ? `/uploads/${req.file.filename}` : 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-  const detectedType = req.file ? detectFileType(req.file.originalname) : (req.body.type || 'PDF');
-  
-  const newDoc = {
-    id: String(Date.now()),
-    title: req.body.title || 'Tài liệu mới',
-    type: detectedType,
-    category: req.body.category || 'Tài liệu',
-    subject: req.body.subject || 'Học phần chung',
-    school: 'Trường Đại học Xây dựng Miền Tây',
-    faculty: req.body.faculty || 'Công nghệ thông tin',
-    major: req.body.major || 'Kỹ thuật phần mềm',
-    author: req.body.author || 'Người dùng EduShare',
-    authorId: req.body.authorId || '1',
-    views: 1,
-    downloads: 0,
-    likes: 0,
-    isArticle: req.body.category === 'Bài báo tiêu biểu',
-    date: new Date().toLocaleDateString('vi-VN'),
-    url: fileUrl
-  };
-  documents.unshift(newDoc);
-  res.json({ success: true, message: '🎉 Tải lên học liệu thành công!', document: newDoc });
+// Đăng tải đa tệp cùng lúc (Multiple Files Upload + Link bài báo)
+app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
+  const { title, category, subject, faculty, major, author, authorId, articleLink } = req.body;
+  const createdDocs = [];
+
+  // Nếu chọn các tệp đính kèm
+  if (req.files && req.files.length > 0) {
+    req.files.forEach((file, index) => {
+      const fileUrl = `/uploads/${file.filename}`;
+      const detectedType = detectFileType(file.originalname);
+      const docItem = {
+        id: String(Date.now() + index),
+        title: req.files.length > 1 ? `${title} (Tệp ${index + 1}: ${file.originalname})` : title,
+        type: detectedType,
+        category: category || 'Tài liệu',
+        subject: subject || 'Chung',
+        school: 'Trường Đại học Xây dựng Miền Tây',
+        faculty: faculty || 'Công nghệ thông tin',
+        major: major || 'Kỹ thuật phần mềm',
+        author: author || 'Thành viên MTU',
+        authorId: authorId || '1',
+        views: 1,
+        downloads: 0,
+        isArticle: category === 'Bài báo tiêu biểu',
+        date: new Date().toLocaleDateString('vi-VN'),
+        url: fileUrl
+      };
+      documents.unshift(docItem);
+      createdDocs.push(docItem);
+    });
+  }
+
+  // Nếu có dán Link bài báo / Tin tức
+  if (articleLink && articleLink.trim()) {
+    const linkDoc = {
+      id: String(Date.now() + 99),
+      title: `${title} [Liên kết ngoài]`,
+      type: 'LINK',
+      category: category || 'Bài báo tiêu biểu',
+      subject: subject || 'Nghiên cứu',
+      school: 'Trường Đại học Xây dựng Miền Tây',
+      faculty: faculty || 'Công nghệ thông tin',
+      major: major || 'Kỹ thuật phần mềm',
+      author: author || 'Thành viên MTU',
+      authorId: authorId || '1',
+      views: 1,
+      downloads: 0,
+      isArticle: true,
+      date: new Date().toLocaleDateString('vi-VN'),
+      url: articleLink.trim()
+    };
+    documents.unshift(linkDoc);
+    createdDocs.push(linkDoc);
+  }
+
+  res.json({ success: true, message: `🎉 Đã đăng tải thành công ${createdDocs.length} học liệu!`, documents: createdDocs });
 });
 
 app.put('/api/documents/:id', (req, res) => {
@@ -151,28 +209,62 @@ app.put('/api/documents/:id', (req, res) => {
   const index = documents.findIndex(d => d.id === id);
   if (index !== -1) {
     documents[index] = { ...documents[index], ...req.body };
-    return res.json({ success: true, message: '🎉 Cập nhật thông tin tài liệu thành công!', document: documents[index] });
+    return res.json({ success: true, message: '🎉 Đã cập nhật học liệu!', document: documents[index] });
   }
-  res.status(404).json({ success: false, message: '❌ Không tìm thấy tài liệu!' });
+  res.status(404).json({ success: false, message: '❌ Không tìm thấy học liệu!' });
 });
 
 app.delete('/api/documents/:id', (req, res) => {
   const { id } = req.params;
-  const initialLength = documents.length;
+  const initialLen = documents.length;
   documents = documents.filter(d => d.id !== id);
-  if (documents.length < initialLength) {
-    return res.json({ success: true, message: '🗑️ Đã xóa tài liệu khỏi hệ thống!' });
+  if (documents.length < initialLen) {
+    return res.json({ success: true, message: '🗑️ Đã xóa học liệu thành công!' });
   }
-  res.status(404).json({ success: false, message: '❌ Không tìm thấy tài liệu để xóa!' });
+  res.status(404).json({ success: false, message: '❌ Không tìm thấy học liệu!' });
 });
 
-/* API SOCIAL AUTH (GOOGLE & FACEBOOK) */
+/* ==================== API AUTHENTICATION & KHÔI PHỤC ==================== */
+
+app.post('/api/register', (req, res) => {
+  const { username, emailPhone, password, confirmPassword, fullname, gender, address, role } = req.body;
+  
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: 'Mật khẩu xác nhận không trùng khớp!' });
+  }
+
+  if (users.some(u => u.username === username || u.emailPhone === emailPhone)) {
+    return res.status(400).json({ message: 'Tài khoản hoặc Email/SĐT đã tồn tại!' });
+  }
+
+  const newUser = {
+    id: String(Date.now()),
+    fullname,
+    username,
+    password,
+    emailPhone,
+    gender: gender || 'Nam',
+    address: address || '',
+    role: role || 'student',
+    authProvider: 'local'
+  };
+  users.push(newUser);
+  res.json({ success: true, message: '🎉 Đăng ký tài khoản thành công! Bạn có thể đăng nhập ngay.', user: newUser });
+});
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = users.find(u => (u.username === username || u.emailPhone === username) && u.password === password);
+  if (user) res.json({ message: 'Đăng nhập thành công', user });
+  else res.status(400).json({ message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
+});
+
 app.post('/api/auth/google', (req, res) => {
-  const { email, name, picture } = req.body;
+  const { email, name } = req.body;
   const userEmail = email || `google.${Date.now()}@gmail.com`;
   let user = users.find(u => u.emailPhone === userEmail);
   if (!user) {
-    user = { id: String(Date.now()), fullname: name || 'Người dùng Google', username: userEmail.split('@')[0], emailPhone: userEmail, role: 'student', status: 'approved', authProvider: 'google', favorites: [] };
+    user = { id: String(Date.now()), fullname: name || 'Người dùng Google', username: userEmail.split('@')[0], emailPhone: userEmail, role: 'student', authProvider: 'google' };
     users.push(user);
   }
   res.json({ message: '🎉 Đăng nhập Google thành công!', user });
@@ -183,13 +275,14 @@ app.post('/api/auth/facebook', (req, res) => {
   const userEmail = email || `fb.${id || Date.now()}@facebook.com`;
   let user = users.find(u => u.emailPhone === userEmail);
   if (!user) {
-    user = { id: String(Date.now()), fullname: name || 'Người dùng Facebook', username: `fb_${id || Date.now()}`, emailPhone: userEmail, role: 'student', status: 'approved', authProvider: 'facebook', favorites: [] };
+    user = { id: String(Date.now()), fullname: name || 'Người dùng Facebook', username: `fb_${id || Date.now()}`, emailPhone: userEmail, role: 'student', authProvider: 'facebook' };
     users.push(user);
   }
   res.json({ message: '🎉 Đăng nhập Facebook thành công!', user });
 });
 
-/* API CHATBOT AI & ĐĂNG NHẬP */
+/* ==================== API CHATBOT AI ==================== */
+
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
@@ -207,37 +300,9 @@ app.post('/api/chatbot', async (req, res) => {
   } catch (err) {}
 
   return res.json({
-    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Bạn có thể xem các tài liệu học tập liên quan bên dưới!`,
+    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Dưới đây là các tài liệu bài giảng/nghiên cứu phù hợp trong kho học liệu MTU!`,
     matchedDocs: matchedDocs.slice(0, 4)
   });
-});
-
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
-  const user = users.find(u => (u.username === username || u.emailPhone === username) && u.password === password);
-  if (user) res.json({ message: 'Đăng nhập thành công', user });
-  else res.status(400).json({ message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
-});
-
-app.post('/api/register', (req, res) => {
-  const { username, emailPhone } = req.body;
-  if (users.some(u => u.username === username || u.emailPhone === emailPhone)) {
-    return res.status(400).json({ message: 'Tài khoản hoặc Email/SĐT đã tồn tại!' });
-  }
-  const newUser = { id: String(Date.now()), ...req.body, status: 'approved', favorites: [], authProvider: 'local' };
-  users.push(newUser);
-  res.json({ message: 'Đăng ký tài khoản thành công!' });
-});
-
-app.post('/api/forgot-password', (req, res) => {
-  const { account, newPassword } = req.body;
-  const user = users.find(u => u.username === account || u.emailPhone === account);
-  if (user) {
-    user.password = newPassword;
-    res.json({ success: true, message: '🎉 Đã khôi phục mật khẩu thành công!' });
-  } else {
-    res.status(404).json({ message: '❌ Không tìm thấy tài khoản!' });
-  }
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));

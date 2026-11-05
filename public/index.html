@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- NAVBAR CHÍNH TẦNG 1 -->
+  <!-- NAVBAR TẦNG 1: CHỈNH LAYOUT NGAY HÀNG THẲNG LỐI -->
   <header class="navbar">
     <div class="logo-group" onclick="resetHomePage()">
       <div class="logo-icon float-anim">🎓</div>
@@ -40,9 +40,9 @@
         <div class="dropdown-content mega-content">
           <div class="submenu-container">
             <div class="submenu-sidebar">
-              <div class="submenu-item active" onclick="showSubmenuTab('tab-truong', this)">🏛️ 1. Khối Trường</div>
-              <div class="submenu-item" onclick="showSubmenuTab('tab-khoa', this)">🏢 2. Khối Khoa</div>
-              <div class="submenu-item" onclick="showSubmenuTab('tab-nganh', this)">💾 3. Khối Ngành</div>
+              <div class="submenu-item active" onclick="showSubmenuTab('tab-truong', this)">🏛️ Khối Trường</div>
+              <div class="submenu-item" onclick="showSubmenuTab('tab-khoa', this)">🏢 Khối Khoa</div>
+              <div class="submenu-item" onclick="showSubmenuTab('tab-nganh', this)">💾 Khối Ngành</div>
             </div>
 
             <div class="submenu-body">
@@ -62,10 +62,9 @@
           </div>
         </div>
       </div>
-
-      <div id="mobile-auth-container" class="mobile-auth-box"></div>
     </nav>
 
+    <!-- RIGHT NAV GROUP CHUẨN ĐẸP -->
     <div class="right-nav-group">
       <button onclick="openUploadCheck()" class="btn-artistic btn-green-glow"><span class="icon-lg">📤</span> + Tải Lên Đa Tệp</button>
       <button onclick="openModal('settings-modal')" class="btn-artistic btn-secondary"><span class="icon-lg">⚙️</span> Cài Đặt</button>
@@ -76,15 +75,16 @@
   <!-- SUB TOOLBAR TẦNG 2 -->
   <div class="sub-toolbar">
     <div class="nav-search-group">
-      <input type="text" id="search-input" placeholder="🔍 Nhập từ khóa tìm giáo trình, đề thi, tác giả...">
+      <input type="text" id="search-input" placeholder="🔍 Tìm kiếm giáo trình, bài giảng, bài báo khoa học...">
       <select id="search-type">
         <option value="all">Tất cả định dạng</option>
-        <option value="HÌNH ẢNH">🖼️ Hình ảnh (JPG/PNG)</option>
         <option value="PDF">📄 PDF Học thuật</option>
-        <option value="DOCX">📝 Word (DOCX)</option>
-        <option value="PPTX">📊 PowerPoint</option>
+        <option value="DOCX">📝 Word / TXT</option>
+        <option value="PPTX">📊 PowerPoint / Slide</option>
+        <option value="HÌNH ẢNH">🖼️ Hình ảnh</option>
         <option value="AUDIO">🎵 Âm thanh (MP3)</option>
         <option value="VIDEO">🎥 Video (MP4)</option>
+        <option value="LINK">🌐 Link Bài báo / News</option>
       </select>
       <button onclick="handleSearch()" class="btn-artistic btn-blue"><span class="icon-lg">🔍</span> Tìm Kiếm</button>
     </div>
@@ -168,10 +168,11 @@
     </div>
     <div id="chatbot-messages" class="chatbot-messages">
       <div class="chat-msg bot-msg">
-        👋 Xin chào! Tôi là Trợ lý AI EduShare. Nhập câu hỏi hoặc chọn gợi ý bên dưới:
+        👋 Xin chào! Tôi là Trợ lý AI EduShare. Bạn cần hỗ trợ tìm giáo trình, bài báo hay đề thi nào?
         <div class="prompt-chips">
           <button onclick="quickPrompt('Tìm giáo trình Cấu trúc dữ liệu')">📚 Giáo trình CTDL</button>
           <button onclick="quickPrompt('Đề thi SQL Server mới nhất')">🎯 Đề thi SQL</button>
+          <button onclick="quickPrompt('Bài báo nghiên cứu AI')">📰 Bài báo AI</button>
         </div>
       </div>
     </div>
@@ -181,72 +182,77 @@
     </div>
   </div>
 
-  <!-- MODAL XEM TRƯỚC HỌC LIỆU (PREVIEW MODAL) -->
-  <div id="preview-modal" class="modal-overlay">
+  <!-- MODAL ĐĂNG KÝ (BỔ SUNG ĐẦY ĐỦ CÁC TRƯỜNG THÔNG TIN) -->
+  <div id="register-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">
-        <div class="modal-title" id="preview-title">👁️ Xem Trực Tuyến Học Liệu</div>
-        <button class="modal-close-icon" onclick="closeModal('preview-modal')">&times;</button>
+        <div class="modal-title"><span class="icon-lg">📝</span> Đăng Ký Tài Khoản EduShare MTU</div>
+        <button class="modal-close-icon" onclick="closeModal('register-modal')">&times;</button>
       </div>
-      <div id="preview-body" style="padding:16px; min-height:300px; max-height:70vh; overflow-y:auto; text-align:center;"></div>
-    </div>
-  </div>
 
-  <!-- MODAL CHỈNH SỬA TÀI LIỆU (EDIT MODAL) -->
-  <div id="edit-doc-modal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header" style="background:#2563eb;">
-        <div class="modal-title">📝 Chỉnh Sửa Thông Tin Học Liệu</div>
-        <button class="modal-close-icon" onclick="closeModal('edit-doc-modal')">&times;</button>
-      </div>
-      <form id="edit-doc-form" onsubmit="handleEditSubmit(event)" style="padding:20px;">
-        <input type="hidden" id="edit-doc-id">
-        <div class="input-group"><label>Tên tài liệu (*):</label><input type="text" id="edit-doc-title" required></div>
-        <div class="input-group" style="margin-top:10px;"><label>Môn học (*):</label><input type="text" id="edit-doc-subject" required></div>
-        <div class="input-group" style="margin-top:10px;"><label>Chuyên mục (*):</label>
-          <select id="edit-doc-category">
-            <option value="Tài liệu">Tài liệu học tập</option>
-            <option value="Bài giảng">Bài giảng & Slide</option>
-            <option value="Bài tập">Bài tập mẫu</option>
-            <option value="Tài liệu bài thi">Đề thi mẫu</option>
-            <option value="Bài báo tiêu biểu">Bài báo khoa học</option>
-          </select>
-        </div>
-        <button type="submit" class="btn-artistic btn-blue" style="margin-top:15px; width:100%;">Lưu Cập Nhật</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL CÀI ĐẶT LỐI TẮT -->
-  <div id="quick-config-modal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header" style="background:#7c3aed;">
-        <div class="modal-title">⚡ Cấu Hình Lối Tắt Nhanh</div>
-        <button class="modal-close-icon" onclick="closeModal('quick-config-modal')">&times;</button>
-      </div>
       <div style="padding:20px;">
-        <div class="input-group"><label>Tên lối tắt:</label><input type="text" id="quick-title-input" placeholder="VD: Đề thi CNTT"></div>
-        <div class="input-group" style="margin-top:10px;"><label>Từ khóa tìm kiếm:</label><input type="text" id="quick-keyword-input" placeholder="VD: CNTT"></div>
-        <button onclick="addQuickShortcut()" class="btn-artistic btn-blue" style="margin-top:12px; width:100%;">+ Thêm Lối Tắt</button>
-        <div id="quick-shortcuts-list" style="margin-top:15px;"></div>
+        <form id="register-form" onsubmit="handleRegisterSubmit(event)">
+          <div class="form-grid-2">
+            <div class="input-group"><label>Họ và Tên (*):</label><input type="text" id="reg-fullname" placeholder="Nhập họ và tên..." required></div>
+            <div class="input-group"><label>Email / SĐT (*):</label><input type="text" id="reg-email-phone" placeholder="Nhập email hoặc SĐT..." required></div>
+            <div class="input-group"><label>Giới tính (*):</label>
+              <select id="reg-gender" required>
+                <option value="Nam">Nam</option>
+                <option value="Nữ">Nữ</option>
+                <option value="Khác">Khác</option>
+              </select>
+            </div>
+            <div class="input-group"><label>Vai trò (*):</label>
+              <select id="reg-role" required>
+                <option value="student">🎓 Sinh viên</option>
+                <option value="teacher">👨‍🏫 Giảng viên</option>
+                <option value="admin">🔑 Quản trị viên</option>
+              </select>
+            </div>
+            <div class="input-group" style="grid-column: span 2;"><label>Địa chỉ (*):</label><input type="text" id="reg-address" placeholder="Nhập địa chỉ cư trú..." required></div>
+            <div class="input-group"><label>Tên đăng nhập (*):</label><input type="text" id="reg-username" placeholder="Tạo tên tài khoản..." required></div>
+            <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="reg-password" placeholder="Nhập mật khẩu..." required></div>
+            <div class="input-group" style="grid-column: span 2;"><label>Xác nhận mật khẩu (*):</label><input type="password" id="reg-confirm-password" placeholder="Nhập lại mật khẩu để xác nhận..." required></div>
+          </div>
+          <button type="submit" class="btn-artistic btn-green-glow" style="margin-top:15px; width:100%;">Tạo Tài Khoản Mới</button>
+        </form>
       </div>
     </div>
   </div>
 
-  <!-- MODAL CÀI ĐẶT TÀI KHOẢN & HỆ THỐNG -->
-  <div id="settings-modal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header" style="background:#475569;">
-        <div class="modal-title">⚙️ Cài Đặt Hệ Thống</div>
-        <button class="modal-close-icon" onclick="closeModal('settings-modal')">&times;</button>
+  <!-- MODAL TẢI LÊN ĐA TỆP VÀ LINK BÀI BÁO -->
+  <div id="upload-modal" class="modal-overlay">
+    <div class="modal-card modal-card-large">
+      <div class="modal-header" style="background:#059669;">
+        <div class="modal-title"><span class="icon-lg">📤</span> Đăng Tải Đa Học Liệu & Bài Báo</div>
+        <button class="modal-close-icon" onclick="closeModal('upload-modal')">&times;</button>
       </div>
-      <div style="padding:20px; font-size:13px; line-height:1.6;">
-        <p>🎓 <strong>EduShare MTU - Phiên bản 2.5</strong></p>
-        <p>Hệ thống Thư viện Học liệu số dành cho Giảng viên & Sinh viên Trường Đại học Xây dựng Miền Tây.</p>
-        <hr style="border-color:var(--border-color); margin:12px 0;">
-        <label><input type="checkbox" checked onclick="alert('Đã cập nhật cấu hình thông báo!')"> Bật thông báo học liệu mới</label><br>
-        <label><input type="checkbox" checked onclick="alert('Đã lưu chế độ giao diện tối!')"> Giao diện tối (Dark Mode)</label>
-      </div>
+      <form id="upload-form" onsubmit="handleBatchUploadSubmit(event)" style="padding:20px;">
+        <div class="form-grid-2">
+          <div class="input-group" style="grid-column: span 2;"><label>Tiêu đề học liệu / Tên bài nghiên cứu (*):</label><input type="text" id="up-title" required></div>
+          <div class="input-group"><label>Chuyên mục (*):</label>
+            <select id="up-category">
+              <option value="Tài liệu">📚 Tài liệu học tập</option>
+              <option value="Bài giảng">📖 Bài giảng & Slide</option>
+              <option value="Bài tập">🛠️ Bài tập mẫu & Đồ án</option>
+              <option value="Tài liệu bài thi">🎯 Đề thi & Đáp án</option>
+              <option value="Bài báo tiêu biểu">📰 Bài báo khoa học</option>
+            </select>
+          </div>
+          <div class="input-group"><label>Môn học / Đề tài:</label><input type="text" id="up-subject" placeholder="VD: Cấu trúc dữ liệu"></div>
+          
+          <div class="input-group" style="grid-column: span 2;">
+            <label>Chọn Đa Tệp Tải Lên (Giữ Ctrl để chọn nhiều tệp PDF, DOCX, PPTX, JPG, MP3, MP4...):</label>
+            <input type="file" id="up-files" multiple>
+          </div>
+
+          <div class="input-group" style="grid-column: span 2;">
+            <label>Hoặc Dán Link Bài Báo / Tin Tức Đa Kênh (URL):</label>
+            <input type="url" id="up-link" placeholder="https://dantri.com.vn/... hoặc https://sciencedirect.com/...">
+          </div>
+        </div>
+        <button type="submit" class="btn-artistic btn-blue" style="margin-top:15px; width:100%;">Tải Lên Hệ Thống</button>
+      </form>
     </div>
   </div>
 
@@ -275,87 +281,56 @@
         <form id="login-form">
           <div class="input-group"><label>Tên đăng nhập / Email (*):</label><input type="text" id="login-username" required></div>
           <div class="input-group" style="margin-top:10px;"><label>Mật khẩu (*):</label><input type="password" id="login-password" required></div>
-          
-          <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:12px;">
-            <a href="#" onclick="switchModal('login-modal', 'forgot-modal')" style="color:#38bdf8;">🔑 Quên mật khẩu?</a>
-            <a href="#" onclick="switchModal('login-modal', 'register-modal')" style="color:#22c55e;">📝 Đăng ký mới</a>
-          </div>
-
           <button type="submit" class="btn-artistic btn-blue" style="margin-top:15px; width:100%;">Đăng Nhập Ngay</button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG KÝ -->
-  <div id="register-modal" class="modal-overlay">
+  <!-- MODAL XEM PREVIEW -->
+  <div id="preview-modal" class="modal-overlay">
     <div class="modal-card modal-card-large">
       <div class="modal-header">
-        <div class="modal-title"><span class="icon-lg">📝</span> Đăng Ký Tài Khoản EduShare</div>
-        <button class="modal-close-icon" onclick="closeModal('register-modal')">&times;</button>
+        <div class="modal-title" id="preview-title">👁️ Xem Trực Tuyến Học Liệu</div>
+        <button class="modal-close-icon" onclick="closeModal('preview-modal')">&times;</button>
       </div>
-
-      <div style="padding:20px;">
-        <form id="register-form">
-          <div class="form-grid-2">
-            <div class="input-group"><label>Họ và Tên (*):</label><input type="text" id="reg-fullname" required></div>
-            <div class="input-group"><label>Email / SĐT (*):</label><input type="text" id="reg-email-phone" required></div>
-            <div class="input-group"><label>Tên đăng nhập (*):</label><input type="text" id="reg-username" required></div>
-            <div class="input-group"><label>Mật khẩu (*):</label><input type="password" id="reg-password" required></div>
-          </div>
-          <button type="submit" class="btn-artistic btn-green-glow" style="margin-top:15px; width:100%;">Tạo Tài Khoản Mới</button>
-        </form>
-      </div>
+      <div id="preview-body" style="padding:16px; min-height:300px; max-height:70vh; overflow-y:auto; text-align:center;"></div>
     </div>
   </div>
 
-  <!-- MODAL QUÊN MẬT KHẨU -->
-  <div id="forgot-modal" class="modal-overlay">
-    <div class="modal-card">
-      <div class="modal-header" style="background:#ea580c;">
-        <div class="modal-title"><span class="icon-lg">🔑</span> Khôi Phục Mật Khẩu</div>
-        <button class="modal-close-icon" onclick="closeModal('forgot-modal')">&times;</button>
+  <!-- FOOTER ĐẦY ĐỦ THÔNG TIN TRƯỜNG & TÁC GIẢ -->
+  <footer class="footer-rich">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h4 class="footer-heading">🏛️ Trường Đại Học Xây Dựng Miền Tây</h4>
+        <p class="footer-text">Trường đại học công lập hàng đầu đào tạo nguồn nhân lực chất lượng cao về Xây dựng, Kiến trúc & CNTT khu vực ĐBSCL.</p>
+        <p class="footer-info">📍 <strong>Địa chỉ:</strong> Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long</p>
+        <p class="footer-info">📞 <strong>SĐT:</strong> (0270) 3 825 903</p>
+        <p class="footer-info">🌐 <strong>Website:</strong> <a href="http://mtu.edu.vn" target="_blank" style="color:var(--accent);">www.mtu.edu.vn</a></p>
       </div>
-      <form id="forgot-form" style="padding:20px;" onsubmit="handleForgotPassword(event)">
-        <div class="input-group"><label>Tên đăng nhập / Email (*):</label><input type="text" id="forgot-account" required></div>
-        <div class="input-group" style="margin-top:10px;"><label>Mật khẩu mới (*):</label><input type="password" id="forgot-newpass" required></div>
-        <button type="submit" class="btn-artistic btn-warning" style="margin-top:15px; width:100%;">Đặt Lại Mật Khẩu</button>
-      </form>
-    </div>
-  </div>
 
-  <!-- MODAL TẢI LÊN TÀI LIỆU -->
-  <div id="upload-modal" class="modal-overlay">
-    <div class="modal-card modal-card-large">
-      <div class="modal-header" style="background:#059669;">
-        <div class="modal-title"><span class="icon-lg">📤</span> Tải Lên Học Liệu Mới</div>
-        <button class="modal-close-icon" onclick="closeModal('upload-modal')">&times;</button>
+      <div class="footer-col">
+        <h4 class="footer-heading">⚡ Lối Tắt Học Liệu Tiêu Biểu</h4>
+        <ul class="footer-links">
+          <li><a href="#articles-section" onclick="filterByCategory('Bài báo tiêu biểu')">📰 Bài báo khoa học tiêu biểu</a></li>
+          <li><a href="#" onclick="filterByCategory('Bài giảng')">📖 Bài giảng & Slide tiêu biểu</a></li>
+          <li><a href="#" onclick="filterByCategory('Bài tập')">🛠️ Bài tập mẫu & Đồ án</a></li>
+          <li><a href="#" onclick="filterByCategory('Tài liệu bài thi')">🎯 Đề thi & Đáp án chuẩn</a></li>
+        </ul>
       </div>
-      <form id="upload-form" onsubmit="handleUploadSubmit(event)" style="padding:20px;">
-        <div class="form-grid-2">
-          <div class="input-group" style="grid-column: span 2;"><label>Tên tài liệu (*):</label><input type="text" id="up-title" required></div>
-          <div class="input-group"><label>Chuyên mục (*):</label>
-            <select id="up-category">
-              <option value="Tài liệu">Tài liệu học tập</option>
-              <option value="Bài giảng">Bài giảng & Slide</option>
-              <option value="Bài tập">Bài tập mẫu</option>
-              <option value="Tài liệu bài thi">Đề thi mẫu</option>
-              <option value="Bài báo tiêu biểu">Bài báo khoa học</option>
-            </select>
-          </div>
-          <div class="input-group"><label>Môn Học:</label><input type="text" id="up-subject" placeholder="VD: Cấu trúc dữ liệu"></div>
-          <div class="input-group" style="grid-column: span 2;">
-            <label>Chọn Tệp Tải Lên (PDF, DOCX, PPTX, JPG, MP3, MP4...):</label>
-            <input type="file" id="up-file" required>
-          </div>
-        </div>
-        <button type="submit" class="btn-artistic btn-blue" style="margin-top:15px; width:100%;">Tải Lên Khỏi Máy</button>
-      </form>
-    </div>
-  </div>
 
-  <footer class="footer">
-    <p>© 2026 EduShare - Trường Đại học Xây dựng Miền Tây. Phát triển bởi Sinh viên Nguyễn Chí Vỹ.</p>
+      <div class="footer-col">
+        <h4 class="footer-heading">👨‍💻 Tác Giả & Quản Trị Hệ Thống</h4>
+        <p class="footer-info">👤 <strong>Họ tên:</strong> Nguyễn Chí Vỹ</p>
+        <p class="footer-info">🎓 <strong>Chuyên ngành:</strong> Kỹ thuật phần mềm - MTU</p>
+        <p class="footer-info">📞 <strong>SĐT Liên hệ:</strong> 0862204069</p>
+        <p class="footer-info">🏠 <strong>Địa chỉ:</strong> Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 EduShare MTU - Bản quyền thuộc về Trường Đại học Xây dựng Miền Tây. Phát triển bởi Sinh viên Nguyễn Chí Vỹ.</p>
+    </div>
   </footer>
 
   <script src="app.js"></script>
