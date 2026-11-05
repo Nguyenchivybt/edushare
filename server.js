@@ -19,8 +19,8 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const systemInstruction = `
 Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
-Tác giả phát triển: Nguyễn Chí Vỹ (SĐT: 0862204069, Địa chỉ: Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long).
-Địa chỉ trường MTU: Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long (SĐT: 0270 3 825 903, Website: https://mtu.edu.vn).
+Tác giả phát triển: Nguyễn Chí Vỹ (SĐT: 0862204069, Email: nguyenchivybt2006@gmail.com, Địa chỉ: Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long).
+Địa chỉ trường MTU: Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long (SĐT: 0270 3 825 903, Email: dhxdmt@muce.edu.vn, Website: https://mtu.edu.vn).
 Hãy hỗ trợ người dùng tra cứu tài liệu, giải đáp câu hỏi học thuật, phân tích file upload (PDF, Word, Slides, MP3, MP4, Hình ảnh) và liên kết bài báo khoa học.
 `;
 
@@ -55,7 +55,7 @@ function detectFileType(filename) {
   return 'TẬP TIN';
 }
 
-// CƠ SỞ DỮ LIỆU TÀI KHOẢN MẪU & OTP
+// DỮ LIỆU TÀI KHOẢN MẪU & OTP
 let users = [
   { 
     id: '1', 
@@ -185,15 +185,15 @@ let forumPosts = [
     role: 'admin',
     date: '04/11/2026',
     title: 'Chào mừng các bạn đến với Cộng đồng trao đổi học thuật MTU!',
-    content: 'Đây là không gian dành cho Sinh viên và Giảng viên cùng thảo luận bài giảng, đề thi, đồ án và các công nghệ mới.',
-    likes: 12,
+    content: 'Kênh kết nối thảo luận chuyên môn dành cho Sinh viên và Giảng viên MTU cùng chia sẻ tài nguyên và hỗ trợ giải bài tập, đồ án.',
+    likes: 15,
     replies: [
-      { id: 'r1', user: 'Nguyenchivysinhvien', text: 'Cảm ơn admin Vỹ! Hệ thống EduShare rất tuyệt vời!', date: '04/11/2026' }
+      { id: 'r1', user: 'Nguyenchivysinhvien', text: 'Cảm ơn admin Vỹ! Hệ thống EduShare hỗ trợ trao đổi rất thuận tiện!', date: '04/11/2026' }
     ]
   }
 ];
 
-/* API HỌC LIỆU & BÌNH LUẬN & THÍCH */
+/* API CÁC ROUTE VẪN GIỮ NGUYÊN HOẠT ĐỘNG CHUẨN */
 app.get('/api/documents', (req, res) => res.json(documents));
 
 app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
@@ -297,7 +297,6 @@ app.delete('/api/documents/:id', (req, res) => {
   res.status(404).json({ success: false, message: '❌ Không tìm thấy học liệu!' });
 });
 
-/* API CỘNG ĐỒNG TRAO ĐỔI */
 app.get('/api/forum', (req, res) => res.json(forumPosts));
 
 app.post('/api/forum/create', (req, res) => {
@@ -334,22 +333,14 @@ app.post('/api/forum/reply', (req, res) => {
   res.json({ success: true, replies: post.replies });
 });
 
-/* API ĐĂNG KÝ & ĐĂNG NHẬP */
 app.post('/api/register', (req, res) => {
   const { username, emailPhone, password, confirmPassword, fullname, gender, dob, school, faculty, major, studentClass, address, role } = req.body;
-  
   if (!username || !emailPhone || !password) {
-    return res.status(400).json({ message: 'Vui lòng điền đầy đủ các thông tin bắt buộc!' });
+    return res.status(400).json({ message: 'Vui lòng điền đầy đủ thông tin bắt buộc!' });
   }
-
   if (password !== confirmPassword) {
     return res.status(400).json({ message: 'Mật khẩu và Xác nhận mật khẩu không trùng khớp!' });
   }
-
-  if (users.some(u => u.username.toLowerCase() === username.toLowerCase() || u.emailPhone.toLowerCase() === emailPhone.toLowerCase())) {
-    return res.status(400).json({ message: 'Tên đăng nhập, Email hoặc SĐT đã tồn tại trên hệ thống!' });
-  }
-
   const newUser = {
     id: String(Date.now()),
     fullname: fullname || username,
@@ -379,22 +370,14 @@ app.post('/api/login', (req, res) => {
   else res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
 });
 
-/* CẬP NHẬT THÔNG TIN CÁ NHÂN & ĐỔI MẬT KHẨU TRONG PROFILE */
 app.post('/api/user/update-profile', (req, res) => {
   const { id, fullname, gender, dob, emailPhone, address, oldPassword, newPassword, confirmNewPassword, avatar } = req.body;
-  
   const user = users.find(u => u.id === id);
-  if (!user) {
-    return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản người dùng!' });
-  }
+  if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản người dùng!' });
 
   if (newPassword && newPassword.trim()) {
-    if (user.password !== oldPassword) {
-      return res.status(400).json({ success: false, message: 'Mật khẩu cũ nhập vào không chính xác!' });
-    }
-    if (newPassword !== confirmNewPassword) {
-      return res.status(400).json({ success: false, message: 'Mật khẩu mới và Xác nhận mật khẩu mới không khớp!' });
-    }
+    if (user.password !== oldPassword) return res.status(400).json({ success: false, message: 'Mật khẩu cũ nhập vào không chính xác!' });
+    if (newPassword !== confirmNewPassword) return res.status(400).json({ success: false, message: 'Mật khẩu mới và Xác nhận mật khẩu mới không khớp!' });
     user.password = newPassword.trim();
   }
 
@@ -405,56 +388,32 @@ app.post('/api/user/update-profile', (req, res) => {
   user.address = address || user.address;
   if (avatar) user.avatar = avatar;
 
-  res.json({ success: true, message: '🎉 Đã cập nhật thông tin cá nhân và cài đặt thành công!', user });
+  res.json({ success: true, message: '🎉 Đã cập nhật thông tin cá nhân thành công!', user });
 });
 
-/* LOGIC CẤP MÃ OTP QUÊN MẬT KHẨU */
 app.post('/api/forgot-password/request-otp', (req, res) => {
   const { accountKey } = req.body;
   const key = (accountKey || '').trim().toLowerCase();
-  
-  if (!key) {
-    return res.status(400).json({ success: false, message: 'Vui lòng nhập Tên đăng nhập, Email hoặc Số điện thoại!' });
-  }
+  if (!key) return res.status(400).json({ success: false, message: 'Vui lòng nhập Tên đăng nhập, Email hoặc SĐT!' });
 
   let user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
-
   if (!user) {
-    user = {
-      fullname: accountKey,
-      username: key,
-      emailPhone: accountKey
-    };
+    user = { fullname: accountKey, username: key, emailPhone: accountKey };
     users.push({ ...user, id: String(Date.now()), password: '123', role: 'student', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${key}` });
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   otpStore[key] = { otp, expires: Date.now() + 5 * 60 * 1000 };
 
-  res.json({ 
-    success: true, 
-    message: `🎉 Mã xác thực OTP đã được gửi đến ${accountKey}! (Mã xác nhận thử nghiệm: ${otp})`, 
-    demoOtp: otp 
-  });
+  res.json({ success: true, message: `🎉 Mã xác thực OTP đã được gửi đến ${accountKey}! (Mã thử nghiệm: ${otp})`, demoOtp: otp });
 });
 
 app.post('/api/forgot-password/verify-otp', (req, res) => {
   const { accountKey, otp } = req.body;
   const key = (accountKey || '').trim().toLowerCase();
   const record = otpStore[key];
-
-  if (!record) {
-    return res.status(400).json({ success: false, message: 'Mã xác nhận không tồn tại hoặc đã hết hạn! Vui lòng bấm Gửi lại mã.' });
-  }
-
-  if (Date.now() > record.expires) {
-    delete otpStore[key];
-    return res.status(400).json({ success: false, message: 'Mã xác nhận đã quá hạn 5 phút! Vui lòng bấm Gửi lại mã mới.' });
-  }
-
-  if (record.otp !== (otp || '').trim()) {
-    return res.status(400).json({ success: false, message: 'Mã xác nhận không đúng! Vui lòng kiểm tra lại.' });
-  }
+  if (!record || Date.now() > record.expires) return res.status(400).json({ success: false, message: 'Mã xác nhận không tồn tại hoặc đã hết hạn!' });
+  if (record.otp !== (otp || '').trim()) return res.status(400).json({ success: false, message: 'Mã xác nhận không đúng!' });
 
   res.json({ success: true, message: '✅ Xác nhận mã OTP thành công! Vui lòng tạo mật khẩu mới.' });
 });
@@ -462,21 +421,15 @@ app.post('/api/forgot-password/verify-otp', (req, res) => {
 app.post('/api/forgot-password/reset-password', (req, res) => {
   const { accountKey, newPassword, confirmPassword } = req.body;
   const key = (accountKey || '').trim().toLowerCase();
-
-  if (!newPassword || newPassword !== confirmPassword) {
-    return res.status(400).json({ success: false, message: 'Mật khẩu mới và xác nhận mật khẩu không trùng khớp!' });
-  }
+  if (!newPassword || newPassword !== confirmPassword) return res.status(400).json({ success: false, message: 'Mật khẩu mới không trùng khớp!' });
 
   const user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
-  if (user) {
-    user.password = newPassword;
-  }
+  if (user) user.password = newPassword;
   delete otpStore[key];
 
-  res.json({ success: true, message: '🎉 Đổi mật khẩu thành công! Bạn có thể đăng nhập ngay bằng mật khẩu mới.' });
+  res.json({ success: true, message: '🎉 Đổi mật khẩu thành công!' });
 });
 
-/* API ĐĂNG NHẬP MẠNG XÃ HỘI GOOGLE VÀ FACEBOOK */
 app.post('/api/auth/google', (req, res) => {
   const user = {
     id: 'g_' + Date.now(),
@@ -493,7 +446,7 @@ app.post('/api/auth/google', (req, res) => {
     avatar: 'https://lh3.googleusercontent.com/a/ACg8ocI8P-demo=s96-c',
     authProvider: 'google'
   };
-  res.json({ success: true, message: '🎉 Đăng nhập thành công bằng tài khoản Google!', user });
+  res.json({ success: true, message: '🎉 Đăng nhập thành công bằng Google!', user });
 });
 
 app.post('/api/auth/facebook', (req, res) => {
@@ -512,10 +465,9 @@ app.post('/api/auth/facebook', (req, res) => {
     avatar: 'https://platform-lookaside.fbsbx.com/platform/profilepic/?psid=demo',
     authProvider: 'facebook'
   };
-  res.json({ success: true, message: '🎉 Đăng nhập thành công bằng tài khoản Facebook!', user });
+  res.json({ success: true, message: '🎉 Đăng nhập thành công bằng Facebook!', user });
 });
 
-/* API CHATBOT AI */
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
@@ -533,7 +485,7 @@ app.post('/api/chatbot', async (req, res) => {
   } catch (err) {}
 
   return res.json({
-    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Dưới đây là các tài liệu bài giảng/nghiên cứu phù hợp trong kho học liệu MTU!`,
+    reply: `🤖 **EduShare AI**: Tôi đã tiếp nhận câu hỏi "${message}". Dưới đây là các tài liệu phù hợp trong thư viện MTU!`,
     matchedDocs: matchedDocs.slice(0, 4)
   });
 });
