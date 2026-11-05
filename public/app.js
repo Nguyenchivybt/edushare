@@ -8,16 +8,24 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDocumentsFromServer();
 });
 
+/* KHỞI TẠO CÁC TÙY CHỌN BỘ LỌC */
 function initFilterOptions() {
   const schoolSel = document.getElementById('filter-school');
   const facultySel = document.getElementById('filter-faculty');
   const majorSel = document.getElementById('filter-major');
 
-  if (schoolSel) schoolSel.innerHTML = `<option value="">🏛️ Tất cả Trường</option><option value="Trường Đại học Xây dựng Miền Tây">Trường Đại học Xây dựng Miền Tây</option>`;
-  if (facultySel) facultySel.innerHTML = `<option value="">🏢 Tất cả Khoa</option><option value="Công nghệ thông tin">Khoa CNTT</option><option value="Xây dựng">Khoa Xây Dựng</option><option value="Kiến trúc">Khoa Kiến Trúc</option>`;
-  if (majorSel) majorSel.innerHTML = `<option value="">💾 Tất cả Ngành</option><option value="Kỹ thuật phần mềm">Ngành Kỹ Thuật Phần Mềm</option><option value="Kỹ thuật xây dựng">Ngành Kỹ Thuật Xây Dựng</option>`;
+  if (schoolSel) {
+    schoolSel.innerHTML = `<option value="">🏛️ Tất cả Trường</option><option value="Trường Đại học Xây dựng Miền Tây">Trường Đại học Xây dựng Miền Tây</option>`;
+  }
+  if (facultySel) {
+    facultySel.innerHTML = `<option value="">🏢 Tất cả Khoa</option><option value="Công nghệ thông tin">Khoa CNTT</option><option value="Xây dựng">Khoa Xây Dựng</option><option value="Kiến trúc">Khoa Kiến Trúc</option>`;
+  }
+  if (majorSel) {
+    majorSel.innerHTML = `<option value="">💾 Tất cả Ngành</option><option value="Kỹ thuật phần mềm">Ngành Kỹ Thuật Phần Mềm</option><option value="Kỹ thuật xây dựng">Ngành Kỹ Thuật Xây Dựng</option>`;
+  }
 }
 
+/* TẢI DỮ LIỆU TỪ SERVER */
 async function loadDocumentsFromServer() {
   try {
     const res = await fetch('/api/documents');
@@ -25,9 +33,12 @@ async function loadDocumentsFromServer() {
       documentsData = await res.json();
       renderAllContent(documentsData);
     }
-  } catch (err) {}
+  } catch (err) {
+    console.error('Lỗi tải danh sách học liệu từ máy chủ:', err);
+  }
 }
 
+/* PHÂN LOẠI VÀ RENDER NỘI DUNG */
 function renderAllContent(docs) {
   const articles = docs.filter(d => d.isArticle || d.category === 'Bài báo tiêu biểu' || d.type === 'LINK');
   const normalDocs = docs.filter(d => !d.isArticle && d.category !== 'Bài báo tiêu biểu' && d.type !== 'LINK');
@@ -42,7 +53,7 @@ function renderArticles(articles) {
   if (!container) return;
 
   if (articles.length === 0) {
-    container.innerHTML = `<p style="font-size:12px; color:var(--text-muted); grid-column:span 3;">Chưa có bài báo khoa học nào.</p>`;
+    container.innerHTML = `<p style="font-size:12px; color:var(--text-muted); grid-column:span 3;">Chưa có bài báo khoa học nào được đăng tải.</p>`;
     return;
   }
 
@@ -52,7 +63,7 @@ function renderArticles(articles) {
         <span style="background:#ea580c; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;">📰 ${art.type}</span>
         <h3 style="font-size:14px; margin:8px 0; color:var(--text-main);">${escapeHtml(art.title)}</h3>
         <p style="font-size:12px; color:var(--text-muted); margin:4px 0;">✍️ Tác giả: <strong>${escapeHtml(art.author)}</strong></p>
-        <p style="font-size:11px; color:var(--text-muted);">🏢 ${escapeHtml(art.faculty || 'Nghiên cứu')} • 📅 ${art.date}</p>
+        <p style="font-size:11px; color:var(--text-muted);">🏢 ${escapeHtml(art.faculty || 'Nghiên cứu khoa học')} • 📅 ${art.date}</p>
       </div>
       <div class="doc-card-actions">
         <button onclick="previewDocument('${art.id}')" class="btn-artistic btn-blue" style="font-size:11px; padding:4px 8px;">👁️ Xem</button>
@@ -63,7 +74,7 @@ function renderArticles(articles) {
   `).join('');
 }
 
-/* HIỂN THỊ TÀI LIỆU VÀ KIỂM TRA PHÂN QUYỀN RBAC */
+/* HIỂN THỊ DANH SÁCH HỌC LIỆU */
 function renderDocuments(docs) {
   const container = document.getElementById('document-list');
   if (!container) return;
@@ -78,7 +89,7 @@ function renderDocuments(docs) {
       <div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span style="background:#2563eb; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;">${doc.type}</span>
-          <span style="font-size:10px; color:var(--text-muted);">👁️ ${doc.views} lượt xem</span>
+          <span style="font-size:10px; color:var(--text-muted);">👁️ ${doc.views || 0} lượt xem</span>
         </div>
         <h3 style="font-size:14px; margin:8px 0; color:var(--text-main);">${escapeHtml(doc.title)}</h3>
         <p style="font-size:12px; color:var(--accent); margin:4px 0;">📖 Môn: <strong>${escapeHtml(doc.subject)}</strong></p>
@@ -93,7 +104,7 @@ function renderDocuments(docs) {
   `).join('');
 }
 
-/* NÚT THAO TÁC THEO PHÂN QUYỀN */
+/* KIỂM TRA PHÂN QUYỀN VÀ HIỂN THỊ NÚT SỬA/XÓA */
 function getRoleActionButtons(doc) {
   if (!currentUser) return '';
   const isAdmin = currentUser.role === 'admin';
@@ -108,7 +119,23 @@ function getRoleActionButtons(doc) {
   return '';
 }
 
-/* XỬ LÝ ĐĂNG KÝ VỚI ĐẦY ĐỦ CÁC TRƯỜNG THÔNG TIN */
+/* MỞ MODAL SỬA TÀI LIỆU */
+function openEditDocumentModal(id) {
+  const doc = documentsData.find(d => d.id === id);
+  if (!doc) return alert('Không tìm thấy tài liệu!');
+
+  const editTitle = document.getElementById('edit-title');
+  const editSubject = document.getElementById('edit-subject');
+  const editDocId = document.getElementById('edit-doc-id');
+
+  if (editTitle) editTitle.value = doc.title;
+  if (editSubject) editSubject.value = doc.subject;
+  if (editDocId) editDocId.value = doc.id;
+
+  openModal('edit-document-modal');
+}
+
+/* XỬ LÝ SỰ KIỆN ĐĂNG KÝ TÀI KHOẢN */
 async function handleRegisterSubmit(e) {
   e.preventDefault();
   const password = document.getElementById('reg-password').value;
@@ -142,103 +169,14 @@ async function handleRegisterSubmit(e) {
       document.getElementById('register-form').reset();
       openModal('login-modal');
     } else {
-      alert(data.message || 'Lỗi đăng ký!');
+      alert(data.message || 'Lỗi đăng ký tài khoản!');
     }
-  } catch (err) { alert('Lỗi kết nối máy chủ!'); }
-}
-
-/* ĐĂNG TẢI ĐA TỆP VÀ LINK BÀI BÁO */
-async function handleBatchUploadSubmit(e) {
-  e.preventDefault();
-  const filesInput = document.getElementById('up-files');
-  const linkInput = document.getElementById('up-link').value;
-
-  if ((!filesInput.files || filesInput.files.length === 0) && !linkInput.trim()) {
-    return alert('Vui lòng chọn ít nhất 1 tệp hoặc dán 1 đường dẫn bài báo!');
-  }
-
-  const formData = new FormData();
-  formData.append('title', document.getElementById('up-title').value);
-  formData.append('category', document.getElementById('up-category').value);
-  formData.append('subject', document.getElementById('up-subject').value);
-  formData.append('articleLink', linkInput);
-  formData.append('author', currentUser ? currentUser.fullname : 'Khách');
-  formData.append('authorId', currentUser ? currentUser.id : '0');
-
-  if (filesInput.files) {
-    for (let i = 0; i < filesInput.files.length; i++) {
-      formData.append('files', filesInput.files[i]);
-    }
-  }
-
-  try {
-    const res = await fetch('/api/documents/batch', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.success) {
-      alert(data.message);
-      closeModal('upload-modal');
-      document.getElementById('upload-form').reset();
-      loadDocumentsFromServer();
-    } else alert('Lỗi tải lên!');
-  } catch (err) { alert('Lỗi kết nối server!'); }
-}
-
-/* PREVIEW FILE */
-function previewDocument(id) {
-  const doc = documentsData.find(d => d.id === id);
-  if (!doc) return alert('Không tìm thấy tệp!');
-
-  document.getElementById('preview-title').innerText = `👁️ Xem: ${doc.title}`;
-  const body = document.getElementById('preview-body');
-
-  if (doc.type === 'PDF' || doc.url.endsWith('.pdf')) {
-    body.innerHTML = `<iframe src="${doc.url}" style="width:100%; height:450px; border:none;"></iframe>`;
-  } else if (doc.type === 'HÌNH ẢNH') {
-    body.innerHTML = `<img src="${doc.url}" style="max-width:100%; max-height:450px; border-radius:8px;">`;
-  } else if (doc.type === 'LINK') {
-    body.innerHTML = `<p>🌐 Liên kết ngoài: <a href="${doc.url}" target="_blank" style="color:var(--accent); font-weight:bold;">${doc.url}</a></p>`;
-  } else {
-    body.innerHTML = `
-      <div style="padding:30px;">
-        <p>📄 Tệp <strong>${doc.type}</strong> cần tải về máy để xem đầy đủ.</p>
-        <a href="${doc.url}" target="_blank" class="btn-artistic btn-green-glow" style="margin-top:10px; text-decoration:none; display:inline-block;">📥 Tải Tệp Về Máy</a>
-      </div>
-    `;
-  }
-  openModal('preview-modal');
-}
-
-async function deleteDocument(id) {
-  if (!confirm('Bạn có chắc chắn muốn xóa học liệu này không?')) return;
-  try {
-    const res = await fetch(`/api/documents/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) {
-      alert(data.message);
-      loadDocumentsFromServer();
-    } else alert(data.message);
-  } catch (err) { alert('Lỗi xóa tệp!'); }
-}
-
-/* AUTHENTICATION UI */
-function updateAuthUI() {
-  const authContainer = document.getElementById('auth-buttons-container');
-  if (!authContainer) return;
-
-  if (currentUser) {
-    const roleBadge = currentUser.role === 'admin' ? '🔑 Admin' : (currentUser.role === 'teacher' ? '👨‍🏫 Giảng Viên' : '🎓 Sinh Viên');
-    authContainer.innerHTML = `
-      <span style="font-size:11px; color:var(--accent); font-weight:bold; margin-right:4px;">[${roleBadge}]</span>
-      <button onclick="handleLogout()" class="btn-artistic btn-secondary"><span class="icon-lg">🚪</span> Đăng Xuất (${escapeHtml(currentUser.fullname)})</button>
-    `;
-  } else {
-    authContainer.innerHTML = `
-      <button onclick="openModal('login-modal')" class="btn-artistic btn-blue"><span class="icon-lg">🔑</span> Đăng Nhập</button>
-      <button onclick="openModal('register-modal')" class="btn-artistic btn-secondary"><span class="icon-lg">📝</span> Đăng Ký</button>
-    `;
+  } catch (err) {
+    alert('Lỗi kết nối máy chủ!');
   }
 }
 
+/* GẮN SỰ KIỆN CHO FORM ĐĂNG NHẬP & ĐĂNG KÝ */
 function bindAuthForms() {
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
@@ -261,9 +199,119 @@ function bindAuthForms() {
           closeModal('login-modal');
           updateAuthUI();
           loadDocumentsFromServer();
-        } else alert(data.message);
-      } catch (err) { alert('Lỗi máy chủ!'); }
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert('Lỗi máy chủ!');
+      }
     });
+  }
+
+  const regForm = document.getElementById('register-form');
+  if (regForm) {
+    regForm.addEventListener('submit', handleRegisterSubmit);
+  }
+}
+
+/* ĐĂNG TẢI MULTI-FILE VÀ LINK BÀI BÁO */
+async function handleBatchUploadSubmit(e) {
+  e.preventDefault();
+  const filesInput = document.getElementById('up-files');
+  const linkInput = document.getElementById('up-link') ? document.getElementById('up-link').value : '';
+
+  if ((!filesInput || !filesInput.files || filesInput.files.length === 0) && !linkInput.trim()) {
+    return alert('Vui lòng chọn ít nhất 1 tệp hoặc dán 1 đường dẫn bài báo!');
+  }
+
+  const formData = new FormData();
+  formData.append('title', document.getElementById('up-title').value);
+  formData.append('category', document.getElementById('up-category').value);
+  formData.append('subject', document.getElementById('up-subject').value);
+  formData.append('articleLink', linkInput);
+  formData.append('author', currentUser ? currentUser.fullname : 'Khách MTU');
+  formData.append('authorId', currentUser ? currentUser.id : '0');
+
+  if (filesInput && filesInput.files) {
+    for (let i = 0; i < filesInput.files.length; i++) {
+      formData.append('files', filesInput.files[i]);
+    }
+  }
+
+  try {
+    const res = await fetch('/api/documents/batch', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      closeModal('upload-modal');
+      document.getElementById('upload-form').reset();
+      loadDocumentsFromServer();
+    } else {
+      alert('Lỗi tải lên!');
+    }
+  } catch (err) {
+    alert('Lỗi kết nối máy chủ!');
+  }
+}
+
+/* XEM TRỰC TIẾP HỌC LIỆU HOẶC LINK */
+function previewDocument(id) {
+  const doc = documentsData.find(d => d.id === id);
+  if (!doc) return alert('Không tìm thấy tệp!');
+
+  document.getElementById('preview-title').innerText = `👁️ Xem: ${doc.title}`;
+  const body = document.getElementById('preview-body');
+
+  if (doc.type === 'PDF' || (doc.url && doc.url.endsWith('.pdf'))) {
+    body.innerHTML = `<iframe src="${doc.url}" style="width:100%; height:450px; border:none;"></iframe>`;
+  } else if (doc.type === 'HÌNH ẢNH') {
+    body.innerHTML = `<img src="${doc.url}" style="max-width:100%; max-height:450px; border-radius:8px;">`;
+  } else if (doc.type === 'LINK') {
+    body.innerHTML = `<p>🌐 Liên kết ngoài: <a href="${doc.url}" target="_blank" style="color:var(--accent); font-weight:bold;">${doc.url}</a></p>`;
+  } else {
+    body.innerHTML = `
+      <div style="padding:30px; text-center">
+        <p>📄 Tệp <strong>${doc.type}</strong> cần tải về máy để xem đầy đủ nội dung.</p>
+        <a href="${doc.url}" target="_blank" class="btn-artistic btn-green-glow" style="margin-top:10px; text-decoration:none; display:inline-block;">📥 Tải Tệp Về Máy</a>
+      </div>
+    `;
+  }
+  openModal('preview-modal');
+}
+
+/* XÓA HỌC LIỆU */
+async function deleteDocument(id) {
+  if (!confirm('Bạn có chắc chắn muốn xóa học liệu này không?')) return;
+  try {
+    const res = await fetch(`/api/documents/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      loadDocumentsFromServer();
+    } else {
+      alert(data.message);
+    }
+  } catch (err) {
+    alert('Lỗi xóa tệp!');
+  }
+}
+
+/* CẬP NHẬT GIAO DIỆN TÀI KHOẢN */
+function updateAuthUI() {
+  const authContainer = document.getElementById('auth-buttons-container');
+  if (!authContainer) return;
+
+  if (currentUser) {
+    const roleBadge = currentUser.role === 'admin' ? '🔑 Admin' : (currentUser.role === 'teacher' ? '👨‍🏫 Giảng Viên' : '🎓 Sinh Viên');
+    authContainer.innerHTML = `
+      <span style="font-size:11px; color:var(--accent); font-weight:bold; margin-right:4px;">[${roleBadge}]</span>
+      <button onclick="handleLogout()" class="btn-artistic btn-secondary"><span class="icon-lg">🚪</span> Đăng Xuất (${escapeHtml(currentUser.fullname)})</button>
+    `;
+  } else {
+    authContainer.innerHTML = `
+      <button onclick="openModal('login-modal')" class="btn-artistic btn-blue"><span class="icon-lg">🔑</span> Đăng Nhập</button>
+      <button onclick="openModal('register-modal')" class="btn-artistic btn-secondary"><span class="icon-lg">📝</span> Đăng Ký</button>
+    `;
   }
 }
 
@@ -283,7 +331,7 @@ function handleLogout() {
   loadDocumentsFromServer();
 }
 
-/* SEARCH & FILTERS */
+/* TÌM KIẾM VÀ BỘ LỌC HỌC LIỆU */
 function handleSearch() {
   const kw = document.getElementById('search-input').value.toLowerCase().trim();
   const type = document.getElementById('search-type').value;
@@ -331,6 +379,7 @@ function resetFilters(e) {
   renderAllContent(documentsData);
 }
 
+/* XUẤT THỐNG KÊ RA FILE EXCEL */
 function exportStatsToExcel() {
   if (!window.XLSX) return alert('Đang tải thư viện Excel...');
   const dataToExport = documentsData.map(d => ({
@@ -350,7 +399,7 @@ function exportStatsToExcel() {
   XLSX.writeFile(wb, "EduShare_MTU_HocLieu.xlsx");
 }
 
-/* CHATBOT AI */
+/* NÂNG CẤP CHATBOT AI KHUNG CHÁT TRỰC TUYẾN */
 function toggleChatbot() {
   const win = document.getElementById('ai-chatbot-window');
   if (win) win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
@@ -389,11 +438,12 @@ async function sendChatMessage() {
 
     document.getElementById(typingId).innerHTML = `${escapeHtml(data.reply)} ${matchedHtml}`;
   } catch (err) {
-    document.getElementById(typingId).innerHTML = `🤖 EduShare AI đang xử lý!`;
+    document.getElementById(typingId).innerHTML = `🤖 EduShare AI sẵn sàng giải đáp cho bạn!`;
   }
   msgBox.scrollTop = msgBox.scrollHeight;
 }
 
+/* CÁC HÀM TIỆN ÍCH MODAL & NGUYÊN MẪU */
 function showSubmenuTab(tabId, el) {
   document.querySelectorAll('.submenu-item').forEach(i => i.classList.remove('active'));
   document.querySelectorAll('.submenu-panel').forEach(p => p.classList.remove('active'));
@@ -402,9 +452,15 @@ function showSubmenuTab(tabId, el) {
   if (panel) panel.classList.add('active');
 }
 
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function openModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'flex';
+}
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
 function switchModal(fromId, toId) { closeModal(fromId); openModal(toId); }
 function toggleMobileNav() { document.getElementById('main-nav-links').classList.toggle('show-mobile'); }
 function resetHomePage() { window.location.href = '/'; }
-function escapeHtml(str) { return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''; }
+function escapeHtml(str) { return str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''; }

@@ -23,7 +23,7 @@ Tác giả phát triển: Nguyễn Chí Vỹ (SĐT: 0862204069, Email: nguyenchi
 Địa chỉ trường MTU: Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long (SĐT: 0270 3 825 903, Email: dhxdmt@muce.edu.vn, Website: https://mtu.edu.vn).
 `;
 
-// CẤU HÌNH UPLOAD MULTI-FILE
+// CẤU HÌNH THƯ MỤC LƯU TỆP TẢI LÊN MULTI-FILE
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -51,7 +51,7 @@ function detectFileType(filename) {
   return 'TẬP TIN';
 }
 
-// DỮ LIỆU MẪU
+// CƠ SỞ DỮ LIỆU TẠM THỜI TRÊN BỘ NHỚ RAM
 let users = [
   { 
     id: '1', 
@@ -129,11 +129,11 @@ let documents = [
     comments: [
       { 
         id: 'c1', 
-        user: 'Sinh viên IT', 
-        text: 'Tài liệu rất hay và rõ ràng!', 
+        user: 'Sinh viên IT MTU', 
+        text: 'Tài liệu trình bày rất trực quan và chi tiết!', 
         date: '02/11/2026',
         replies: [
-          { id: 'r1', user: 'Nguyễn Chí Vỹ', text: 'Cảm ơn em! Chúc em học tốt môn này nhé.', date: '02/11/2026' }
+          { id: 'r1', user: 'Nguyễn Chí Vỹ', text: 'Cảm ơn em! Chúc em đạt kết quả cao môn này.', date: '02/11/2026' }
         ]
       }
     ],
@@ -171,22 +171,20 @@ let forumPosts = [
     role: 'admin',
     date: '04/11/2026',
     title: 'Chào mừng các bạn đến với Cộng đồng trao đổi học thuật MTU!',
-    content: 'Kênh kết nối thảo luận chuyên môn dành cho Sinh viên và Giảng viên MTU cùng chia sẻ tài nguyên và hỗ trợ giải bài tập, đồ án.',
+    content: 'Diễn đàn trao đổi học thuật dành cho Sinh viên & Giảng viên MTU cùng thảo luận chuyên môn, đồ án và đề thi các năm.',
     likes: 15,
     replies: [
-      { id: 'r1', user: 'Nguyenchivysinhvien', text: 'Cảm ơn admin Vỹ! Hệ thống EduShare hỗ trợ trao đổi rất thuận tiện!', date: '04/11/2026' }
+      { id: 'r1', user: 'Nguyenchivysinhvien', text: 'Giao diện rất mượt mà và dễ dùng admin ơi!', date: '04/11/2026' }
     ]
   }
 ];
 
-// DỮ LIỆU CHAT TRỰC TUYẾN & NHÓM CHAT
 let liveChatMessages = [
-  { id: 'm1', sender: 'Nguyễn Chí Vỹ', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU!', time: '10:00' }
+  { id: 'm1', sender: 'Nguyễn Chí Vỹ', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', time: '10:00' }
 ];
 
-let directMessages = {}; // key: "userId1_userId2"
 let chatGroups = [
-  { id: 'g1', name: 'Nhóm Nghiên Cứu Đồ Án IT', members: ['1', '2', '3'], messages: [{ sender: 'TS. Nguyễn Văn Giảng', text: 'Thầy đã đính kèm tài liệu tham khảo nhé.', time: '10:15' }] }
+  { id: 'g1', name: 'Nhóm Nghiên Cứu Đồ Án KTPM', members: ['1', '2', '3'], messages: [{ sender: 'TS. Nguyễn Văn Giảng', text: 'Thầy vừa upload tài liệu đồ án mẫu nhé.', time: '10:15' }] }
 ];
 
 /* API ENDPOINTS */
@@ -228,7 +226,7 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
   if (articleLink && articleLink.trim()) {
     const linkDoc = {
       id: String(Date.now() + 99),
-      title: `${title} [Liên kết báo khoa học]`,
+      title: `${title} [Bài báo nghiên cứu]`,
       type: 'LINK',
       category: category || 'Bài báo tiêu biểu',
       subject: subject || 'Nghiên cứu',
@@ -246,10 +244,10 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
     createdDocs.push(linkDoc);
   }
 
-  res.json({ success: true, message: `🎉 Đã tải lên thành công ${createdDocs.length} tài liệu!`, documents: createdDocs });
+  res.json({ success: true, message: `🎉 Đã đăng thành công ${createdDocs.length} học liệu mới!`, documents: createdDocs });
 });
 
-// THÍCH / KHÔNG THÍCH 2 CHIỀU & THU HỒI
+/* API THÍCH / KHÔNG THÍCH 2 CHIỀU */
 app.post('/api/documents/reaction-toggle', (req, res) => {
   const { docId, type, userId } = req.body;
   const doc = documents.find(d => d.id === docId);
@@ -257,7 +255,6 @@ app.post('/api/documents/reaction-toggle', (req, res) => {
 
   doc.likedUsers = doc.likedUsers || [];
   doc.dislikedUsers = doc.dislikedUsers || [];
-
   const uid = userId || 'guest';
 
   if (type === 'like') {
@@ -289,12 +286,12 @@ app.post('/api/documents/reaction-toggle', (req, res) => {
   res.json({ success: true, likes: doc.likes, dislikes: doc.dislikes, likedUsers: doc.likedUsers, dislikedUsers: doc.dislikedUsers });
 });
 
-// BÌNH LUẬN VÀ TRẢ LỜI ĐỐI ĐÁP MULTI-LEVEL
+/* API BÌNH LUẬN NỔI NÂNG CẤP */
 app.post('/api/documents/comment', (req, res) => {
   const { docId, user, text, parentCommentId } = req.body;
   const doc = documents.find(d => d.id === docId);
   if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy tài liệu' });
-  if (!text || !text.trim()) return res.status(400).json({ success: false, message: 'Nội dung không được để trống' });
+  if (!text || !text.trim()) return res.status(400).json({ success: false, message: 'Nội dung không được trống' });
 
   doc.comments = doc.comments || [];
 
@@ -334,7 +331,7 @@ app.get('/api/forum', (req, res) => res.json(forumPosts));
 
 app.post('/api/forum/create', (req, res) => {
   const { author, avatar, role, title, content } = req.body;
-  if (!title || !content) return res.status(400).json({ success: false, message: 'Vui lòng nhập tiêu đề và nội dung!' });
+  if (!title || !content) return res.status(400).json({ success: false, message: 'Nhập tiêu đề và nội dung!' });
 
   const newPost = {
     id: 'f_' + Date.now(),
@@ -345,20 +342,9 @@ app.post('/api/forum/create', (req, res) => {
     title, content, likes: 0, replies: []
   };
   forumPosts.unshift(newPost);
-  res.json({ success: true, message: '🎉 Đã đăng bài viết thảo luận!', post: newPost });
+  res.json({ success: true, message: '🎉 Đã đăng bài viết thảo luận thành công!', post: newPost });
 });
 
-app.post('/api/forum/reply', (req, res) => {
-  const { postId, user, text } = req.body;
-  const post = forumPosts.find(p => p.id === postId);
-  if (!post) return res.status(404).json({ success: false, message: 'Bài viết không tồn tại' });
-
-  const reply = { id: 'r_' + Date.now(), user: user || 'Thành viên MTU', text: text.trim(), date: new Date().toLocaleDateString('vi-VN') };
-  post.replies.push(reply);
-  res.json({ success: true, replies: post.replies });
-});
-
-/* API KÊNH CHAT & NHÓM CHAT */
 app.get('/api/chat/public', (req, res) => res.json(liveChatMessages));
 
 app.post('/api/chat/public/send', (req, res) => {
@@ -378,34 +364,10 @@ app.post('/api/chat/public/send', (req, res) => {
 
 app.get('/api/chat/groups', (req, res) => res.json(chatGroups));
 
-app.post('/api/chat/groups/create', (req, res) => {
-  const { name, creatorId, memberIds } = req.body;
-  if (!name) return res.status(400).json({ success: false, message: 'Nhập tên nhóm chat!' });
-
-  const newGroup = {
-    id: 'g_' + Date.now(),
-    name,
-    members: Array.from(new Set([creatorId, ...(memberIds || [])])),
-    messages: []
-  };
-  chatGroups.push(newGroup);
-  res.json({ success: true, group: newGroup });
-});
-
-app.post('/api/chat/groups/send', (req, res) => {
-  const { groupId, sender, text } = req.body;
-  const group = chatGroups.find(g => g.id === groupId);
-  if (!group) return res.status(404).json({ success: false });
-
-  const msg = { sender, text: text.trim(), time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) };
-  group.messages.push(msg);
-  res.json({ success: true, group });
-});
-
 app.post('/api/register', (req, res) => {
   const { username, emailPhone, password, confirmPassword, fullname, gender, dob, school, faculty, major, studentClass, address, role } = req.body;
-  if (!username || !emailPhone || !password) return res.status(400).json({ message: 'Vui lòng điền thông tin bắt buộc!' });
-  if (password !== confirmPassword) return res.status(400).json({ message: 'Mật khẩu xác nhận không khớp!' });
+  if (!username || !emailPhone || !password) return res.status(400).json({ message: 'Vui lòng điền các thông tin bắt buộc!' });
+  if (password !== confirmPassword) return res.status(400).json({ message: 'Mật khẩu xác nhận không trùng khớp!' });
 
   const newUser = {
     id: String(Date.now()), fullname: fullname || username, username, password, emailPhone,
@@ -422,91 +384,12 @@ app.post('/api/login', (req, res) => {
   const key = (username || '').trim().toLowerCase();
   const user = users.find(u => (u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key) && u.password === password);
   if (user) res.json({ success: true, message: 'Đăng nhập thành công!', user });
-  else res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không đúng!' });
-});
-
-app.post('/api/user/update-profile', (req, res) => {
-  const { id, fullname, gender, dob, emailPhone, address, oldPassword, newPassword, confirmNewPassword, avatar } = req.body;
-  const user = users.find(u => u.id === id);
-  if (!user) return res.status(404).json({ success: false, message: 'Không tìm thấy tài khoản!' });
-
-  if (newPassword && newPassword.trim()) {
-    if (user.password !== oldPassword) return res.status(400).json({ success: false, message: 'Mật khẩu cũ không chính xác!' });
-    if (newPassword !== confirmNewPassword) return res.status(400).json({ success: false, message: 'Xác nhận mật khẩu mới không khớp!' });
-    user.password = newPassword.trim();
-  }
-
-  user.fullname = fullname || user.fullname;
-  user.gender = gender || user.gender;
-  user.dob = dob || user.dob;
-  user.emailPhone = emailPhone || user.emailPhone;
-  user.address = address || user.address;
-  if (avatar) user.avatar = avatar;
-
-  res.json({ success: true, message: '🎉 Cập nhật hồ sơ cá nhân thành công!', user });
-});
-
-app.post('/api/forgot-password/request-otp', (req, res) => {
-  const { accountKey } = req.body;
-  const key = (accountKey || '').trim().toLowerCase();
-  if (!key) return res.status(400).json({ success: false, message: 'Vui lòng nhập Tên đăng nhập, Email hoặc SĐT!' });
-
-  let user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
-  if (!user) {
-    user = { fullname: accountKey, username: key, emailPhone: accountKey };
-    users.push({ ...user, id: String(Date.now()), password: '123', role: 'student', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${key}` });
-  }
-
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  otpStore[key] = { otp, expires: Date.now() + 5 * 60 * 1000 };
-
-  res.json({ success: true, message: `🎉 Mã OTP đã được gửi! (Mã thử nghiệm: ${otp})`, demoOtp: otp });
-});
-
-app.post('/api/forgot-password/verify-otp', (req, res) => {
-  const { accountKey, otp } = req.body;
-  const key = (accountKey || '').trim().toLowerCase();
-  const record = otpStore[key];
-  if (!record || Date.now() > record.expires) return res.status(400).json({ success: false, message: 'Mã xác nhận hết hạn!' });
-  if (record.otp !== (otp || '').trim()) return res.status(400).json({ success: false, message: 'Mã xác nhận sai!' });
-
-  res.json({ success: true, message: '✅ Xác thực OTP thành công!' });
-});
-
-app.post('/api/forgot-password/reset-password', (req, res) => {
-  const { accountKey, newPassword, confirmPassword } = req.body;
-  const key = (accountKey || '').trim().toLowerCase();
-  if (!newPassword || newPassword !== confirmPassword) return res.status(400).json({ success: false, message: 'Mật khẩu mới không trùng khớp!' });
-
-  const user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
-  if (user) user.password = newPassword;
-  delete otpStore[key];
-
-  res.json({ success: true, message: '🎉 Đổi mật khẩu thành công!' });
-});
-
-app.post('/api/auth/google', (req, res) => {
-  const user = {
-    id: 'g_' + Date.now(), fullname: 'Nguyễn Chí Vỹ (Google)', username: 'google_vy',
-    emailPhone: 'nguyenchivybt2006@gmail.com', role: 'student', gender: 'Nam',
-    school: 'MTU', faculty: 'IT', major: 'KTPM', studentClass: 'DH2024',
-    address: 'Vĩnh Long', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=GoogleVy', authProvider: 'google'
-  };
-  res.json({ success: true, message: '🎉 Đăng nhập Google thành công!', user });
-});
-
-app.post('/api/auth/facebook', (req, res) => {
-  const user = {
-    id: 'fb_' + Date.now(), fullname: 'Nguyễn Chí Vỹ (Facebook)', username: 'fb_vy',
-    emailPhone: '0862204069', role: 'student', gender: 'Nam', school: 'MTU', faculty: 'IT',
-    major: 'KTPM', studentClass: 'DH2024', address: 'Vĩnh Long', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=FbVy', authProvider: 'facebook'
-  };
-  res.json({ success: true, message: '🎉 Đăng nhập Facebook thành công!', user });
+  else res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
 });
 
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
-  if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập câu hỏi!' });
+  if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập nội dung câu hỏi!' });
 
   try {
     if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_API_KEY")) {
@@ -516,9 +399,29 @@ app.post('/api/chatbot', async (req, res) => {
     }
   } catch (err) {}
 
-  return res.json({ reply: `🤖 **EduShare AI**: Đã tiếp nhận câu hỏi "${message}". Thư viện MTU đang hỗ trợ tra cứu cho bạn!` });
+  return res.json({ reply: `🤖 **EduShare AI**: Đã tiếp nhận câu hỏi "${message}". Hệ thống đang sẵn sàng đồng hành cùng bạn!` });
 });
 
+/* ROUTE CỤ THỂ ĐỂ PHỤC VỤ SITEMAP.XML CHUẨN CHO GOOGLE SEARCH CONSOLE */
+app.get('/sitemap.xml', (req, res) => {
+  res.header('Content-Type', 'application/xml');
+  const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
+  if (fs.existsSync(sitemapPath)) {
+    res.sendFile(sitemapPath);
+  } else {
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://edushare-i0xh.onrender.com/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>`);
+  }
+});
+
+/* FALLBACK SPA ROUTE - PHẢI ĐẶT DƯỚI CÙNG */
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.listen(PORT, () => console.log(`🚀 EduShare Server đang chạy tại: http://localhost:${PORT}`));
