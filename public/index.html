@@ -20,7 +20,10 @@
 
     .header-bg { background: var(--header-bg); }
     .glass-modal { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); }
-    .scrollbar-none::-webkit-scrollbar { display: none; }
+    
+    /*Ẩn thanh cuộn nhưng vẫn cho phép lướt ngang mượt trên điện thoại*/
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
     .dropdown-content { display: none; position: absolute; top: 100%; left: 0; min-width: 210px; z-index: 50; }
     .dropdown-hover:hover .dropdown-content { display: block; }
@@ -28,11 +31,11 @@
 </head>
 <body id="appBody" class="theme-academic bg-slate-100 text-slate-800 font-sans min-h-full flex flex-col antialiased transition-colors duration-300">
 
-  <!-- HEADER CĂN CHỈNH TỐI ƯU - CHỐNG ĐÈ CHỒNG HOÀN TOÀN GIỮA SEARCH & AVATAR -->
+  <!-- HEADER LINH HOẠT CHO CẢ DESKTOP & MOBILE -->
   <header id="mainHeader" class="header-bg text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-2 sm:px-4 py-2 flex items-center justify-between gap-2">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
       
-      <!-- LOGO: MŨ TỐT NGHIỆP VÀ CHỒNG SÁCH -->
+      <!-- LOGO EDUSHARE -->
       <div class="flex items-center space-x-2 shrink-0">
         <div class="flex items-center space-x-2 cursor-pointer" onclick="goHome()">
           <div class="relative flex flex-col items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-amber-400 text-blue-950 rounded-xl shadow-md font-bold shrink-0">
@@ -44,20 +47,10 @@
             <p class="text-[9px] sm:text-[10px] text-amber-300 font-medium mt-0.5 hidden sm:block">Kho tài liệu tri thức - Thư viện học liệu MTU</p>
           </div>
         </div>
-
-        <div class="flex items-center space-x-1.5 lg:hidden ml-auto">
-          <span id="onlineBadgeMobile" class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            <span class="w-1.5 h-1.5 mr-1 bg-emerald-400 rounded-full animate-pulse"></span>Online
-          </span>
-          <button onclick="toggleMobileMenu()" class="p-1.5 text-blue-100 hover:text-white text-lg">
-            <i class="fa-solid fa-bars"></i>
-          </button>
-        </div>
       </div>
 
-      <!-- THANH MENU CENTRAL (CO GIÃN LINH HOẠT, KHÔNG LẤN SANG KHU VỰC TÀI KHOẢN) -->
+      <!-- THANH MENU CENTRAL TRÊN DESKTOP (CHUẨN HÌNH 2) -->
       <div class="hidden lg:flex items-center gap-1.5 text-xs xl:text-sm flex-1 min-w-0 justify-center">
-        
         <button onclick="goHome()" class="h-9 bg-white/10 hover:bg-white/20 text-white font-medium px-2.5 rounded-lg flex items-center space-x-1 shrink-0 transition">
           <i class="fa-solid fa-house"></i>
           <span>Trang chủ</span>
@@ -97,16 +90,15 @@
           <span>Cộng đồng</span>
         </button>
 
-        <!-- KHUNG TÌM KIẾM GIỚI HẠN CHIỀU RỘNG CHUẨN (MAX-W-[150PX] ĐẾN MAX-W-[210PX]) -->
-        <div class="relative w-full max-w-[150px] xl:max-w-[210px] shrink">
+        <div class="relative w-full max-w-[160px] xl:max-w-[210px] shrink">
           <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Tìm tài liệu..." class="w-full h-9 pl-7 pr-2 rounded-lg text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white shadow-inner truncate">
           <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
         </div>
       </div>
 
-      <!-- KHU VỰC TÀI KHOẢN GÓC PHẢI (CỐ ĐỊNH SHRINK-0, KHÔNG BỊ Ô TÌM KIẾM ĐÈ) -->
+      <!-- KHU VỰC TÀI KHOẢN DESKTOP -->
       <div class="hidden lg:flex items-center space-x-2 shrink-0">
-        <span id="onlineBadgeDesktop" class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
           <span class="w-1.5 h-1.5 mr-1 bg-emerald-400 rounded-full animate-pulse"></span>Online
         </span>
 
@@ -116,8 +108,8 @@
         </div>
 
         <div id="userNav" class="hidden flex items-center space-x-2 shrink-0">
-          <button onclick="openProfileModal()" class="font-semibold text-xs text-blue-100 flex items-center space-x-1.5 hover:opacity-90 shrink-0" id="userNameBtn">
-            <span id="userName" class="max-w-[90px] xl:max-w-[120px] truncate block">Nguyễn Chí Vỹ</span>
+          <button onclick="openProfileModal()" class="font-semibold text-xs text-blue-100 flex items-center space-x-1.5 hover:opacity-90 shrink-0">
+            <span id="userName" class="max-w-[100px] xl:max-w-[130px] truncate block">Nguyễn Chí Vỹ</span>
             <img id="headerAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen" alt="Avatar" class="w-8 h-8 rounded-full object-cover border-2 border-amber-400 shadow shrink-0">
             <span id="userBadge" class="bg-amber-400 text-blue-950 text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase shrink-0">QUẢN TRỊ</span>
           </button>
@@ -133,52 +125,107 @@
         </button>
       </div>
 
-    </div>
-
-    <!-- SYSTEM MENU SYSTEM DRAWER -->
-    <div id="systemMenuDrawer" class="hidden bg-slate-900 border-t border-slate-800 text-slate-200 px-4 py-4 shadow-xl">
-      <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-        <div>
-          <h4 class="font-bold text-amber-400 mb-2"><i class="fa-solid fa-user-gear mr-1"></i>Trạng Thái Hồ Sơ</h4>
-          <button onclick="openProfileModal()" class="w-full text-left bg-slate-800 hover:bg-slate-700 px-3 py-2 rounded text-slate-200 font-medium flex items-center justify-between mb-2">
-            <span><i class="fa-solid fa-id-card mr-1.5 text-blue-400"></i>Xem & Sửa Hồ Sơ Cá Nhân</span>
-            <i class="fa-solid fa-arrow-right text-[10px] text-slate-400"></i>
-          </button>
-          <div class="flex items-center justify-between bg-slate-800 px-3 py-1.5 rounded">
-            <span>Trạng thái hoạt động:</span>
-            <button onclick="toggleOnlineState()" id="statusToggleBtn" class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-500 text-white">Đang Hoạt Động</button>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="font-bold text-amber-400 mb-2"><i class="fa-solid fa-circle-half-stroke mr-1"></i>Chế Độ Sáng / Tối</h4>
-          <div class="flex space-x-2">
-            <button onclick="setDarkMode(false)" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded text-center font-medium">☀️ Sáng</button>
-            <button onclick="setDarkMode(true)" class="flex-1 bg-slate-800 hover:bg-slate-700 py-2 rounded text-center font-medium">🌙 Tối</button>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="font-bold text-amber-400 mb-2"><i class="fa-solid fa-palette mr-1"></i>Phong Cách Giao Diện</h4>
-          <select id="themeSelect" class="w-full bg-slate-800 border border-slate-700 rounded px-2.5 py-2 text-xs text-white mb-2">
-            <option value="theme-academic">Học Thuật (MTU Academic)</option>
-            <option value="theme-classic">Cổ Điển (Classic Navy)</option>
-            <option value="theme-modern">Hiện Đại (Modern Emerald)</option>
-          </select>
-          <button onclick="applySelectedTheme()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-1.5 rounded text-xs"><i class="fa-solid fa-check-double mr-1"></i>Áp dụng chủ đề ngay</button>
-        </div>
-
-        <div class="flex flex-col justify-end">
-          <button onclick="logout()" id="btnLogoutSystem" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded font-bold text-xs"><i class="fa-solid fa-right-from-bracket mr-1"></i>Đăng Xuất Tài Khoản</button>
-        </div>
+      <!-- NÚT ĐIỀU HƯỚNG TRÊN DỤNG CỤ DI ĐỘNG (MOBILE HAMBURGER) -->
+      <div class="flex items-center space-x-2 lg:hidden">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          <span class="w-1.5 h-1.5 mr-1 bg-emerald-400 rounded-full animate-pulse"></span>Online
+        </span>
+        <button onclick="toggleMobileDrawer()" class="p-2 text-white bg-white/10 rounded-lg text-lg hover:bg-white/20 transition focus:outline-none">
+          <i class="fa-solid fa-bars"></i>
+        </button>
       </div>
+
     </div>
   </header>
 
-  <!-- LỐI TẮT LỌC NGUYÊN BẢN VÀ THÊM LỐI TẮT MỚI HOẠT ĐỘNG CHUẨN -->
+  <!-- MENU DRAWER TRÊN ĐIỆN THOẠI (TOÀN BỘ CHỨC NĂNG TÌM KIẾM + DANH MỤC + TÀI KHOẢN) -->
+  <div id="mobileDrawerOverlay" onclick="toggleMobileDrawer()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden transition-opacity"></div>
+  <aside id="mobileDrawer" class="fixed top-0 right-0 w-[82vw] max-w-sm h-full bg-slate-900 text-slate-100 z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 bg-amber-400 text-blue-950 rounded-lg flex items-center justify-center font-bold">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <span class="font-bold text-amber-400 text-sm">Menu EduShare</span>
+      </div>
+      <button onclick="toggleMobileDrawer()" class="text-slate-400 hover:text-white p-1 text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="p-4 overflow-y-auto flex-1 space-y-4 text-xs">
+      
+      <!-- TIM KIEM MOBILE -->
+      <div class="relative">
+        <input type="text" id="mobileSearchInput" onkeyup="syncMobileSearch(this.value)" placeholder="Tìm kiếm học liệu..." class="w-full h-10 pl-9 pr-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      </div>
+
+      <!-- TRẠNG THÁI TÀI KHOẢN MOBILE -->
+      <div id="mobileUserBox" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-2">
+        <div class="flex items-center space-x-2.5">
+          <img id="mobileAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen" class="w-10 h-10 rounded-full border border-amber-400 object-cover">
+          <div>
+            <div id="mobileUserName" class="font-bold text-slate-100 text-sm">Nguyễn Chí Vỹ</div>
+            <span id="mobileUserBadge" class="bg-amber-400 text-blue-950 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">QUẢN TRỊ</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="toggleMobileDrawer(); openProfileModal();" class="bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded font-medium text-center">
+            <i class="fa-solid fa-id-card mr-1"></i>Hồ sơ
+          </button>
+          <button onclick="toggleMobileDrawer(); openUploadModal();" class="bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded font-bold text-center">
+            <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Tải lên
+          </button>
+        </div>
+      </div>
+
+      <!-- LIÊN KẾT NHANH -->
+      <div class="space-y-1 pt-1">
+        <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider mb-2">Chức Năng Chính</div>
+        <button onclick="toggleMobileDrawer(); goHome();" class="w-full text-left bg-slate-800/50 hover:bg-slate-800 p-2.5 rounded-lg flex items-center space-x-2 text-slate-200 font-semibold">
+          <i class="fa-solid fa-house text-blue-400 w-5"></i><span>Trang chủ</span>
+        </button>
+        <button onclick="toggleMobileDrawer(); switchMainTab('forum');" class="w-full text-left bg-slate-800/50 hover:bg-slate-800 p-2.5 rounded-lg flex items-center space-x-2 text-slate-200 font-semibold">
+          <i class="fa-solid fa-comments text-emerald-400 w-5"></i><span>Cộng đồng & Live Chat</span>
+        </button>
+      </div>
+
+      <!-- LỌC DANH MỤC MOBILE -->
+      <div class="space-y-1">
+        <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider mb-2">Danh Mục Học Liệu</div>
+        <button onclick="toggleMobileDrawer(); filterByCategory('Tài liệu bài giảng');" class="w-full text-left p-2 rounded hover:bg-slate-800 text-slate-300 flex items-center space-x-2">
+          <i class="fa-solid fa-file-powerpoint text-blue-400 w-5"></i><span>Bài giảng slide</span>
+        </button>
+        <button onclick="toggleMobileDrawer(); filterByCategory('Tài liệu bài thi');" class="w-full text-left p-2 rounded hover:bg-slate-800 text-slate-300 flex items-center space-x-2">
+          <i class="fa-solid fa-file-signature text-purple-400 w-5"></i><span>Đề thi các năm</span>
+        </button>
+        <button onclick="toggleMobileDrawer(); filterByCategory('Bài tập mẫu');" class="w-full text-left p-2 rounded hover:bg-slate-800 text-slate-300 flex items-center space-x-2">
+          <i class="fa-solid fa-pen-to-square text-emerald-400 w-5"></i><span>Bài tập mẫu & Đồ án</span>
+        </button>
+        <button onclick="toggleMobileDrawer(); filterByCategory('Học thuật');" class="w-full text-left p-2 rounded hover:bg-slate-800 text-slate-300 flex items-center space-x-2">
+          <i class="fa-solid fa-book-open text-amber-400 w-5"></i><span>Bài báo khoa học</span>
+        </button>
+      </div>
+
+      <!-- CHỦ ĐỀ & ĐĂNG XUẤT MOBILE -->
+      <div class="border-t border-slate-800 pt-3 space-y-2">
+        <div class="flex items-center justify-between">
+          <span>Giao diện tối (Dark mode):</span>
+          <button onclick="setDarkMode(!document.getElementById('appBody').classList.contains('dark-mode'))" class="px-2.5 py-1 bg-slate-800 rounded font-bold text-amber-400">Đổi</button>
+        </div>
+        <button onclick="logout()" class="w-full bg-red-600/80 hover:bg-red-600 text-white py-2 rounded-lg font-bold text-center mt-2">
+          <i class="fa-solid fa-right-from-bracket mr-1"></i>Đăng xuất
+        </button>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- THANH LỐI TẮT CUỘN NGANG HOÀN HẢO KHÔNG BỊ TRÀN CHỮ VÀ BỊ ÉP CHỮ -->
   <section class="bg-white dark:bg-slate-800 border-b shadow-sm py-2">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 flex items-center justify-between text-xs sm:text-sm">
-      <div id="shortcutContainer" class="flex items-center space-x-2 overflow-x-auto scrollbar-none py-1 pr-2">
+      <div id="shortcutContainer" class="flex items-center space-x-2 overflow-x-auto no-scrollbar whitespace-nowrap py-1 pr-2">
         <span class="text-slate-400 font-semibold shrink-0 flex items-center space-x-1">
           <i class="fa-solid fa-bolt text-amber-500"></i>
           <span>Lối tắt:</span>
@@ -188,35 +235,35 @@
         <button onclick="filterByCategory('Tài liệu bài thi')" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 font-medium px-3 py-1 rounded-full shrink-0">Đề thi mẫu</button>
         <button onclick="filterByCategory('Bài báo tiêu biểu')" class="bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 font-medium px-3 py-1 rounded-full shrink-0">Bài báo khoa học</button>
       </div>
-      <button onclick="addNewShortcut()" class="text-blue-600 hover:text-blue-800 font-bold shrink-0 ml-2 text-xs flex items-center space-x-1">
+      <button onclick="addNewShortcut()" class="text-blue-600 hover:text-blue-800 font-bold shrink-0 ml-2 text-xs flex items-center space-x-1 whitespace-nowrap">
         <i class="fa-solid fa-circle-plus"></i>
-        <span>+ Thêm lối tắt mới</span>
+        <span>+ Thêm lối tắt</span>
       </button>
     </div>
   </section>
 
-  <!-- NỘI DUNG CHÍNH -->
-  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-5 flex-1 w-full space-y-6">
+  <!-- NỘI DUNG CHÍNH (THÊM PB-24 ĐỂ NÚT CHATBOT NỔI KHÔNG BAO GIỜ CHE CHỮ KHI SCROLL) -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-5 flex-1 w-full space-y-6 pb-24">
 
-    <!-- HERO BANNER SỐNG ĐỘNG VỚI HÌNH ẢNH CŨ VÀ SLOGAN -->
-    <div class="banner-box bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-800">
+    <!-- HERO BANNER SỐNG ĐỘNG -->
+    <div class="banner-box bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-4 sm:p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-5 border border-blue-800">
       <div class="space-y-3 flex-1">
-        <div class="flex flex-wrap gap-2">
-          <span class="bg-amber-500 text-blue-950 text-xs font-bold px-3 py-1 rounded-full shadow">✨ "Tiếp nối tri thức - Vững bước tương lai!"</span>
-          <span class="bg-blue-800 text-blue-200 text-xs font-bold px-3 py-1 rounded-full shadow">📖 "Học đi đôi với Hành"</span>
+        <div class="flex flex-wrap gap-1.5 sm:gap-2">
+          <span class="bg-amber-500 text-blue-950 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-full shadow">✨ "Tiếp nối tri thức - Vững bước tương lai!"</span>
+          <span class="bg-blue-800 text-blue-200 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-full shadow">📖 "Học đi đôi với Hành"</span>
         </div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Kho Tài Liệu Tri Thức - Thư Viện Học Liệu MTU</h2>
+        <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight leading-snug">Kho Tài Liệu Tri Thức - Thư Viện Học Liệu MTU</h2>
         <p class="text-blue-200 text-xs sm:text-sm max-w-2xl leading-relaxed">Nền tảng tra cứu, chia sẻ giáo trình, slide bài giảng, đề thi và bài báo nghiên cứu chuẩn hóa dành cho Giảng viên & Sinh viên Trường Đại học Xây dựng Miền Tây.</p>
       </div>
 
       <div class="flex space-x-3 shrink-0">
         <div class="relative group">
-          <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=300&auto=format&fit=crop&q=80" alt="Thư viện số" class="w-28 h-28 sm:w-36 sm:h-36 object-cover rounded-xl shadow-md border-2 border-amber-400/50">
-          <span class="absolute bottom-1 left-1 right-1 bg-black/70 text-[10px] text-center text-amber-300 font-bold py-0.5 rounded">Thư viện số</span>
+          <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=300&auto=format&fit=crop&q=80" alt="Thư viện số" class="w-24 h-24 sm:w-36 sm:h-36 object-cover rounded-xl shadow-md border-2 border-amber-400/50">
+          <span class="absolute bottom-1 left-1 right-1 bg-black/70 text-[9px] sm:text-[10px] text-center text-amber-300 font-bold py-0.5 rounded">Thư viện số</span>
         </div>
         <div class="relative group">
-          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&auto=format&fit=crop&q=80" alt="Học liệu 24/7" class="w-28 h-28 sm:w-36 sm:h-36 object-cover rounded-xl shadow-md border-2 border-blue-400/50">
-          <span class="absolute bottom-1 left-1 right-1 bg-black/70 text-[10px] text-center text-blue-300 font-bold py-0.5 rounded">Học liệu 24/7</span>
+          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&auto=format&fit=crop&q=80" alt="Học liệu 24/7" class="w-24 h-24 sm:w-36 sm:h-36 object-cover rounded-xl shadow-md border-2 border-blue-400/50">
+          <span class="absolute bottom-1 left-1 right-1 bg-black/70 text-[9px] sm:text-[10px] text-center text-blue-300 font-bold py-0.5 rounded">Học liệu 24/7</span>
         </div>
       </div>
     </div>
@@ -224,26 +271,26 @@
     <!-- TRUY CẬP NHANH BÀI BÁO KHOA HỌC -->
     <section class="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-base sm:text-lg font-bold text-blue-900 dark:text-sky-400 flex items-center space-x-2">
+        <h2 class="text-sm sm:text-lg font-bold text-blue-900 dark:text-sky-400 flex items-center space-x-2">
           <i class="fa-solid fa-newspaper text-amber-500"></i>
           <span>Truy Cập Nhanh Bài Báo Khoa Học & Bài Tập Tiêu Biểu MTU</span>
         </h2>
-        <span class="text-[11px] text-slate-400">Năm 2026</span>
+        <span class="text-[11px] text-slate-400 shrink-0">Năm 2026</span>
       </div>
       <div id="quickArticleGrid" class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4"></div>
     </section>
 
-    <!-- TAB CHUYỂN ĐỔI: TẤT CẢ HỌC LIỆU / YÊU THÍCH / CỘNG ĐỒNG TRAO ĐỔI -->
-    <div class="flex border-b border-slate-200 dark:border-slate-700 space-x-4 text-xs sm:text-sm font-bold">
-      <button id="tabDocsBtn" onclick="switchMainTab('docs')" class="py-2.5 px-3 border-b-2 border-blue-600 text-blue-600 flex items-center space-x-2">
+    <!-- TAB CHUYỂN ĐỔI CUỘN NGANG TRÊN MOBILE CHỐNG TRÀN -->
+    <div class="flex border-b border-slate-200 dark:border-slate-700 space-x-2 sm:space-x-4 text-xs sm:text-sm font-bold overflow-x-auto no-scrollbar whitespace-nowrap pb-1">
+      <button id="tabDocsBtn" onclick="switchMainTab('docs')" class="py-2 px-3 border-b-2 border-blue-600 text-blue-600 flex items-center space-x-1.5 shrink-0">
         <i class="fa-solid fa-folder-open"></i>
         <span>Tất Cả Học Liệu</span>
       </button>
-      <button id="tabFavsBtn" onclick="switchMainTab('favs')" class="py-2.5 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2">
+      <button id="tabFavsBtn" onclick="switchMainTab('favs')" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5 shrink-0">
         <i class="fa-solid fa-star text-amber-500"></i>
         <span>Mục Yêu Thích (<span id="favCount">0</span>)</span>
       </button>
-      <button id="tabForumBtn" onclick="switchMainTab('forum')" class="py-2.5 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2">
+      <button id="tabForumBtn" onclick="switchMainTab('forum')" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5 shrink-0">
         <i class="fa-solid fa-comments text-emerald-500"></i>
         <span>Cộng Đồng & Kênh Chat</span>
       </button>
@@ -251,35 +298,35 @@
 
     <!-- SECTION HỌC LIỆU -->
     <section id="docsSection">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
           <i class="fa-solid fa-book-reader text-blue-600"></i>
           <span id="docSectionTitle">Danh Sách Học Liệu Khoa Học</span>
         </h3>
         <div class="flex items-center space-x-2">
-          <select id="facultyFilter" onchange="renderDocuments()" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 focus:outline-none">
+          <select id="facultyFilter" onchange="renderDocuments()" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 focus:outline-none">
             <option value="ALL">Tất cả Khoa đào tạo</option>
             <option value="Công nghệ thông tin">Công nghệ thông tin</option>
             <option value="Xây dựng">Kỹ thuật Xây dựng</option>
           </select>
-          <span id="docCount" class="text-xs font-bold text-slate-500 dark:text-slate-400"></span>
+          <span id="docCount" class="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0"></span>
         </div>
       </div>
       <div id="documentGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
-    <!-- SECTION CỘNG ĐỒNG & CHAT TRỰC TUYẾN / TẠO NHÓM CHAT -->
+    <!-- SECTION CỘNG ĐỒNG & CHAT TRỰC TUYẾN -->
     <section id="forumSection" class="hidden space-y-6">
       
       <!-- SUB-TAB CỘNG ĐỒNG -->
-      <div class="flex space-x-3 text-xs font-bold border-b border-slate-200 dark:border-slate-700 pb-2">
-        <button onclick="switchCommunitySubTab('posts')" id="subTabPosts" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1">
+      <div class="flex space-x-2 text-xs font-bold border-b border-slate-200 dark:border-slate-700 pb-2 overflow-x-auto no-scrollbar">
+        <button onclick="switchCommunitySubTab('posts')" id="subTabPosts" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1 shrink-0">
           <i class="fa-solid fa-newspaper"></i> <span>Bài Viết Thảo Luận</span>
         </button>
-        <button onclick="switchCommunitySubTab('livechat')" id="subTabLiveChat" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-1">
+        <button onclick="switchCommunitySubTab('livechat')" id="subTabLiveChat" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-1 shrink-0">
           <i class="fa-solid fa-comments"></i> <span>Kênh Chat Trực Tuyến</span>
         </button>
-        <button onclick="switchCommunitySubTab('groups')" id="subTabGroups" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-1">
+        <button onclick="switchCommunitySubTab('groups')" id="subTabGroups" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-1 shrink-0">
           <i class="fa-solid fa-users"></i> <span>Nhóm Chat & Nhắn Tin Riêng</span>
         </button>
       </div>
@@ -293,7 +340,7 @@
           </h3>
           <div class="space-y-3">
             <input type="text" id="forumPostTitle" placeholder="Tiêu đề thảo luận (Ví dụ: Tìm nhóm làm đồ án phần mềm...)" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <textarea id="forumPostContent" rows="3" placeholder="Chi tiết thắc mắc cần giải đáp hoặc kết nối giữa Sinh viên - Giảng viên..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            <textarea id="forumPostContent" rows="3" placeholder="Chi tiết thắc mắc cần giải đáp..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             <div class="flex justify-end">
               <button onclick="createForumPost()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center space-x-1 shadow">
                 <i class="fa-solid fa-paper-plane"></i>
@@ -305,15 +352,15 @@
         <div id="forumList" class="space-y-3"></div>
       </div>
 
-      <!-- SUB-VIEW 2: KÊNH CHAT TRỰC TUYẾN PHÒNG CHUNG -->
+      <!-- SUB-VIEW 2: KÊNH CHAT TRỰC TUYẾN -->
       <div id="commSubLiveChat" class="hidden bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 flex flex-col h-[480px]">
-        <div class="p-3 bg-blue-900 text-white rounded-t-xl font-bold text-sm flex items-center justify-between">
+        <div class="p-3 bg-blue-900 text-white rounded-t-xl font-bold text-xs sm:text-sm flex items-center justify-between">
           <span class="flex items-center space-x-2"><i class="fa-solid fa-comments text-amber-400"></i><span>Kênh Chat Trực Tuyến Phòng Chung MTU</span></span>
-          <span class="text-xs font-normal text-blue-200">Thời gian thực 24/7</span>
+          <span class="text-[10px] text-blue-200">24/7</span>
         </div>
-        <div id="liveChatMessagesBox" class="flex-1 p-4 overflow-y-auto space-y-3 text-xs sm:text-sm"></div>
-        <div class="p-3 border-t border-slate-200 dark:border-slate-700 flex space-x-2">
-          <input type="text" id="liveChatInput" onkeypress="if(event.key==='Enter') sendLiveChatMessage()" placeholder="Nhập tin nhắn nhắn chung..." class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm">
+        <div id="liveChatMessagesBox" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs sm:text-sm"></div>
+        <div class="p-2.5 border-t border-slate-200 dark:border-slate-700 flex space-x-2">
+          <input type="text" id="liveChatInput" onkeypress="if(event.key==='Enter') sendLiveChatMessage()" placeholder="Nhập tin nhắn..." class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm">
           <button onclick="sendLiveChatMessage()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-lg text-xs">Gửi</button>
         </div>
       </div>
@@ -322,13 +369,13 @@
       <div id="commSubGroups" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
           <div class="flex items-center justify-between">
-            <h4 class="font-bold text-sm text-blue-900 dark:text-sky-400"><i class="fa-solid fa-users mr-1"></i>Nhóm & Chat Riêng</h4>
+            <h4 class="font-bold text-sm text-blue-900 dark:text-sky-400"><i class="fa-solid fa-users mr-1"></i>Nhóm Chat</h4>
             <button onclick="openCreateGroupModal()" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-xs font-bold">+ Tạo Nhóm</button>
           </div>
           <div id="groupListContainer" class="space-y-2 text-xs"></div>
         </div>
 
-        <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col h-[420px]">
+        <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col h-[400px]">
           <div class="p-3 bg-slate-800 text-white font-bold text-xs rounded-t-xl" id="groupChatTitle">
             Chọn một nhóm hoặc người dùng để trao đổi riêng
           </div>
@@ -344,18 +391,18 @@
 
   </main>
 
-  <!-- CHATBOT AI -->
-  <div class="fixed bottom-4 right-4 z-50">
-    <button onclick="toggleChatbot()" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl flex items-center justify-center text-xl sm:text-2xl transition transform hover:scale-105">
+  <!-- CHATBOT AI CHUẨN Z-INDEX VÀ VỊ TRÍ NỔI -->
+  <div class="fixed bottom-4 right-4 z-40">
+    <button onclick="toggleChatbot()" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl flex items-center justify-center text-xl sm:text-2xl transition transform hover:scale-105 border-2 border-white/20">
       <i class="fa-solid fa-robot"></i>
     </button>
   </div>
 
-  <div id="chatbotDrawer" class="fixed bottom-20 right-4 w-96 max-w-[92vw] h-[480px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col z-50 hidden">
+  <div id="chatbotDrawer" class="fixed bottom-20 right-4 w-96 max-w-[90vw] h-[460px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col z-50 hidden">
     <div class="bg-blue-900 text-white p-3.5 rounded-t-2xl flex items-center justify-between">
       <div class="flex items-center space-x-2">
-        <i class="fa-solid fa-brain text-amber-400 text-lg"></i>
-        <span class="font-bold text-sm">EduShare AI Cố Vấn MTU</span>
+        <i class="fa-solid fa-brain text-amber-400 text-base sm:text-lg"></i>
+        <span class="font-bold text-xs sm:text-sm">EduShare AI Cố Vấn MTU</span>
       </div>
       <button onclick="toggleChatbot()" class="text-blue-200 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
     </div>
@@ -383,7 +430,7 @@
         <p><strong class="text-slate-200">Email:</strong> <a href="mailto:nguyenchivybt2006@gmail.com" class="text-blue-400 underline">nguyenchivybt2006@gmail.com</a></p>
         <p><strong class="text-slate-200">Địa chỉ:</strong> Số nhà 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long</p>
         
-        <div class="flex items-center space-x-3 pt-2">
+        <div class="flex flex-wrap gap-2 pt-2">
           <a href="https://www.facebook.com/profile.php?id=61578961204573" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 font-semibold flex items-center space-x-1">
             <i class="fa-brands fa-facebook"></i> <span>Facebook Tác giả</span>
           </a>
@@ -403,7 +450,7 @@
         <p><strong class="text-slate-200">Email trường:</strong> <a href="mailto:dhxdmt@muce.edu.vn" class="text-blue-400 underline">dhxdmt@muce.edu.vn</a></p>
         <p><strong class="text-slate-200">Trang Web:</strong> <a href="https://mtu.edu.vn" target="_blank" class="text-blue-400 underline">https://mtu.edu.vn</a></p>
 
-        <div class="flex items-center space-x-3 pt-2">
+        <div class="flex flex-wrap gap-2 pt-2">
           <a href="https://www.facebook.com/mtu.edu.vn" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 font-semibold flex items-center space-x-1">
             <i class="fa-brands fa-facebook"></i> <span>Facebook Trường</span>
           </a>
@@ -431,7 +478,7 @@
     </div>
   </div>
 
-  <!-- MODAL BÌNH LUẬN & ĐỐI ĐÁP MULTI-LEVEL -->
+  <!-- MODAL BÌNH LUẬN & ĐỐI ĐÁP -->
   <div id="commentModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
     <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 shadow-2xl relative border border-slate-700 flex flex-col max-h-[85vh]">
       <button onclick="closeCommentModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -458,7 +505,7 @@
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG NHẬP / ĐĂNG KÝ / QUÊN MẬT KHẨU / HỒ SƠ / TẢI LÊN -->
+  <!-- MODAL ĐĂNG NHẬP / ĐĂNG KÝ -->
   <div id="loginModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
     <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 shadow-2xl relative border border-slate-700">
       <button onclick="closeLoginModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -483,7 +530,7 @@
     </div>
   </div>
 
-  <!-- MODAL HỒ SƠ VỚI UPLOAD ẢNH TỪ MÁY TÍNH LOCAL FILE -->
+  <!-- MODAL HỒ SƠ -->
   <div id="profileModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
     <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 shadow-2xl relative border border-slate-700 max-h-[92vh] overflow-y-auto">
       <button onclick="closeProfileModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -545,6 +592,25 @@
       fetchGroups();
     };
 
+    function toggleMobileDrawer() {
+      const drawer = document.getElementById('mobileDrawer');
+      const overlay = document.getElementById('mobileDrawerOverlay');
+      const isHidden = drawer.classList.contains('translate-x-full');
+
+      if (isHidden) {
+        drawer.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        drawer.classList.add('translate-x-full');
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function syncMobileSearch(val) {
+      document.getElementById('searchInput').value = val;
+      renderDocuments();
+    }
+
     function loadSavedTheme() {
       const savedTheme = localStorage.getItem('edushare_theme') || 'theme-academic';
       const savedDark = localStorage.getItem('edushare_darkmode') === 'true';
@@ -552,7 +618,6 @@
       const body = document.getElementById('appBody');
       body.classList.remove('theme-academic', 'theme-classic', 'theme-modern');
       body.classList.add(savedTheme);
-      document.getElementById('themeSelect').value = savedTheme;
 
       if (savedDark) setDarkMode(true, false);
       else setDarkMode(false, false);
@@ -578,10 +643,16 @@
         document.getElementById('userNav').classList.remove('hidden');
         document.getElementById('userName').innerText = currentUser.fullname;
         document.getElementById('headerAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
+        
+        // Cập nhật giao diện Mobile Drawer
+        document.getElementById('mobileUserName').innerText = currentUser.fullname;
+        document.getElementById('mobileAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
+        
         const badge = document.getElementById('userBadge');
-        if (currentUser.role === 'admin') badge.innerText = 'QUẢN TRỊ';
-        else if (currentUser.role === 'teacher') badge.innerText = 'GIẢNG VIÊN';
-        else badge.innerText = 'SINH VIÊN';
+        const mBadge = document.getElementById('mobileUserBadge');
+        if (currentUser.role === 'admin') { badge.innerText = 'QUẢN TRỊ'; mBadge.innerText = 'QUẢN TRỊ'; }
+        else if (currentUser.role === 'teacher') { badge.innerText = 'GIẢNG VIÊN'; mBadge.innerText = 'GIẢNG VIÊN'; }
+        else { badge.innerText = 'SINH VIÊN'; mBadge.innerText = 'SINH VIÊN'; }
       } else {
         document.getElementById('guestNav').classList.remove('hidden');
         document.getElementById('userNav').classList.add('hidden');
@@ -610,9 +681,9 @@
       const docsSec = document.getElementById('docsSection');
       const forumSec = document.getElementById('forumSection');
 
-      document.getElementById('tabDocsBtn').className = "py-2.5 px-3 border-b-2 " + (tab === 'docs' ? "border-blue-600 text-blue-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
-      document.getElementById('tabFavsBtn').className = "py-2.5 px-3 border-b-2 " + (tab === 'favs' ? "border-amber-500 text-amber-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
-      document.getElementById('tabForumBtn').className = "py-2.5 px-3 border-b-2 " + (tab === 'forum' ? "border-emerald-500 text-emerald-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
+      document.getElementById('tabDocsBtn').className = "py-2 px-3 border-b-2 shrink-0 flex items-center space-x-1.5 " + (tab === 'docs' ? "border-blue-600 text-blue-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
+      document.getElementById('tabFavsBtn').className = "py-2 px-3 border-b-2 shrink-0 flex items-center space-x-1.5 " + (tab === 'favs' ? "border-amber-500 text-amber-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
+      document.getElementById('tabForumBtn').className = "py-2 px-3 border-b-2 shrink-0 flex items-center space-x-1.5 " + (tab === 'forum' ? "border-emerald-500 text-emerald-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
 
       if (tab === 'forum') {
         docsSec.classList.add('hidden');
@@ -631,12 +702,11 @@
       document.getElementById('commSubLiveChat').classList.toggle('hidden', sub !== 'livechat');
       document.getElementById('commSubGroups').classList.toggle('hidden', sub !== 'groups');
 
-      document.getElementById('subTabPosts').className = sub === 'posts' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg";
-      document.getElementById('subTabLiveChat').className = sub === 'livechat' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg";
-      document.getElementById('subTabGroups').className = sub === 'groups' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg";
+      document.getElementById('subTabPosts').className = sub === 'posts' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
+      document.getElementById('subTabLiveChat').className = sub === 'livechat' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
+      document.getElementById('subTabGroups').className = sub === 'groups' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
     }
 
-    /* RENDER TÀI LIỆU VỚI NÚT XEM & TẢI XUỐNG TÁCH BIỆT */
     function renderDocuments() {
       const grid = document.getElementById('documentGrid');
       const searchVal = document.getElementById('searchInput').value.toLowerCase();
@@ -703,7 +773,6 @@
                 ${canDelete ? `<button onclick="deleteDoc('${doc.id}')" class="text-red-500 hover:text-red-700 text-xs font-semibold"><i class="fa-solid fa-trash"></i></button>` : ''}
               </div>
 
-              <!-- TÁCH NÚT XEM VÀ TẢI XUỐNG KHI TƯƠNG TÁC -->
               <div class="grid grid-cols-2 gap-2 pt-1">
                 <button onclick="viewDocDirectly('${doc.url}', '${doc.title}')" class="bg-sky-600 hover:bg-sky-700 text-white py-1.5 rounded-lg text-xs font-bold flex items-center justify-center space-x-1 shadow">
                   <i class="fa-solid fa-eye"></i> <span>Xem</span>
@@ -832,7 +901,6 @@
       } catch (err) {}
     }
 
-    /* KÊNH CHAT & NHÓM CHAT LOGIC */
     async function fetchLiveChat() {
       try {
         const res = await fetch('/api/chat/public');
@@ -985,18 +1053,6 @@
       localStorage.setItem('edushare_darkmode', isDark ? 'true' : 'false');
       if (showAlert) alert(isDark ? "🌙 Chế độ Tối đã bật!" : "☀️ Chế độ Sáng đã bật!");
     }
-
-    function applySelectedTheme() {
-      const selected = document.getElementById('themeSelect').value;
-      const body = document.getElementById('appBody');
-      body.classList.remove('theme-academic', 'theme-classic', 'theme-modern');
-      body.classList.add(selected);
-      localStorage.setItem('edushare_theme', selected);
-      alert("🎨 Đã áp dụng giao diện chủ đề mới thành công!");
-    }
-
-    function toggleSystemMenu() { document.getElementById('systemMenuDrawer').classList.toggle('hidden'); }
-    function toggleMobileMenu() { toggleSystemMenu(); }
 
     function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
     function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
