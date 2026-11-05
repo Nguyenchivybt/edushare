@@ -1,1288 +1,812 @@
 <!DOCTYPE html>
-<html lang="vi" class="h-full">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  <!-- SEO Tiêu đề và Mô tả -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EduShare - Kho Tài Liệu Tri Thức & Thư Viện Học Liệu MTU</title>
-  <meta name="description" content="Nền tảng tra cứu, chia sẻ giáo trình, slide bài giảng, đề thi mẫu và bài báo nghiên cứu khoa học dành cho Giảng viên & Sinh viên MTU.">
-  <meta name="keywords" content="EduShare, học liệu MTU, đề thi MTU, bài giảng MTU, tài liệu xây dựng miền tây">
-  <meta name="robots" content="index, follow">
+  <meta name="description" content="EduShare MTU - Hệ thống chia sẻ tài liệu, bài giảng, đề thi và bài báo khoa học dành cho Sinh viên và Giảng viên Trường Đại học Xây dựng Miền Tây." />
+  <meta name="google-site-verification" content="google97dd2e553bbbb9ae" />
+  
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="EduShare - Kho Tài Liệu Tri Thức & Thư Viện Học Liệu MTU" />
+  <meta property="og:description" content="Hệ thống học liệu số, trao đổi học thuật và hỗ trợ học tập trực tuyến MTU." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://edushare-i0xh.onrender.com/" />
 
-  <!-- Thẻ Open Graph chia sẻ lên Facebook/Zalo -->
-  <meta property="og:title" content="EduShare - Kho Tài Liệu Tri Thức MTU">
-  <meta property="og:description" content="Nền tảng tra cứu học liệu số dành cho sinh viên và giảng viên.">
-  <meta property="og:type" content="website">
-
+  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- SheetJS for Excel Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
-    body.theme-default { --header-bg: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
-    body.theme-academic { --header-bg: linear-gradient(135deg, #0284c7 0%, #1e3a8a 100%); }
-    body.theme-classic { --header-bg: linear-gradient(135deg, #334155 0%, #1e293b 100%); }
-    body.theme-modern { --header-bg: linear-gradient(135deg, #059669 0%, #064e3b 100%); }
-
-    body.dark-mode { background-color: #0f172a !important; color: #f8fafc !important; }
-    body.dark-mode .doc-card { background-color: #1e293b !important; color: #f8fafc !important; border-color: #334155 !important; }
-    body.dark-mode .doc-card h4 { color: #38bdf8 !important; }
-    body.dark-mode .doc-card p { color: #cbd5e1 !important; }
-    body.dark-mode .doc-card-footer { border-color: #334155 !important; }
-    body.dark-mode .banner-box { background: linear-gradient(to right, #0f172a, #1e293b, #0f172a) !important; border-color: #334155 !important; }
-
-    .header-bg { background: var(--header-bg); }
-    .glass-modal { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); }
-    
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    .dropdown-content { display: none; position: absolute; top: 100%; left: 0; min-width: 210px; z-index: 50; }
-    .dropdown-hover:hover .dropdown-content { display: block; }
+    :root {
+      --bg-main: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #3b82f6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    body {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    .glass-modal {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+    }
+    .btn-artistic {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease-in-out;
+      cursor: pointer;
+    }
+    .btn-blue {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
+    .btn-blue:hover {
+      background-color: #1d4ed8;
+    }
+    .btn-secondary {
+      background-color: #334155;
+      color: #f8fafc;
+    }
+    .btn-secondary:hover {
+      background-color: #475569;
+    }
+    .btn-green-glow {
+      background-color: #10b981;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    }
+    .btn-green-glow:hover {
+      background-color: #059669;
+    }
+    .btn-warning {
+      background-color: #ef4444;
+      color: #ffffff;
+    }
+    .btn-warning:hover {
+      background-color: #dc2626;
+    }
+    .doc-card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.75rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .doc-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+    .doc-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .tab-btn.active {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
+    .tab-panel {
+      display: none;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1e293b;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 3px;
+    }
   </style>
 </head>
-<body id="appBody" class="theme-academic bg-slate-100 text-slate-800 font-sans min-h-full flex flex-col antialiased transition-colors duration-300">
+<body class="min-h-screen flex flex-col">
 
-  <!-- HEADER LINH HOẠT TRÊN MÁY TÍNH & ĐIỆN THOẠI -->
-  <header id="mainHeader" class="header-bg text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
+  <!-- HEADER & NAVIGATION -->
+  <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       
-      <!-- LOGO EDUSHARE -->
-      <div class="flex items-center space-x-2 shrink-0">
-        <div class="flex items-center space-x-2 cursor-pointer" onclick="goHome()">
-          <div class="relative flex flex-col items-center justify-center w-9 h-9 sm:w-10 sm:h-10 bg-amber-400 text-blue-950 rounded-xl shadow-md font-bold shrink-0">
-            <i class="fa-solid fa-graduation-cap text-sm sm:text-base text-blue-950"></i>
-            <i class="fa-solid fa-book text-[9px] sm:text-[10px] text-blue-900 -mt-0.5"></i>
-          </div>
-          <div>
-            <h1 class="text-base sm:text-lg font-bold tracking-tight leading-none text-white">EduShare</h1>
-            <p class="text-[9px] sm:text-[10px] text-amber-300 font-medium mt-0.5 hidden sm:block">Kho tài liệu tri thức - Thư viện học liệu MTU</p>
-          </div>
+      <!-- Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="resetHomePage()">
+        <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center text-slate-900 text-xl font-extrabold shadow-lg">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white tracking-wide">EduShare</h1>
+          <p class="text-[10px] text-slate-400">Thư Viện Học Liệu Số MTU</p>
         </div>
       </div>
 
-      <!-- MENU NGUYÊN BẢN MÁY TÍNH -->
-      <div class="hidden lg:flex items-center gap-1.5 text-xs xl:text-sm flex-1 min-w-0 justify-center">
-        <button onclick="goHome()" class="h-9 bg-white/10 hover:bg-white/20 text-white font-medium px-2.5 rounded-lg flex items-center space-x-1 shrink-0 transition">
-          <i class="fa-solid fa-house"></i>
-          <span>Trang chủ</span>
+      <!-- Desktop Nav Tabs -->
+      <nav id="main-nav-links" class="hidden md:flex items-center space-x-1 text-xs">
+        <button onclick="switchTab('tab-all-docs', this)" class="tab-btn active px-3 py-2 rounded-lg font-semibold text-slate-300 hover:bg-slate-800 transition">
+          <i class="fa-solid fa-folder-open mr-1.5"></i>Tất Cả Học Liệu
+        </button>
+        <button onclick="switchTab('tab-community', this)" class="tab-btn px-3 py-2 rounded-lg font-semibold text-slate-300 hover:bg-slate-800 transition">
+          <i class="fa-solid fa-comments mr-1.5"></i>Cộng Đồng & Diễn Đàn
+        </button>
+        <button onclick="switchTab('tab-live-chat', this)" class="tab-btn px-3 py-2 rounded-lg font-semibold text-slate-300 hover:bg-slate-800 transition">
+          <i class="fa-solid fa-message mr-1.5"></i>Kênh Chat Trực Tuyến
+        </button>
+        <button onclick="switchTab('tab-group-chat', this)" class="tab-btn px-3 py-2 rounded-lg font-semibold text-slate-300 hover:bg-slate-800 transition">
+          <i class="fa-solid fa-users-gear mr-1.5"></i>Nhóm Chat & Nhắn Tin Riêng
+        </button>
+      </nav>
+
+      <!-- Auth Controls & Upload -->
+      <div class="flex items-center space-x-2">
+        <button onclick="openUploadCheck()" class="btn-artistic btn-green-glow text-xs px-3 py-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span class="hidden sm:inline">Tải Liệu Mới</span>
         </button>
 
-        <div class="relative dropdown-hover shrink-0">
-          <button class="h-9 bg-white/10 hover:bg-white/20 text-white font-medium px-2.5 rounded-lg flex items-center space-x-1 transition">
-            <i class="fa-solid fa-sitemap text-amber-300"></i>
-            <span>Đơn vị đào tạo</span>
-            <i class="fa-solid fa-chevron-down text-[9px] ml-0.5"></i>
-          </button>
-          <div class="dropdown-content bg-slate-900 text-slate-200 rounded-xl shadow-xl border border-slate-700 py-2 mt-1">
-            <a href="#" onclick="filterByCategory('Phòng ban')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-building mr-2 text-blue-400"></i>Phòng ban</a>
-            <a href="#" onclick="filterByCategory('Khoa')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-graduation-cap mr-2 text-emerald-400"></i>Khoa / Bộ môn</a>
-            <a href="#" onclick="filterByCategory('Ngành')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-laptop-code mr-2 text-purple-400"></i>Ngành học</a>
-            <a href="#" onclick="filterByCategory('Khóa')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-layer-group mr-2 text-amber-400"></i>Khóa đào tạo</a>
-            <a href="#" onclick="filterByCategory('Lớp')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-user-group mr-2 text-cyan-400"></i>Lớp học phần</a>
-          </div>
+        <div id="auth-buttons-container" class="flex items-center space-x-1 text-xs">
+          <!-- Populated dynamically via JS -->
         </div>
 
-        <div class="relative dropdown-hover shrink-0">
-          <button class="h-9 bg-white/10 hover:bg-white/20 text-white font-medium px-2.5 rounded-lg flex items-center space-x-1 transition">
-            <i class="fa-solid fa-book-bookmark text-amber-300"></i>
-            <span>Danh mục Tài liệu</span>
-            <i class="fa-solid fa-chevron-down text-[9px] ml-0.5"></i>
-          </button>
-          <div class="dropdown-content bg-slate-900 text-slate-200 rounded-xl shadow-xl border border-slate-700 py-2 mt-1">
-            <a href="#" onclick="filterByCategory('Học thuật')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-book-open mr-2 text-amber-400"></i>Nghiên cứu Học thuật</a>
-            <a href="#" onclick="filterByCategory('Tài liệu bài giảng')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-file-powerpoint mr-2 text-blue-400"></i>Tài liệu Bài giảng</a>
-            <a href="#" onclick="filterByCategory('Bài tập mẫu')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-pen-to-square mr-2 text-emerald-400"></i>Bài tập mẫu / Đồ án</a>
-            <a href="#" onclick="filterByCategory('Tài liệu bài thi')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-file-signature mr-2 text-purple-400"></i>Đề thi các năm</a>
-          </div>
-        </div>
-
-        <button onclick="switchMainTab('forum')" class="h-9 bg-emerald-600/90 hover:bg-emerald-600 text-white font-medium px-2.5 rounded-lg flex items-center space-x-1 shrink-0 transition">
-          <i class="fa-solid fa-comments text-emerald-300"></i>
-          <span>Cộng đồng</span>
-        </button>
-
-        <!-- THANH TÌM KIẾM CÓ GỢI Ý TỰ ĐỘNG THÔNG MINH (AUTO-COMPLETE SUGGESTIONS) -->
-        <div class="relative w-full max-w-[170px] xl:max-w-[220px] shrink">
-          <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" placeholder="Tìm tài liệu, bài báo..." class="w-full h-9 pl-7 pr-2 rounded-lg text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white shadow-inner truncate" autocomplete="off">
-          <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <!-- KHUNG GỢI Ý TÌM KIẾM -->
-          <div id="searchSuggestionsBox" class="hidden absolute top-10 left-0 right-0 bg-slate-900 border border-slate-700 text-white rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto text-xs py-1"></div>
-        </div>
-      </div>
-
-      <!-- KHU VỰC TÀI KHOẢN MÁY TÍNH -->
-      <div class="hidden lg:flex items-center space-x-2 shrink-0">
-        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
-          <span class="w-1.5 h-1.5 mr-1 bg-emerald-400 rounded-full animate-pulse"></span>Online
-        </span>
-
-        <div id="guestNav" class="flex space-x-1 shrink-0">
-          <button onclick="openLoginModal()" class="h-9 bg-amber-500 hover:bg-amber-600 text-blue-950 px-2.5 rounded-lg font-bold text-xs shadow transition">Đăng Nhập</button>
-          <button onclick="openRegisterModal()" class="h-9 bg-white/10 hover:bg-white/20 text-white px-2.5 rounded-lg font-semibold text-xs transition">Đăng Ký</button>
-        </div>
-
-        <div id="userNav" class="hidden flex items-center space-x-2 shrink-0">
-          <button onclick="openProfileModal()" class="font-semibold text-xs text-blue-100 flex items-center space-x-1.5 hover:opacity-90 shrink-0">
-            <span id="userName" class="max-w-[100px] xl:max-w-[130px] truncate block">Nguyễn Chí Vỹ</span>
-            <img id="headerAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen" alt="Avatar" class="w-8 h-8 rounded-full object-cover border-2 border-amber-400 shadow shrink-0">
-            <span id="userBadge" class="bg-amber-400 text-blue-950 text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase shrink-0">QUẢN TRỊ</span>
-          </button>
-
-          <button onclick="openUploadModal()" class="h-9 bg-emerald-500 hover:bg-emerald-600 text-white px-2.5 rounded-lg text-xs font-semibold flex items-center space-x-1 shadow transition shrink-0">
-            <i class="fa-solid fa-cloud-arrow-up"></i>
-            <span>Tải Lên</span>
-          </button>
-        </div>
-
-        <!-- NÚT MỞ MENU CÀI ĐẶT TRÊN MÁY TÍNH -->
-        <button onclick="toggleSystemMenu()" class="h-9 w-9 flex items-center justify-center text-blue-100 hover:text-white text-base rounded-lg hover:bg-white/10 transition shrink-0" title="Cài đặt hệ thống">
-          <i class="fa-solid fa-sliders"></i>
-        </button>
-      </div>
-
-      <!-- NÚT HAMBURGER MOBILE -->
-      <div class="flex items-center space-x-2 lg:hidden">
-        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-          <span class="w-1.5 h-1.5 mr-1 bg-emerald-400 rounded-full animate-pulse"></span>Online
-        </span>
-        <button onclick="toggleMobileDrawer()" class="p-2 text-white bg-white/10 rounded-lg text-lg hover:bg-white/20 transition focus:outline-none">
-          <i class="fa-solid fa-bars"></i>
+        <button onclick="toggleMobileNav()" class="md:hidden text-slate-300 p-2 hover:bg-slate-800 rounded-lg">
+          <i class="fa-solid fa-bars text-lg"></i>
         </button>
       </div>
 
     </div>
 
-    <!-- MENU CÀI ĐẶT HỆ THỐNG TRÊN MÁY TÍNH -->
-    <div id="systemMenuDrawer" class="hidden bg-slate-900 border-t border-slate-800 text-slate-200 px-4 py-4 shadow-xl">
-      <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
-        
-        <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-2">
-          <h4 class="font-bold text-amber-400 text-sm flex items-center space-x-2">
-            <i class="fa-solid fa-id-card"></i>
-            <span>Thông Tin Cá Nhân & Tài Khoản</span>
-          </h4>
-          <p class="text-slate-400 text-[11px]">Cập nhật tên, ảnh đại diện, email hoặc đổi mật khẩu mới.</p>
-          <button onclick="openProfileModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
-            <i class="fa-solid fa-user-pen"></i>
-            <span>Mở Trang Cập Nhật Thông Tin Cá Nhân</span>
-          </button>
-        </div>
-
-        <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-2">
-          <h4 class="font-bold text-amber-400 text-sm flex items-center space-x-2">
-            <i class="fa-solid fa-circle-half-stroke"></i>
-            <span>Giao Diện Sáng / Tối</span>
-          </h4>
-          <p class="text-slate-400 text-[11px]">Chuyển đổi chế độ hiển thị nền tối hoặc nền sáng tối ưu thị giác.</p>
-          <div class="flex space-x-2 pt-1">
-            <button onclick="setDarkMode(false)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-amber-300 font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1">
-              <span>☀️ Chế Độ Sáng</span>
-            </button>
-            <button onclick="setDarkMode(true)" class="flex-1 bg-slate-900 hover:bg-slate-950 text-sky-400 font-bold py-2 rounded-lg border border-slate-700 text-xs flex items-center justify-center space-x-1">
-              <span>🌙 Chế Độ Tối</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-2">
-          <h4 class="font-bold text-amber-400 text-sm flex items-center space-x-2">
-            <i class="fa-solid fa-palette"></i>
-            <span>Chủ Đề Giao Diện Hàng Đầu</span>
-          </h4>
-          <select id="themeSelect" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-400">
-            <option value="theme-default">1. Chủ Đề Mặc Định (Navy Dark)</option>
-            <option value="theme-classic">2. Chủ Đề Cổ Điển (Classic Gray)</option>
-            <option value="theme-modern">3. Chủ Đề Hiện Đại (Modern Emerald)</option>
-            <option value="theme-academic">4. Chủ Đề Học Thuật (MTU Academic)</option>
-          </select>
-          <button onclick="applySelectedTheme()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
-            <i class="fa-solid fa-check-double"></i>
-            <span>Áp Dụng Thay Đổi Chủ Đề</span>
-          </button>
-        </div>
-
-      </div>
+    <!-- Mobile Nav Menu -->
+    <div id="mobile-nav" class="hidden md:hidden bg-slate-900 border-t border-slate-800 px-4 py-2 space-y-1 text-xs">
+      <button onclick="switchTab('tab-all-docs', this); toggleMobileNav()" class="w-full text-left py-2 text-slate-300">
+        <i class="fa-solid fa-folder-open mr-2"></i>Tất Cả Học Liệu
+      </button>
+      <button onclick="switchTab('tab-community', this); toggleMobileNav()" class="w-full text-left py-2 text-slate-300">
+        <i class="fa-solid fa-comments mr-2"></i>Cộng Đồng & Diễn Đàn
+      </button>
+      <button onclick="switchTab('tab-live-chat', this); toggleMobileNav()" class="w-full text-left py-2 text-slate-300">
+        <i class="fa-solid fa-message mr-2"></i>Kênh Chat Trực Tuyến
+      </button>
+      <button onclick="switchTab('tab-group-chat', this); toggleMobileNav()" class="w-full text-left py-2 text-slate-300">
+        <i class="fa-solid fa-users-gear mr-2"></i>Nhóm Chat & Nhắn Tin Riêng
+      </button>
     </div>
   </header>
 
-  <!-- DRAWER ĐIỆN THOẠI -->
-  <div id="mobileDrawerOverlay" onclick="toggleMobileDrawer()" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden transition-opacity"></div>
-  <aside id="mobileDrawer" class="fixed top-0 right-0 w-[82vw] max-w-sm h-full bg-slate-900 text-slate-100 z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
-    <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
-      <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 bg-amber-400 text-blue-950 rounded-lg flex items-center justify-center font-bold">
-          <i class="fa-solid fa-graduation-cap"></i>
-        </div>
-        <span class="font-bold text-amber-400 text-sm">Menu EduShare</span>
-      </div>
-      <button onclick="toggleMobileDrawer()" class="text-slate-400 hover:text-white p-1 text-lg">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-    </div>
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full space-y-6">
 
-    <div class="p-4 overflow-y-auto flex-1 space-y-4 text-xs">
-      <div class="relative">
-        <input type="text" id="mobileSearchInput" onkeyup="syncMobileSearch(this.value)" placeholder="Tìm kiếm học liệu..." class="w-full h-10 pl-9 pr-3 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-      </div>
-
-      <div id="mobileUserBox" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-2">
-        <div class="flex items-center space-x-2.5">
-          <img id="mobileAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen" class="w-10 h-10 rounded-full border border-amber-400 object-cover">
-          <div>
-            <div id="mobileUserName" class="font-bold text-slate-100 text-sm">Nguyễn Chí Vỹ</div>
-            <span id="mobileUserBadge" class="bg-amber-400 text-blue-950 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">QUẢN TRỊ</span>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <button onclick="toggleMobileDrawer(); openProfileModal();" class="bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded font-medium text-center">
-            <i class="fa-solid fa-id-card mr-1"></i>Hồ sơ
-          </button>
-          <button onclick="toggleMobileDrawer(); openUploadModal();" class="bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded font-bold text-center">
-            <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Tải lên
-          </button>
-        </div>
-      </div>
-
-      <div class="space-y-1 pt-1">
-        <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider mb-2">Chức Năng Chính</div>
-        <button onclick="toggleMobileDrawer(); goHome();" class="w-full text-left bg-slate-800/50 hover:bg-slate-800 p-2.5 rounded-lg flex items-center space-x-2 text-slate-200 font-semibold">
-          <i class="fa-solid fa-house text-blue-400 w-5"></i><span>Trang chủ</span>
-        </button>
-        <button onclick="toggleMobileDrawer(); switchMainTab('forum');" class="w-full text-left bg-slate-800/50 hover:bg-slate-800 p-2.5 rounded-lg flex items-center space-x-2 text-slate-200 font-semibold">
-          <i class="fa-solid fa-comments text-emerald-400 w-5"></i><span>Cộng đồng & Live Chat</span>
-        </button>
-      </div>
-
-      <div class="space-y-1">
-        <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider mb-2">Danh Mục Học Liệu</div>
-        <button onclick="toggleMobileDrawer(); filterByCategory('Tài liệu bài giảng');" class="w-full text-left p-2 rounded hover:bg-slate-800 text-slate-300 flex items-center space-x-2">
-          <i class="fa-solid fa-file-powerpoint text-blue-400 w-5"></i><span>Bài giảng slide</span>
-        </button>
-        <button onclick="toggleMobileDrawer(); filterByCategory('Tài liệu bài thi');" class="w-full text-left p-2 rounded hover:bg-slate-800 text-slate-300 flex items-center space-x-2">
-          <i class="fa-solid fa-file-signature text-purple-400 w-5"></i><span>Đề thi các năm</span>
-        </button>
-        <button onclick="toggleMobileDrawer(); filterByCategory('Bài tập mẫu');" class="w-full text-left p-2 rounded hover:bg-slate-800 text-slate-300 flex items-center space-x-2">
-          <i class="fa-solid fa-pen-to-square text-emerald-400 w-5"></i><span>Bài tập mẫu & Đồ án</span>
-        </button>
-        <button onclick="toggleMobileDrawer(); filterByCategory('Học thuật');" class="w-full text-left p-2 rounded hover:bg-slate-800 text-slate-300 flex items-center space-x-2">
-          <i class="fa-solid fa-book-open text-amber-400 w-5"></i><span>Bài báo khoa học</span>
-        </button>
-      </div>
-
-      <div class="border-t border-slate-800 pt-3 space-y-2">
-        <div class="flex items-center justify-between">
-          <span>Giao diện tối (Dark mode):</span>
-          <button onclick="setDarkMode(!document.getElementById('appBody').classList.contains('dark-mode'))" class="px-2.5 py-1 bg-slate-800 rounded font-bold text-amber-400">Đổi</button>
-        </div>
-        <button onclick="logout()" class="w-full bg-red-600/80 hover:bg-red-600 text-white py-2 rounded-lg font-bold text-center mt-2">
-          <i class="fa-solid fa-right-from-bracket mr-1"></i>Đăng xuất
-        </button>
-      </div>
-    </div>
-  </aside>
-
-  <!-- THANH LỐI TẮT THÔNG MINH - HỖ TRỢ THÊM PHÍM CHỨC NĂNG HIỆN CÓ TRÊN WEBSITE -->
-  <section class="bg-white dark:bg-slate-800 border-b shadow-sm py-2">
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 flex items-center justify-between text-xs sm:text-sm">
-      <div id="shortcutContainer" class="flex items-center space-x-2 overflow-x-auto no-scrollbar whitespace-nowrap py-1 pr-2">
-        <span class="text-slate-400 font-semibold shrink-0 flex items-center space-x-1">
-          <i class="fa-solid fa-bolt text-amber-500"></i>
-          <span>Lối tắt:</span>
-        </span>
-        <!-- DANH SÁCH LỐI TẮT ĐƯỢC RENDER NĂNG ĐỘNG -->
-      </div>
-      <button onclick="openAddShortcutModal()" class="text-blue-600 hover:text-blue-800 font-bold shrink-0 ml-2 text-xs flex items-center space-x-1 whitespace-nowrap">
-        <i class="fa-solid fa-circle-plus"></i>
-        <span>+ Thêm lối tắt</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- NỘI DUNG CHÍNH -->
-  <main class="max-w-7xl mx-auto px-3 sm:px-4 py-5 flex-1 w-full space-y-6 pb-24">
-
-    <!-- HERO BANNER SỐNG ĐỘNG -->
-    <div class="banner-box bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-4 sm:p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-5 border border-blue-800">
-      <div class="space-y-3 flex-1">
-        <div class="flex flex-wrap gap-1.5 sm:gap-2">
-          <span class="bg-amber-500 text-blue-950 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-full shadow">✨ "Tiếp nối tri thức - Vững bước tương lai!"</span>
-          <span class="bg-blue-800 text-blue-200 text-[10px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-full shadow">📖 "Học đi đôi với Hành"</span>
-        </div>
-        <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight leading-snug">Kho Tài Liệu Tri Thức - Thư Viện Học Liệu MTU</h2>
-        <p class="text-blue-200 text-xs sm:text-sm max-w-2xl leading-relaxed">Nền tảng tra cứu, chia sẻ giáo trình, slide bài giảng, đề thi và bài báo nghiên cứu chuẩn hóa dành cho Giảng viên & Sinh viên Trường Đại học Xây dựng Miền Tây.</p>
-      </div>
-
-      <div class="flex space-x-3 shrink-0">
-        <div class="relative group">
-          <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=300&auto=format&fit=crop&q=80" alt="Thư viện số" class="w-24 h-24 sm:w-36 sm:h-36 object-cover rounded-xl shadow-md border-2 border-amber-400/50">
-          <span class="absolute bottom-1 left-1 right-1 bg-black/70 text-[9px] sm:text-[10px] text-center text-amber-300 font-bold py-0.5 rounded">Thư viện số</span>
-        </div>
-        <div class="relative group">
-          <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=300&auto=format&fit=crop&q=80" alt="Học liệu 24/7" class="w-24 h-24 sm:w-36 sm:h-36 object-cover rounded-xl shadow-md border-2 border-blue-400/50">
-          <span class="absolute bottom-1 left-1 right-1 bg-black/70 text-[9px] sm:text-[10px] text-center text-blue-300 font-bold py-0.5 rounded">Học liệu 24/7</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- TRUY CẬP NHANH BÀI BÁO KHOA HỌC (CÓ NÚT XÓA VÀ THÊM BÀI BÁO) -->
-    <section class="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <h2 class="text-sm sm:text-lg font-bold text-blue-900 dark:text-sky-400 flex items-center space-x-2">
-          <i class="fa-solid fa-newspaper text-amber-500"></i>
-          <span>Truy Cập Nhanh Bài Báo Khoa Học & Bài Tập Tiêu Biểu MTU</span>
-        </h2>
-        <div class="flex items-center space-x-2">
-          <button onclick="openArticleModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center space-x-1 shadow">
-            <i class="fa-solid fa-plus"></i>
-            <span>+ Đăng Bài Báo Mới</span>
-          </button>
-          <span class="text-[11px] text-slate-400 shrink-0">Năm 2026</span>
-        </div>
-      </div>
-      <div id="quickArticleGrid" class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4"></div>
-    </section>
-
-    <!-- TAB CHUYỂN ĐỔI -->
-    <div class="flex border-b border-slate-200 dark:border-slate-700 space-x-2 sm:space-x-4 text-xs sm:text-sm font-bold overflow-x-auto no-scrollbar whitespace-nowrap pb-1">
-      <button id="tabDocsBtn" onclick="switchMainTab('docs')" class="py-2 px-3 border-b-2 border-blue-600 text-blue-600 flex items-center space-x-1.5 shrink-0">
-        <i class="fa-solid fa-folder-open"></i>
-        <span>Tất Cả Học Liệu</span>
-      </button>
-      <button id="tabFavsBtn" onclick="switchMainTab('favs')" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5 shrink-0">
-        <i class="fa-solid fa-star text-amber-500"></i>
-        <span>Mục Yêu Thích (<span id="favCount">0</span>)</span>
-      </button>
-      <button id="tabForumBtn" onclick="switchMainTab('forum')" class="py-2 px-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5 shrink-0">
-        <i class="fa-solid fa-comments text-emerald-500"></i>
-        <span>Cộng Đồng & Kênh Chat</span>
-      </button>
-    </div>
-
-    <!-- SECTION HỌC LIỆU -->
-    <section id="docsSection">
-      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-          <i class="fa-solid fa-book-reader text-blue-600"></i>
-          <span id="docSectionTitle">Danh Sách Học Liệu Khoa Học</span>
-        </h3>
-        <div class="flex items-center space-x-2">
-          <select id="facultyFilter" onchange="renderDocuments()" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-1 focus:outline-none">
-            <option value="ALL">Tất cả Khoa đào tạo</option>
-            <option value="Công nghệ thông tin">Công nghệ thông tin</option>
-            <option value="Xây dựng">Kỹ thuật Xây dựng</option>
+    <!-- TAB 1: TẤT CẢ HỌC LIỆU -->
+    <section id="tab-all-docs" class="tab-panel active space-y-6">
+      
+      <!-- BỘ LỌC VÀ TÌM KIẾM -->
+      <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 shadow-xl space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+          <select id="filter-school" onchange="handleFilterChange()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">🏛️ Tất cả Trường</option>
           </select>
-          <span id="docCount" class="text-xs font-bold text-slate-500 dark:text-slate-400 shrink-0"></span>
+          <select id="filter-faculty" onchange="handleFilterChange()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">🏢 Tất cả Khoa</option>
+          </select>
+          <select id="filter-major" onchange="handleFilterChange()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="">💾 Tất cả Ngành</option>
+          </select>
+          <button onclick="exportStatsToExcel()" class="btn-artistic btn-secondary text-xs px-3 py-2 justify-center">
+            <i class="fa-solid fa-file-excel text-emerald-400"></i>Xuất Excel Danh Sách
+          </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2">
+          <div class="relative flex-grow">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Tìm theo tên bài giảng, môn học, tác giả..." class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          </div>
+          <select id="search-type" onchange="handleSearch()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option value="all">Tất cả định dạng</option>
+            <option value="PDF">Tệp PDF</option>
+            <option value="DOCX">Tệp Word (DOCX)</option>
+            <option value="PPTX">Tệp Slide (PPTX)</option>
+            <option value="HÌNH ẢNH">Hình Ảnh</option>
+            <option value="LINK">Liên kết ngoài</option>
+          </select>
+          <button onclick="resetFilters(event)" class="btn-artistic btn-secondary text-xs px-3 py-2">
+            <i class="fa-solid fa-rotate-left"></i>Đặt lại
+          </button>
         </div>
       </div>
-      <div id="documentGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </section>
 
-    <!-- SECTION CỘNG ĐỒNG -->
-    <section id="forumSection" class="hidden space-y-6">
-      <div class="flex space-x-2 text-xs font-bold border-b border-slate-200 dark:border-slate-700 pb-2 overflow-x-auto no-scrollbar">
-        <button onclick="switchCommunitySubTab('posts')" id="subTabPosts" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg flex items-center space-x-1 shrink-0">
-          <i class="fa-solid fa-newspaper"></i> <span>Bài Viết Thảo Luận</span>
-        </button>
-        <button onclick="switchCommunitySubTab('livechat')" id="subTabLiveChat" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-1 shrink-0">
-          <i class="fa-solid fa-comments"></i> <span>Kênh Chat Trực Tuyến</span>
-        </button>
-        <button onclick="switchCommunitySubTab('groups')" id="subTabGroups" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg flex items-center space-x-1 shrink-0">
-          <i class="fa-solid fa-users"></i> <span>Nhóm Chat & Nhắn Tin Riêng</span>
-        </button>
+      <!-- SECTION: BÀI BÁO KHOA HỌC TÌM KIẾM TIÊU BIỂU -->
+      <div class="space-y-3">
+        <h2 class="text-base font-bold text-orange-400 flex items-center space-x-2">
+          <i class="fa-solid fa-newspaper"></i>
+          <span>Bài Báo Khoa Học & Nghiên Cứu Tiêu Biểu</span>
+        </h2>
+        <div id="articles-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
       </div>
 
-      <div id="commSubPosts" class="space-y-4">
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-          <h3 class="text-base font-bold text-blue-900 dark:text-sky-400 mb-3 flex items-center space-x-2">
-            <i class="fa-solid fa-pen-to-square"></i>
-            <span>Tạo Bài Viết Trao Đổi Học Thuật Mới</span>
-          </h3>
-          <div class="space-y-3">
-            <input type="text" id="forumPostTitle" placeholder="Tiêu đề thảo luận..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <textarea id="forumPostContent" rows="3" placeholder="Chi tiết thắc mắc cần giải đáp..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            <div class="flex justify-end">
-              <button onclick="createForumPost()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg text-xs flex items-center space-x-1 shadow">
-                <i class="fa-solid fa-paper-plane"></i>
-                <span>Đăng Bài Thảo Luận</span>
+      <!-- SECTION: THƯ VIỆN HỌC LIỆU VÀ TÀI LIỆU -->
+      <div class="space-y-3">
+        <h2 class="text-base font-bold text-blue-400 flex items-center space-x-2">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span>Kho Tài Liệu & Bài Giảng Học Thuật</span>
+        </h2>
+        <div id="document-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 2: CỘNG ĐỒNG THẢO LUẬN -->
+    <section id="tab-community" class="tab-panel space-y-4">
+      <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 shadow-xl">
+        <h2 class="text-base font-bold text-emerald-400 mb-3 flex items-center space-x-2">
+          <i class="fa-solid fa-comments"></i>
+          <span>Diễn Đàn Học Thuật & Đồ Án MTU</span>
+        </h2>
+        <p class="text-xs text-slate-300">Trao đổi kinh nghiệm học tập, giải đáp thắc mắc môn học cùng sinh viên và giảng viên Trường Đại học Xây dựng Miền Tây.</p>
+      </div>
+    </section>
+
+    <!-- TAB 3: KÊNH CHAT TRỰC TUYẾN -->
+    <section id="tab-live-chat" class="tab-panel space-y-4">
+      <div class="bg-slate-800/90 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[520px]">
+        <div class="bg-blue-900/40 border-b border-slate-700 px-4 py-3 flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-comments text-blue-400"></i>
+              Kênh Chat Trực Tuyến Phòng Chung MTU
+            </h3>
+          </div>
+          <span class="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded-full border border-slate-700">Hỗ trợ 24/7</span>
+        </div>
+
+        <div id="liveChatMessagesBox" class="flex-grow p-4 overflow-y-auto space-y-3">
+          <!-- Live chat messages -->
+        </div>
+
+        <div class="p-3 bg-slate-900 border-t border-slate-700 flex items-center space-x-2">
+          <input type="text" id="liveChatInput" onkeypress="if(event.key==='Enter') sendLiveChatMessage()" placeholder="Nhập tin nhắn..." class="flex-grow bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <button onclick="sendLiveChatMessage()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-lg">
+            Gửi
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: NHÓM CHAT & NHẮN TIN RIÊNG -->
+    <section id="tab-group-chat" class="tab-panel space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[550px]">
+        
+        <!-- Sidebar Nhóm Chat -->
+        <div class="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 flex flex-col justify-between shadow-xl">
+          <div class="space-y-3 flex-grow flex flex-col">
+            <div class="flex items-center justify-between border-b border-slate-700 pb-2">
+              <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                <i class="fa-solid fa-users text-blue-400"></i>
+                <span>Nhóm Chat</span>
+              </h3>
+              <button onclick="openCreateGroupModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition flex items-center space-x-1 shadow">
+                <i class="fa-solid fa-plus"></i>
+                <span>Tạo Nhóm</span>
               </button>
+            </div>
+
+            <div id="groupListContainer" class="flex-grow overflow-y-auto space-y-2 text-xs">
+              <!-- Group list rendered via JS -->
             </div>
           </div>
         </div>
-        <div id="forumList" class="space-y-3"></div>
-      </div>
 
-      <div id="commSubLiveChat" class="hidden bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 flex flex-col h-[480px]">
-        <div class="p-3 bg-blue-900 text-white rounded-t-xl font-bold text-xs sm:text-sm flex items-center justify-between">
-          <span class="flex items-center space-x-2"><i class="fa-solid fa-comments text-amber-400"></i><span>Kênh Chat Trực Tuyến Phòng Chung MTU</span></span>
-          <span class="text-[10px] text-blue-200">24/7</span>
-        </div>
-        <div id="liveChatMessagesBox" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs sm:text-sm"></div>
-        <div class="p-3 border-t border-slate-200 dark:border-slate-700 flex space-x-2">
-          <input type="text" id="liveChatInput" onkeypress="if(event.key==='Enter') sendLiveChatMessage()" placeholder="Nhập tin nhắn..." class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm">
-          <button onclick="sendLiveChatMessage()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-lg text-xs">Gửi</button>
-        </div>
-      </div>
-
-      <div id="commSubGroups" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
-          <div class="flex items-center justify-between">
-            <h4 class="font-bold text-sm text-blue-900 dark:text-sky-400"><i class="fa-solid fa-users mr-1"></i>Nhóm Chat</h4>
-            <button onclick="openCreateGroupModal()" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-xs font-bold">+ Tạo Nhóm</button>
+        <!-- Khung Chat Nhóm -->
+        <div class="lg:col-span-2 bg-slate-800/90 border border-slate-700 rounded-2xl flex flex-col justify-between shadow-xl overflow-hidden">
+          <div class="bg-slate-900 border-b border-slate-700 px-4 py-3">
+            <h3 id="groupChatTitle" class="text-xs font-bold text-slate-300">
+              Chọn một nhóm hoặc người dùng để trao đổi riêng
+            </h3>
           </div>
-          <div id="groupListContainer" class="space-y-2 text-xs"></div>
-        </div>
 
-        <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col h-[400px]">
-          <div class="p-3 bg-slate-800 text-white font-bold text-xs rounded-t-xl" id="groupChatTitle">
-            Chọn một nhóm hoặc người dùng để trao đổi riêng
+          <div id="groupChatMessagesBox" class="flex-grow p-4 overflow-y-auto space-y-3 text-xs">
+            <div class="text-center text-slate-500 py-12">
+              <i class="fa-solid fa-comments text-4xl mb-3 opacity-30"></i>
+              <p>Chưa chọn cuộc trò chuyện nào.</p>
+            </div>
           </div>
-          <div id="groupChatMessagesBox" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
-          <div class="p-2.5 border-t border-slate-200 dark:border-slate-700 flex space-x-2">
-            <input type="text" id="groupChatInput" placeholder="Nhập tin nhắn..." class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-3 py-1.5 text-xs">
-            <button onclick="sendGroupChatMessage()" class="bg-emerald-600 text-white font-bold px-3 py-1.5 rounded text-xs">Gửi</button>
+
+          <div class="p-3 bg-slate-900 border-t border-slate-700 flex items-center space-x-2">
+            <input type="text" id="groupChatInput" onkeypress="if(event.key==='Enter') sendGroupChatMessage()" placeholder="Nhập tin nhắn..." class="flex-grow bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <button onclick="sendGroupChatMessage()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-lg">
+              Gửi
+            </button>
           </div>
         </div>
+
       </div>
     </section>
 
   </main>
 
-  <!-- CHATBOT AI NÂNG CẤP THÔNG MINH -->
-  <div class="fixed bottom-4 right-4 z-40">
-    <button onclick="toggleChatbot()" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl flex items-center justify-center text-xl sm:text-2xl transition transform hover:scale-105 border-2 border-white/20">
+  <!-- FLOATING CHATBOT WIDGET -->
+  <div class="fixed bottom-4 right-4 z-50">
+    <button onclick="toggleChatbot()" class="w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-full flex items-center justify-center text-xl shadow-2xl transition-transform hover:scale-105">
       <i class="fa-solid fa-robot"></i>
     </button>
+
+    <div id="ai-chatbot-window" class="hidden absolute bottom-16 right-0 w-80 sm:w-96 bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl flex-col h-[450px] overflow-hidden">
+      <div class="bg-blue-600 px-4 py-3 flex justify-between items-center text-white">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-robot text-lg"></i>
+          <div>
+            <h4 class="text-xs font-bold">EduShare AI Assistant</h4>
+            <p class="text-[9px] text-blue-200">Trợ lý học thuật MTU</p>
+          </div>
+        </div>
+        <button onclick="toggleChatbot()" class="text-white opacity-80 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div id="chatbot-messages" class="flex-grow p-3 overflow-y-auto space-y-2 text-xs">
+        <div class="bg-slate-800 text-slate-200 p-2.5 rounded-xl border border-slate-700 max-w-[90%]">
+          🤖 Xin chào! Mình là EduShare AI. Mình có thể giúp gì cho bạn về bài giảng, tài liệu hay đồ án môn học?
+        </div>
+      </div>
+
+      <div class="p-2 bg-slate-800 border-t border-slate-700 flex items-center space-x-1">
+        <input type="text" id="chatbot-input" onkeypress="if(event.key==='Enter') sendChatMessage()" placeholder="Hỏi EduShare AI..." class="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none" />
+        <button onclick="sendChatMessage()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs font-bold hover:bg-blue-500">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div id="chatbotDrawer" class="fixed bottom-20 right-4 w-96 max-w-[90vw] h-[480px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col z-50 hidden">
-    <div class="bg-blue-900 text-white p-3.5 rounded-t-2xl flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <i class="fa-solid fa-brain text-amber-400 text-base sm:text-lg"></i>
-        <span class="font-bold text-xs sm:text-sm">EduShare AI Cố Vấn Tri Thức MTU</span>
-      </div>
-      <button onclick="toggleChatbot()" class="text-blue-200 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+  <!-- MODAL: ĐĂNG NHẬP -->
+  <div id="login-modal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-sm p-5 border border-slate-700 relative shadow-2xl">
+      <button onclick="closeModal('login-modal')" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold mb-4 text-blue-400 flex items-center space-x-2">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Đăng Nhập Tài Khoản</span>
+      </h3>
+      <form id="login-form" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Tên đăng nhập / Email:</label>
+          <input type="text" id="login-username" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Mật khẩu:</label>
+          <input type="password" id="login-password" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition shadow-lg">
+          Đăng Nhập
+        </button>
+      </form>
     </div>
-    <div id="chatMessages" class="flex-1 p-3.5 overflow-y-auto space-y-3 text-xs sm:text-sm">
-      <div class="bg-blue-50 dark:bg-slate-800 text-blue-950 dark:text-slate-100 p-3 rounded-xl max-w-[88%] border border-blue-100 dark:border-slate-700 leading-relaxed">
-        Xin chào! Tôi là <strong>EduShare AI</strong>. Tôi có thể hỗ trợ bạn tra cứu bài giảng, đề thi mẫu SQL/Cấu trúc dữ liệu, bài báo khoa học MTU hoặc giải đáp cách dùng hệ thống!
+  </div>
+
+  <!-- MODAL: ĐĂNG KÝ -->
+  <div id="register-modal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 border border-slate-700 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+      <button onclick="closeModal('register-modal')" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold mb-3 text-emerald-400 flex items-center space-x-2">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Đăng Ký Thành Viên Mới</span>
+      </h3>
+      <form id="register-form" class="space-y-2.5 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Họ và Tên:</label>
+          <input type="text" id="reg-fullname" required placeholder="Nguyễn Văn A" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Email / SĐT:</label>
+            <input type="text" id="reg-email-phone" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Giới tính:</label>
+            <select id="reg-gender" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+              <option value="Nam">Nam</option>
+              <option value="Nữ">Nữ</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Vai trò:</label>
+            <select id="reg-role" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white">
+              <option value="student">🎓 Sinh Viên</option>
+              <option value="teacher">👨‍🏫 Giảng Viên</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Tên đăng nhập:</label>
+            <input type="text" id="reg-username" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Địa chỉ:</label>
+          <input type="text" id="reg-address" placeholder="Tỉnh / Thành phố" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Mật khẩu:</label>
+            <input type="password" id="reg-password" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Xác nhận mật khẩu:</label>
+            <input type="password" id="reg-confirm-password" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-white" />
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg transition shadow-lg mt-2">
+          Đăng Ký Ngay
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: TẢI LÊN HỌC LIỆU -->
+  <div id="upload-modal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 border border-slate-700 relative shadow-2xl">
+      <button onclick="closeModal('upload-modal')" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold mb-3 text-blue-400 flex items-center space-x-2">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span>Đăng Tải Học Liệu Mới</span>
+      </h3>
+      <form id="upload-form" onsubmit="handleBatchUploadSubmit(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Tên học liệu / Tiêu đề bài báo:</label>
+          <input type="text" id="up-title" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Chuyên mục:</label>
+            <select id="up-category" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+              <option value="Tài liệu bài giảng">Tài liệu bài giảng</option>
+              <option value="Tài liệu bài thi">Tài liệu bài thi</option>
+              <option value="Bài báo tiêu biểu">Bài báo tiêu biểu</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Môn học:</label>
+            <input type="text" id="up-subject" placeholder="VD: Lập trình Java" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Chọn Tệp Tải Lên (Cho phép chọn nhiều tệp):</label>
+          <input type="file" id="up-files" multiple class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-slate-300" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Hoặc dán Link bài báo khoa học:</label>
+          <input type="url" id="up-link" placeholder="https://..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white" />
+        </div>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition shadow-lg">
+          Tải Lên Học Liệu
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: XEM XEM TRƯỚC (PREVIEW) -->
+  <div id="preview-modal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-3xl p-5 border border-slate-700 relative shadow-2xl">
+      <button onclick="closeModal('preview-modal')" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 id="preview-title" class="text-sm font-bold mb-3 text-blue-400">Xem Học Liệu</h3>
+      <div id="preview-body" class="bg-slate-950 rounded-xl p-3 border border-slate-800 min-h-[300px] flex items-center justify-center">
+        <!-- Content inserted dynamically -->
       </div>
     </div>
-    <div class="p-3 border-t border-slate-200 dark:border-slate-800 flex items-center space-x-2">
-      <input type="text" id="chatInput" onkeypress="if(event.key === 'Enter') sendChatMessage()" placeholder="Hỏi EduShare AI..." class="flex-1 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-lg px-3 py-2 text-xs sm:text-sm focus:outline-none">
-      <button onclick="sendChatMessage()" class="bg-blue-600 text-white px-3.5 py-2 rounded-lg text-xs font-bold"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
+
+  <!-- MODAL: SỬA HỌC LIỆU -->
+  <div id="edit-document-modal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 border border-slate-700 relative shadow-2xl">
+      <button onclick="closeModal('edit-document-modal')" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold mb-3 text-amber-400 flex items-center space-x-2">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Chỉnh Sửa Thông Tin Học Liệu</span>
+      </h3>
+      <div class="space-y-3 text-xs">
+        <input type="hidden" id="edit-doc-id" />
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Tên tài liệu:</label>
+          <input type="text" id="edit-title" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Môn học:</label>
+          <input type="text" id="edit-subject" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500" />
+        </div>
+        <button onclick="alert('Đã lưu thay đổi!') ; closeModal('edit-document-modal')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 rounded-lg transition shadow-lg">
+          Lưu Thay Đổi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TẠO NHÓM CHAT MỚI -->
+  <div id="createGroupModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 border border-slate-700 relative shadow-2xl">
+      <button onclick="closeCreateGroupModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-base font-bold mb-3 text-emerald-400 flex items-center space-x-2">
+        <i class="fa-solid fa-users"></i>
+        <span>Tạo Nhóm Chat Thảo Luận Mới</span>
+      </h3>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Tên Nhóm Chat:</label>
+          <input type="text" id="newGroupNameInput" placeholder="Nhập tên nhóm (VD: Nhóm Đồ Án IT...)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <button onclick="submitCreateGroup()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs shadow transition">
+          <i class="fa-solid fa-check-circle mr-1"></i>Xác Nhận Tạo Nhóm
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- FOOTER -->
-  <footer class="bg-slate-900 text-slate-300 mt-10 text-xs sm:text-sm border-t border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="space-y-2">
-        <h4 class="text-white font-bold text-sm mb-2 flex items-center space-x-2">
-          <i class="fa-solid fa-code text-amber-400"></i>
-          <span>Thông Tin Tác Giả Phát Triển Website</span>
-        </h4>
-        <p><strong class="text-slate-200">Tác giả:</strong> Nguyễn Chí Vỹ</p>
-        <p><strong class="text-slate-200">Số điện thoại liên hệ:</strong> 0862204069</p>
-        <p><strong class="text-slate-200">Email:</strong> <a href="mailto:nguyenchivybt2006@gmail.com" class="text-blue-400 underline">nguyenchivybt2006@gmail.com</a></p>
-        <p><strong class="text-slate-200">Địa chỉ:</strong> Số nhà 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long</p>
-        
-        <div class="flex flex-wrap gap-2 pt-2">
-          <a href="https://www.facebook.com/profile.php?id=61578961204573" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 font-semibold flex items-center space-x-1">
-            <i class="fa-brands fa-facebook"></i> <span>Facebook Tác giả</span>
-          </a>
-          <a href="https://www.tiktok.com/@nguyenchivybentre" target="_blank" class="bg-slate-800 text-slate-100 border border-slate-700 px-3 py-1 rounded hover:bg-slate-700 font-semibold flex items-center space-x-1">
-            <i class="fa-brands fa-tiktok"></i> <span>TikTok Tác giả</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="space-y-2">
-        <h4 class="text-white font-bold text-sm mb-2 flex items-center space-x-2">
-          <i class="fa-solid fa-building-columns text-blue-400"></i>
-          <span>Trường Đại Học Xây Dựng Miền Tây (MTU)</span>
-        </h4>
-        <p><strong class="text-slate-200">Địa chỉ trường:</strong> Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long</p>
-        <p><strong class="text-slate-200">Số điện thoại trường:</strong> (0270) 3 825 903</p>
-        <p><strong class="text-slate-200">Email trường:</strong> <a href="mailto:dhxdmt@muce.edu.vn" class="text-blue-400 underline">dhxdmt@muce.edu.vn</a></p>
-        <p><strong class="text-slate-200">Trang Web:</strong> <a href="https://mtu.edu.vn" target="_blank" class="text-blue-400 underline">https://mtu.edu.vn</a></p>
-
-        <div class="flex flex-wrap gap-2 pt-2">
-          <a href="https://www.facebook.com/mtu.edu.vn" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 font-semibold flex items-center space-x-1">
-            <i class="fa-brands fa-facebook"></i> <span>Facebook Trường</span>
-          </a>
-          <a href="https://www.tiktok.com/@dhxaydungmientay" target="_blank" class="bg-slate-800 text-slate-100 border border-slate-700 px-3 py-1 rounded hover:bg-slate-700 font-semibold flex items-center space-x-1">
-            <i class="fa-brands fa-tiktok"></i> <span>TikTok Trường</span>
-          </a>
-        </div>
-      </div>
-    </div>
-    <div class="border-t border-slate-800 text-center py-3 text-[11px] text-slate-500">
-      © 2026 EduShare - Kho Tài Liệu Tri Thức - Thư viện học liệu MTU.
+  <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-12 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p class="font-semibold text-slate-300">Thư Viện Học Liệu Số EduShare - Trường Đại học Xây dựng Miền Tây (MTU)</p>
+      <p>Tác giả phát triển: Nguyễn Chí Vỹ • Địa chỉ: Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long</p>
+      <p class="text-[10px] text-slate-500">© 2026 EduShare. Bản quyền thuộc về Trường Đại học Xây dựng Miền Tây.</p>
     </div>
   </footer>
 
-  <!-- MODAL ĐỌC TÀI LIỆU TRỰC TIẾP (KHÔNG TỰ ĐỘNG KÍCH HOẠT TẢI XUỐNG) -->
-  <div id="viewDocModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-4xl p-4 shadow-2xl relative border border-slate-700 flex flex-col h-[88vh]">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
-        <h3 id="viewDocModalTitle" class="text-sm font-bold text-amber-400 truncate pr-4"></h3>
-        <button onclick="closeViewDocModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="flex-1 bg-slate-950 rounded-lg overflow-hidden flex items-center justify-center relative">
-        <iframe id="docViewerIframe" class="w-full h-full border-0"></iframe>
-      </div>
-    </div>
-  </div>
+  <!-- INCLUDE APP JS -->
+  <script src="/js/app.js"></script>
 
-  <!-- MODAL THÊM LỐI TẮT CHỨC NĂNG HỆ THỐNG -->
-  <div id="addShortcutModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 border border-slate-700">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="font-bold text-amber-400 text-sm"><i class="fa-solid fa-bolt mr-1"></i>Thêm Lối Tắt Chức Năng Mới</h3>
-        <button onclick="closeAddShortcutModal()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block text-slate-300 mb-1 font-semibold">Chọn Phím Chức Năng Hiện Có:</label>
-          <select id="shortcutFeatureSelect" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
-            <option value="Bài giảng">📚 Tài Liệu Bài Giảng Slide</option>
-            <option value="Đề thi mẫu">📝 Đề Thi Các Năm Mẫu</option>
-            <option value="Bài tập mẫu">💻 Bài Tập Mẫu / Đồ Án</option>
-            <option value="Bài báo khoa học">📰 Bài Báo Nghiên Cứu Khoa Học</option>
-            <option value="Cộng đồng">💬 Cộng Đồng & Kênh Chat Live</option>
-            <option value="Yêu thích">⭐ Học Liệu Yêu Thích Cá Nhân</option>
-            <option value="Khoa CNTT">💻 Khoa Công Nghệ Thông Tin</option>
-            <option value="Khoa Xây dựng">🏗️ Khoa Kỹ Thuật Xây Dựng</option>
-          </select>
-        </div>
-        <button onclick="submitAddShortcut()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg text-xs shadow">
-          Xác Nhận Thêm Lối Tắt
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL ĐĂNG TẢI BÀI BÁO KHOA HỌC MỚI -->
-  <div id="articleModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 border border-slate-700">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="font-bold text-emerald-400 text-sm"><i class="fa-solid fa-newspaper mr-1"></i>Đăng Bài Báo Khoa Học / Bài Tập Tiêu Biểu</h3>
-        <button onclick="closeArticleModal()"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-      <form onsubmit="handleCreateArticle(event)" class="space-y-3 text-xs">
-        <input type="text" id="artTitle" required placeholder="Tên bài báo khoa học / công trình công bố (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
-        <input type="text" id="artAuthor" required placeholder="Tác giả / Nhóm tác giả thực hiện (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
-        <input type="text" id="artUrl" placeholder="Liên kết đường dẫn đính kèm tài liệu..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
-        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs shadow">
-          Xác Nhận Đăng Bài Báo
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL BÌNH LUẬN -->
-  <div id="commentModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 shadow-2xl relative border border-slate-700 flex flex-col max-h-[85vh]">
-      <button onclick="closeCommentModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      <h3 id="commentDocTitle" class="text-base font-bold mb-3 text-amber-400 border-b border-slate-800 pb-2">Góp Ý & Bình Luận Tài Liệu</h3>
-      <div id="commentList" class="flex-1 overflow-y-auto space-y-3 my-2 pr-1 text-xs sm:text-sm"></div>
-      <div class="pt-3 border-t border-slate-800 flex space-x-2">
-        <input type="text" id="commentInput" placeholder="Viết góp ý hoặc thắc mắc..." class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
-        <button onclick="submitComment()" class="bg-amber-500 text-blue-950 font-bold px-4 py-2 rounded-lg text-xs">Gửi</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL ĐĂNG NHẬP -->
-  <div id="loginModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 shadow-2xl relative border border-slate-700">
-      <button onclick="closeLoginModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      <h3 class="text-lg font-bold mb-4 text-center text-amber-400">🔑 Đăng Nhập EduShare</h3>
-      <div class="space-y-2 mb-4">
-        <button type="button" onclick="loginGoogle(event)" class="w-full bg-white text-slate-800 font-semibold py-2.5 rounded-lg flex items-center justify-center space-x-2 hover:bg-slate-100 shadow">
-          <i class="fa-brands fa-google text-red-500 text-lg"></i><span class="text-xs sm:text-sm">Đăng nhập bằng Google</span>
-        </button>
-        <button type="button" onclick="loginFacebook(event)" class="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 shadow">
-          <i class="fa-brands fa-facebook text-lg"></i><span class="text-xs sm:text-sm">Đăng nhập bằng Facebook</span>
-        </button>
-      </div>
-      <form onsubmit="handleLogin(event)" class="space-y-3 mt-2">
-        <input type="text" id="loginUsername" required placeholder="Tên đăng nhập / Email / SĐT (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-        <input type="password" id="loginPassword" required placeholder="Mật khẩu (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-        <div class="flex justify-between items-center text-xs">
-          <a href="#" onclick="openForgotPasswordModal()" class="text-amber-400 hover:underline">🔑 Quên mật khẩu?</a>
-          <a href="#" onclick="openRegisterModal()" class="text-blue-400 hover:underline">Đăng ký tài khoản</a>
-        </div>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg text-xs sm:text-sm transition shadow">Đăng Nhập Ngay</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL HỒ SƠ -->
-  <div id="profileModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 shadow-2xl relative border border-slate-700 max-h-[92vh] overflow-y-auto">
-      <button onclick="closeProfileModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      <h3 class="text-lg font-bold mb-3 text-center text-amber-400">Cập Nhật Thông Tin Cá Nhân & Đổi Mật Khẩu</h3>
-      
-      <form onsubmit="handleSaveProfile(event)" class="space-y-3.5 text-xs sm:text-sm">
-        <div class="flex items-center space-x-4 bg-slate-800 p-3 rounded-xl border border-slate-700">
-          <img id="modalAvatarPreview" src="https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen" class="w-16 h-16 rounded-full object-cover border-2 border-amber-400 shadow">
-          <div class="flex-1 space-y-2">
-            <label class="text-xs text-amber-400 font-semibold block">Đổi Ảnh Đại Diện (Từ máy tính hoặc Link URL):</label>
-            <input type="file" accept="image/*" onchange="handleAvatarLocalUpload(event)" class="block w-full text-[11px] text-slate-300 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-blue-950">
-            <input type="text" id="profAvatarUrl" placeholder="Hoặc dán URL ảnh tại đây..." onchange="updateAvatarPreview(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-slate-300 font-medium mb-1">Họ và tên người dùng:</label>
-          <input type="text" id="profFullname" required placeholder="Họ và tên" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
-        </div>
-
-        <div>
-          <label class="block text-slate-300 font-medium mb-1">Email hoặc Số điện thoại:</label>
-          <input type="text" id="profEmailPhone" required placeholder="Email hoặc SĐT" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
-        </div>
-
-        <div class="border-t border-slate-800 pt-3">
-          <h4 class="font-bold text-amber-400 text-xs mb-2">🔑 Thay Đổi Mật Khẩu (Để trống nếu giữ nguyên):</h4>
-          <input type="password" id="profOldPass" placeholder="Mật khẩu cũ hiện tại" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white mb-2">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            <input type="password" id="profNewPass" placeholder="Mật khẩu mới" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
-            <input type="password" id="profConfirmNewPass" placeholder="Xác nhận mật khẩu mới" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
-          </div>
-        </div>
-
-        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg text-xs sm:text-sm shadow-md transition">
-          <i class="fa-solid fa-check-circle mr-1"></i>Xác Nhận Cập Nhật Thông Tin
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- MODAL TẢI LÊN MULTI-FILE -->
-  <div id="uploadModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 border border-slate-700">
-      <button onclick="closeUploadModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      <h3 class="text-lg font-bold mb-3 text-center text-emerald-400">📤 Đăng Tải Học Liệu Số MTU</h3>
-      <form onsubmit="handleUploadSubmit(event)" class="space-y-3">
-        <input type="text" id="uploadTitle" required placeholder="Tên bài giảng / đề thi / bài báo (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-        <input type="text" id="uploadSubject" required placeholder="Môn học (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
-        <input type="file" id="uploadFiles" multiple class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-300">
-        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg text-xs">Xác Nhận Đăng Học Liệu</button>
-      </form>
-    </div>
-  </div>
-
+  <!-- INLINE PAGE HANDLERS (TAB SWITCH & CHAT LOGIC) -->
   <script>
-    let currentUser = null;
-    let documentsData = [
-      { id: 'd1', title: 'Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật', subject: 'Cấu trúc dữ liệu', author: 'Nguyễn Chí Vỹ', type: 'PDF', faculty: 'Công nghệ thông tin', likes: 45, dislikes: 2, url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', date: '01/11/2026', comments: [] },
-      { id: 'd2', title: 'Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server', subject: 'Cơ sở dữ liệu', author: 'TS. Nguyễn Văn Giảng', type: 'DOCX', faculty: 'Công nghệ thông tin', likes: 28, dislikes: 1, url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', date: '01/11/2026', comments: [] }
-    ];
-    let articlesData = JSON.parse(localStorage.getItem('edushare_articles') || 'null') || [
-      { id: 'a1', title: 'Nghiên cứu mô hình AI nhận diện khuôn mặt sinh viên MTU', author: 'Nguyễn Chí Vỹ', date: '2026', url: 'https://mtu.edu.vn' },
-      { id: 'a2', title: 'Ứng dụng vật liệu xanh trong xây dựng công trình Miền Tây', author: 'Khoa Xây Dựng MTU', date: '2026', url: 'https://mtu.edu.vn' }
-    ];
-    let userShortcuts = JSON.parse(localStorage.getItem('edushare_shortcuts') || 'null') || [
-      { name: 'Tất cả', category: 'Tất cả' },
-      { name: 'Bài giảng', category: 'Tài liệu bài giảng' },
-      { name: 'Đề thi mẫu', category: 'Tài liệu bài thi' },
-      { name: 'Bài báo khoa học', category: 'Bài báo tiêu biểu' }
+    /* CHUYỂN TAB CHÍNH */
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      
+      const targetPanel = document.getElementById(tabId);
+      if (targetPanel) targetPanel.classList.add('active');
+      if (btnEl) btnEl.classList.add('active');
+
+      if (tabId === 'tab-live-chat') fetchLiveChat();
+      if (tabId === 'tab-group-chat') fetchGroups();
+    }
+
+    let activeGroupId = null;
+    let groupsData = [];
+    let localLiveChatMsgs = [
+      { sender: 'Nguyễn Chí Vỹ', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU!', time: '10:00' }
     ];
 
-    let forumPostsData = [];
-    let favoritesList = JSON.parse(localStorage.getItem('edushare_favs') || '[]');
-    let activeTab = 'docs';
-    let communitySubTab = 'posts';
-    let currentActiveDocForComment = null;
-
-    window.onload = function() {
-      loadSavedTheme();
-      checkSavedUser();
-      renderShortcuts();
-      renderDocuments();
-      renderQuickArticles();
-      fetchForumPosts();
-      fetchLiveChat();
-      fetchGroups();
-
-      // Đóng gợi ý tìm kiếm khi bấm ra ngoài
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('#searchInput') && !e.target.closest('#searchSuggestionsBox')) {
-          document.getElementById('searchSuggestionsBox').classList.add('hidden');
+    /* 1. XỬ LÝ KÊNH CHAT TRỰC TUYẾN (PUBLIC LIVE CHAT) */
+    async function fetchLiveChat() {
+      try {
+        const res = await fetch('/api/chat/public');
+        if (res.ok) {
+          const msgs = await res.json();
+          renderLiveChatMessages(msgs);
+        } else {
+          renderLiveChatMessages(localLiveChatMsgs);
         }
-      });
-    };
+      } catch (err) {
+        renderLiveChatMessages(localLiveChatMsgs);
+      }
+    }
 
-    /* XỬ LÝ GỢI Ý TÌM KIẾM THÔNG MINH AUTO-COMPLETE */
-    function handleSearchInput(val) {
-      const box = document.getElementById('searchSuggestionsBox');
-      const query = val.trim().toLowerCase();
-      
-      if (!query) {
-        box.classList.add('hidden');
-        renderDocuments();
+    function renderLiveChatMessages(msgs) {
+      const box = document.getElementById('liveChatMessagesBox');
+      if (!box) return;
+      if (!msgs || msgs.length === 0) {
+        box.innerHTML = `<div class="text-center text-slate-500 py-4">Chưa có tin nhắn nào. Hãy gửi tin nhắn đầu tiên!</div>`;
         return;
       }
-
-      renderDocuments();
-
-      // Tìm kiếm trùng khớp trong cả Học liệu và Bài báo khoa học
-      const docMatches = documentsData.filter(d => d.title.toLowerCase().includes(query) || d.subject.toLowerCase().includes(query));
-      const artMatches = articlesData.filter(a => a.title.toLowerCase().includes(query) || a.author.toLowerCase().includes(query));
-
-      if (docMatches.length === 0 && artMatches.length === 0) {
-        box.innerHTML = `<div class="px-3 py-2 text-slate-400 font-medium text-[11px]">Không có gợi ý phù hợp cho "${val}"</div>`;
-        box.classList.remove('hidden');
-        return;
-      }
-
-      let html = '';
-      if (docMatches.length > 0) {
-        html += `<div class="px-3 py-1 bg-slate-800 text-amber-400 font-bold text-[10px] uppercase">📚 Học Liệu (${docMatches.length})</div>`;
-        docMatches.forEach(d => {
-          html += `
-            <div onclick="selectSearchSuggestion('${d.title.replace(/'/g, "\\'")}')" class="px-3 py-1.5 hover:bg-slate-800 cursor-pointer flex items-center justify-between border-b border-slate-800/50">
-              <span class="truncate pr-2 font-medium">${d.title}</span>
-              <span class="text-[9px] bg-blue-900 text-blue-200 px-1.5 py-0.5 rounded shrink-0">${d.type}</span>
-            </div>
-          `;
-        });
-      }
-
-      if (artMatches.length > 0) {
-        html += `<div class="px-3 py-1 bg-slate-800 text-emerald-400 font-bold text-[10px] uppercase">📰 Bài Báo Khoa Học (${artMatches.length})</div>`;
-        artMatches.forEach(a => {
-          html += `
-            <div onclick="selectSearchSuggestion('${a.title.replace(/'/g, "\\'")}')" class="px-3 py-1.5 hover:bg-slate-800 cursor-pointer flex items-center justify-between border-b border-slate-800/50">
-              <span class="truncate pr-2 font-medium">${a.title}</span>
-              <span class="text-[9px] bg-emerald-900 text-emerald-200 px-1.5 py-0.5 rounded shrink-0">${a.author}</span>
-            </div>
-          `;
-        });
-      }
-
-      box.innerHTML = html;
-      box.classList.remove('hidden');
-    }
-
-    function selectSearchSuggestion(title) {
-      document.getElementById('searchInput').value = title;
-      document.getElementById('searchSuggestionsBox').classList.add('hidden');
-      renderDocuments();
-    }
-
-    /* QUẢN LÝ LỐI TẮT CHỨC NĂNG HỆ THỐNG */
-    function renderShortcuts() {
-      const container = document.getElementById('shortcutContainer');
-      const staticPrefix = `
-        <span class="text-slate-400 font-semibold shrink-0 flex items-center space-x-1">
-          <i class="fa-solid fa-bolt text-amber-500"></i>
-          <span>Lối tắt:</span>
-        </span>
-      `;
-      
-      const buttonsHtml = userShortcuts.map((sc, index) => `
-        <div class="inline-flex items-center bg-slate-100 dark:bg-slate-700 rounded-full px-3 py-1 shrink-0 space-x-1 hover:bg-slate-200 dark:hover:bg-slate-600 transition">
-          <button onclick="filterByCategory('${sc.category}')" class="text-slate-700 dark:text-slate-200 font-medium text-xs">${sc.name}</button>
-          ${index > 0 ? `<button onclick="deleteShortcut(${index})" class="text-slate-400 hover:text-red-400 text-[10px] ml-1"><i class="fa-solid fa-xmark"></i></button>` : ''}
-        </div>
-      `).join('');
-
-      container.innerHTML = staticPrefix + buttonsHtml;
-    }
-
-    function openAddShortcutModal() { document.getElementById('addShortcutModal').classList.remove('hidden'); }
-    function closeAddShortcutModal() { document.getElementById('addShortcutModal').classList.add('hidden'); }
-
-    function submitAddShortcut() {
-      const select = document.getElementById('shortcutFeatureSelect');
-      const cat = select.value;
-      const text = select.options[select.selectedIndex].text.replace(/^[^\s]+\s/, '');
-      
-      if (!userShortcuts.some(s => s.category === cat)) {
-        userShortcuts.push({ name: text, category: cat });
-        localStorage.setItem('edushare_shortcuts', JSON.stringify(userShortcuts));
-        renderShortcuts();
-      }
-      closeAddShortcutModal();
-    }
-
-    function deleteShortcut(index) {
-      userShortcuts.splice(index, 1);
-      localStorage.setItem('edushare_shortcuts', JSON.stringify(userShortcuts));
-      renderShortcuts();
-    }
-
-    /* QUẢN LÝ BÀI BÁO KHOA HỌC (THÊM / XÓA) */
-    function renderQuickArticles() {
-      const grid = document.getElementById('quickArticleGrid');
-      if (articlesData.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-3">Chưa có bài báo khoa học nào. Hãy bấm "+ Đăng Bài Báo Mới"!</div>`;
-        return;
-      }
-
-      grid.innerHTML = articlesData.map(art => `
-        <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-2">
-          <div>
-            <div class="flex items-center justify-between text-[11px] text-amber-500 font-bold mb-1">
-              <span><i class="fa-solid fa-feather mr-1"></i>Công trình công bố</span>
-              <button onclick="deleteArticle('${art.id}')" class="text-slate-400 hover:text-red-500" title="Xóa bài báo"><i class="fa-solid fa-trash text-xs"></i></button>
-            </div>
-            <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 line-clamp-2">${art.title}</h4>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1"><i class="fa-solid fa-user-pen mr-1"></i>${art.author}</p>
-          </div>
-          <a href="${art.url}" target="_blank" class="inline-flex items-center justify-center space-x-1 text-xs font-bold text-blue-600 dark:text-sky-400 hover:underline pt-1">
-            <span>Xem chi tiết công trình</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-          </a>
-        </div>
-      `).join('');
-    }
-
-    function openArticleModal() { document.getElementById('articleModal').classList.remove('hidden'); }
-    function closeArticleModal() { document.getElementById('articleModal').classList.add('hidden'); }
-
-    function handleCreateArticle(e) {
-      e.preventDefault();
-      const title = document.getElementById('artTitle').value.trim();
-      const author = document.getElementById('artAuthor').value.trim();
-      const url = document.getElementById('artUrl').value.trim() || 'https://mtu.edu.vn';
-
-      const newArt = { id: 'art_' + Date.now(), title, author, date: '2026', url };
-      articlesData.unshift(newArt);
-      localStorage.setItem('edushare_articles', JSON.stringify(articlesData));
-      renderQuickArticles();
-      closeArticleModal();
-      alert("✅ Đã thêm Bài báo khoa học mới thành công!");
-    }
-
-    function deleteArticle(id) {
-      if (confirm(" Bạn có chắc muốn xóa bài báo này?")) {
-        articlesData = articlesData.filter(a => a.id !== id);
-        localStorage.setItem('edushare_articles', JSON.stringify(articlesData));
-        renderQuickArticles();
-      }
-    }
-
-    /* NÂNG CẤP CHATBOT AI THÔNG MINH HƠN */
-    function toggleChatbot() { document.getElementById('chatbotDrawer').classList.toggle('hidden'); }
-
-    function sendChatMessage() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      const box = document.getElementById('chatMessages');
-      box.innerHTML += `<div class="bg-blue-600 text-white p-2.5 rounded-xl max-w-[85%] ml-auto text-right text-xs mb-2">${text}</div>`;
-      input.value = '';
-      box.scrollTop = box.scrollHeight;
-
-      setTimeout(() => {
-        let reply = "EduShare AI sẵn sàng đồng hành cùng bạn trong học tập tại MTU!";
-        const q = text.toLowerCase();
-
-        if (q.includes('bài giảng') || q.includes('slide')) {
-          reply = "📚 EduShare hiện có các bộ Slide Bài Giảng chuẩn thuộc Khoa CNTT và Khoa Xây Dựng. Bạn hãy chọn mục <strong>Danh mục Tài liệu > Tài liệu Bài giảng</strong> để xem ngay nhé!";
-        } else if (q.includes('đề thi') || q.includes('thi mẫu')) {
-          reply = "📝 Kho Đề thi bao gồm các đề thi môn Cơ sở dữ liệu, Cấu trúc dữ liệu và Kiến trúc máy tính. Bạn có thể tra cứu và chọn <strong>Xem trực tiếp</strong> mà không cần tải tệp về máy.";
-        } else if (q.includes('bài báo') || q.includes('nghiên cứu')) {
-          reply = "📰 Công trình nghiên cứu khoa học sinh viên & giảng viên MTU được đăng tải trực tiếp tại phần <strong>Truy Cập Nhanh Bài Báo Khoa Học</strong> ngay trên trang chủ!";
-        } else if (q.includes('xem') || q.includes('tải')) {
-          reply = "💡 Nút <strong>Xem</strong> giúp bạn đọc tài liệu trực tiếp trên trình duyệt, còn nút <strong>Tải xuống</strong> cho phép lưu tệp về máy cá nhân.";
-        } else if (q.includes('vỹ') || q.includes('tác giả')) {
-          reply = "👨‍💻 Nền tảng EduShare được phát triển bởi tác giả <strong>Nguyễn Chí Vỹ</strong> (SĐT: 0862204069) nhằm kết nối tri thức cho toàn thể sinh viên MTU!";
-        }
-
-        box.innerHTML += `<div class="bg-blue-50 dark:bg-slate-800 text-blue-950 dark:text-slate-100 p-2.5 rounded-xl max-w-[88%] text-xs mb-2 border border-blue-100 dark:border-slate-700 leading-relaxed">${reply}</div>`;
-        box.scrollTop = box.scrollHeight;
-      }, 500);
-    }
-
-    /* XEM TÀI LIỆU TRỰC TIẾP KHÔNG TỰ ĐỘNG TẢI TỆP */
-    function viewDocDirectly(url, title) {
-      document.getElementById('viewDocModalTitle').innerText = title;
-      document.getElementById('docViewerIframe').src = url;
-      document.getElementById('viewDocModal').classList.remove('hidden');
-    }
-
-    function closeViewDocModal() {
-      document.getElementById('docViewerIframe').src = '';
-      document.getElementById('viewDocModal').classList.add('hidden');
-    }
-
-    /* XÓA HỌC LIỆU / TÀI LIỆU */
-    function deleteDoc(id) {
-      if (confirm(" Bạn có chắc muốn xóa học liệu này khỏi hệ thống?")) {
-        documentsData = documentsData.filter(d => d.id !== id);
-        renderDocuments();
-      }
-    }
-
-    function toggleSystemMenu() {
-      document.getElementById('systemMenuDrawer').classList.toggle('hidden');
-    }
-
-    function toggleMobileDrawer() {
-      const drawer = document.getElementById('mobileDrawer');
-      const overlay = document.getElementById('mobileDrawerOverlay');
-      const isHidden = drawer.classList.contains('translate-x-full');
-
-      if (isHidden) {
-        drawer.classList.remove('translate-x-full');
-        overlay.classList.remove('hidden');
-      } else {
-        drawer.classList.add('translate-x-full');
-        overlay.classList.add('hidden');
-      }
-    }
-
-    function syncMobileSearch(val) {
-      document.getElementById('searchInput').value = val;
-      renderDocuments();
-    }
-
-    function loadSavedTheme() {
-      const savedTheme = localStorage.getItem('edushare_theme') || 'theme-academic';
-      const savedDark = localStorage.getItem('edushare_darkmode') === 'true';
-
-      const body = document.getElementById('appBody');
-      body.classList.remove('theme-default', 'theme-academic', 'theme-classic', 'theme-modern');
-      body.classList.add(savedTheme);
-      document.getElementById('themeSelect').value = savedTheme;
-
-      if (savedDark) setDarkMode(true, false);
-      else setDarkMode(false, false);
-    }
-
-    function applySelectedTheme() {
-      const selectedTheme = document.getElementById('themeSelect').value;
-      const body = document.getElementById('appBody');
-      body.classList.remove('theme-default', 'theme-academic', 'theme-classic', 'theme-modern');
-      body.classList.add(selectedTheme);
-      localStorage.setItem('edushare_theme', selectedTheme);
-      alert("🎨 Đã áp dụng chủ đề mới thành công!");
-    }
-
-    function setDarkMode(isDark, showAlert = true) {
-      const body = document.getElementById('appBody');
-      if (isDark) body.classList.add('dark-mode');
-      else body.classList.remove('dark-mode');
-      localStorage.setItem('edushare_darkmode', isDark ? 'true' : 'false');
-      if (showAlert) alert(isDark ? "🌙 Đã chuyển sang Chế độ Tối!" : "☀️ Đã chuyển sang Chế độ Sáng!");
-    }
-
-    function checkSavedUser() {
-      const saved = localStorage.getItem('edushare_user');
-      if (saved) {
-        currentUser = JSON.parse(saved);
-      } else {
-        currentUser = {
-          id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', emailPhone: 'nguyenchivybt2006@gmail.com',
-          role: 'admin', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen'
-        };
-        localStorage.setItem('edushare_user', JSON.stringify(currentUser));
-      }
-      updateUserUI();
-    }
-
-    function updateUserUI() {
-      if (currentUser) {
-        document.getElementById('guestNav').classList.add('hidden');
-        document.getElementById('userNav').classList.remove('hidden');
-        document.getElementById('userName').innerText = currentUser.fullname;
-        document.getElementById('headerAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
-        
-        document.getElementById('mobileUserName').innerText = currentUser.fullname;
-        document.getElementById('mobileAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
-        
-        const badge = document.getElementById('userBadge');
-        const mBadge = document.getElementById('mobileUserBadge');
-        if (currentUser.role === 'admin') { badge.innerText = 'QUẢN TRỊ'; mBadge.innerText = 'QUẢN TRỊ'; }
-        else if (currentUser.role === 'teacher') { badge.innerText = 'GIẢNG VIÊN'; mBadge.innerText = 'GIẢNG VIÊN'; }
-        else { badge.innerText = 'SINH VIÊN'; mBadge.innerText = 'SINH VIÊN'; }
-      } else {
-        document.getElementById('guestNav').classList.remove('hidden');
-        document.getElementById('userNav').classList.add('hidden');
-      }
-      renderDocuments();
-    }
-
-    function filterByCategory(cat) {
-      if (cat === 'Tất cả') {
-        document.getElementById('searchInput').value = '';
-        renderDocuments();
-        return;
-      }
-      document.getElementById('searchInput').value = cat;
-      renderDocuments();
-    }
-
-    function switchMainTab(tab) {
-      activeTab = tab;
-      const docsSec = document.getElementById('docsSection');
-      const forumSec = document.getElementById('forumSection');
-
-      document.getElementById('tabDocsBtn').className = "py-2 px-3 border-b-2 shrink-0 flex items-center space-x-1.5 " + (tab === 'docs' ? "border-blue-600 text-blue-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
-      document.getElementById('tabFavsBtn').className = "py-2 px-3 border-b-2 shrink-0 flex items-center space-x-1.5 " + (tab === 'favs' ? "border-amber-500 text-amber-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
-      document.getElementById('tabForumBtn').className = "py-2 px-3 border-b-2 shrink-0 flex items-center space-x-1.5 " + (tab === 'forum' ? "border-emerald-500 text-emerald-600 font-bold" : "border-transparent text-slate-500 hover:text-slate-800");
-
-      if (tab === 'forum') {
-        docsSec.classList.add('hidden');
-        forumSec.classList.remove('hidden');
-      } else {
-        forumSec.classList.add('hidden');
-        docsSec.classList.remove('hidden');
-        document.getElementById('docSectionTitle').innerText = tab === 'favs' ? "Danh Sách Học Liệu Yêu Thích" : "Danh Sách Học Liệu Khoa Học";
-        renderDocuments();
-      }
-    }
-
-    function switchCommunitySubTab(sub) {
-      communitySubTab = sub;
-      document.getElementById('commSubPosts').classList.toggle('hidden', sub !== 'posts');
-      document.getElementById('commSubLiveChat').classList.toggle('hidden', sub !== 'livechat');
-      document.getElementById('commSubGroups').classList.toggle('hidden', sub !== 'groups');
-
-      document.getElementById('subTabPosts').className = sub === 'posts' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
-      document.getElementById('subTabLiveChat').className = sub === 'livechat' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
-      document.getElementById('subTabGroups').className = sub === 'groups' ? "bg-blue-600 text-white px-3 py-1.5 rounded-lg shrink-0" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-1.5 rounded-lg shrink-0";
-    }
-
-    function renderDocuments() {
-      const grid = document.getElementById('documentGrid');
-      const searchVal = document.getElementById('searchInput').value.toLowerCase();
-      const facVal = document.getElementById('facultyFilter').value;
-
-      document.getElementById('favCount').innerText = favoritesList.length;
-      const uid = currentUser ? currentUser.id : 'guest';
-
-      let filtered = documentsData.filter(d => {
-        const matchSearch = (d.title && d.title.toLowerCase().includes(searchVal)) || 
-                            (d.subject && d.subject.toLowerCase().includes(searchVal)) ||
-                            (d.faculty && d.faculty.toLowerCase().includes(searchVal));
-        const matchFac = facVal === 'ALL' || d.faculty === facVal;
-        const matchFav = activeTab !== 'favs' || favoritesList.includes(d.id);
-        return matchSearch && matchFac && matchFav;
-      });
-
-      document.getElementById('docCount').innerText = `${filtered.length} học liệu`;
-
-      if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-8">Không tìm thấy tài liệu phù hợp!</div>`;
-        return;
-      }
-
-      grid.innerHTML = filtered.map(doc => {
-        const isFav = favoritesList.includes(doc.id);
-        const canDelete = currentUser && (currentUser.role === 'admin' || currentUser.id === doc.authorId);
-        const liked = (doc.likedUsers || []).includes(uid);
-        const disliked = (doc.dislikedUsers || []).includes(uid);
-
+      box.innerHTML = msgs.map(m => {
+        const isMe = currentUser && m.sender === currentUser.fullname;
         return `
-          <div class="doc-card bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">${doc.type}</span>
-                <div class="flex items-center space-x-2">
-                  <button onclick="toggleFavorite('${doc.id}')" class="text-sm hover:scale-110 transition ${isFav ? 'text-amber-500' : 'text-slate-300 hover:text-amber-400'}" title="Yêu thích">
-                    <i class="fa-solid fa-star"></i>
-                  </button>
-                  <span class="text-[11px] text-slate-400">${doc.date}</span>
-                </div>
-              </div>
-              <h4 class="font-bold text-slate-800 text-sm mb-1.5 line-clamp-2">${doc.title}</h4>
-              <p class="text-xs text-slate-500 mb-1"><i class="fa-solid fa-tag text-amber-500 mr-1"></i>Môn: ${doc.subject}</p>
-              <p class="text-xs text-slate-500 mb-2"><i class="fa-solid fa-user-pen mr-1"></i>Tác giả: ${doc.author}</p>
+          <div class="p-2.5 rounded-xl border border-slate-700 max-w-[85%] mb-2 ${isMe ? 'ml-auto bg-blue-600 text-white' : 'bg-slate-800 text-slate-100'}">
+            <div class="flex justify-between items-center text-[11px] font-bold ${isMe ? 'text-blue-100' : 'text-amber-400'} mb-0.5">
+              <span>${m.sender}</span>
+              <span class="text-[9px] opacity-75 ml-2">${m.time || ''}</span>
             </div>
-            
-            <div class="doc-card-footer pt-3 border-t border-slate-100 space-y-2.5">
-              <div class="flex items-center justify-between text-xs">
-                <div class="flex items-center space-x-3">
-                  <button onclick="toggleLikeDislike('${doc.id}', 'like')" class="flex items-center space-x-1 font-semibold ${liked ? 'text-blue-600 font-bold' : 'text-slate-500 hover:text-blue-600'}">
-                    <i class="fa-solid fa-thumbs-up"></i>
-                    <span>${doc.likes || 0}</span>
-                  </button>
-                  <button onclick="toggleLikeDislike('${doc.id}', 'dislike')" class="flex items-center space-x-1 font-semibold ${disliked ? 'text-red-600 font-bold' : 'text-slate-500 hover:text-red-600'}">
-                    <i class="fa-solid fa-thumbs-down"></i>
-                    <span>${doc.dislikes || 0}</span>
-                  </button>
-                  <button onclick="openCommentModal('${doc.id}')" class="flex items-center space-x-1 text-emerald-600 hover:text-emerald-700 font-semibold">
-                    <i class="fa-solid fa-comment-dots"></i>
-                    <span>${(doc.comments || []).length}</span>
-                  </button>
-                </div>
-                ${canDelete ? `<button onclick="deleteDoc('${doc.id}')" class="text-red-500 hover:text-red-700 text-xs font-semibold" title="Xóa tài liệu"><i class="fa-solid fa-trash"></i></button>` : ''}
-              </div>
-
-              <div class="grid grid-cols-2 gap-2 pt-1">
-                <button onclick="viewDocDirectly('${doc.url}', '${doc.title}')" class="bg-sky-600 hover:bg-sky-700 text-white py-1.5 rounded-lg text-xs font-bold flex items-center justify-center space-x-1 shadow">
-                  <i class="fa-solid fa-eye"></i> <span>Xem</span>
-                </button>
-                <a href="${doc.url}" download target="_blank" onclick="return handleDownloadCheck(event)" class="bg-blue-600 hover:bg-blue-700 text-white py-1.5 rounded-lg text-xs font-bold flex items-center justify-center space-x-1 shadow">
-                  <i class="fa-solid fa-download"></i> <span>Tải xuống</span>
-                </a>
-              </div>
-            </div>
+            <p class="text-xs leading-relaxed">${m.text}</p>
           </div>
         `;
       }).join('');
+      box.scrollTop = box.scrollHeight;
     }
 
-    async function toggleLikeDislike(docId, type) {
-      const uid = currentUser ? currentUser.id : 'guest';
-      const doc = documentsData.find(d => d.id === docId);
-      if (doc) {
-        if (type === 'like') doc.likes = (doc.likes || 0) + 1;
-        else doc.dislikes = (doc.dislikes || 0) + 1;
-        renderDocuments();
+    async function sendLiveChatMessage() {
+      const input = document.getElementById('liveChatInput');
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+
+      const senderName = currentUser ? currentUser.fullname : 'Khách MTU';
+      const avatarUrl = currentUser ? currentUser.avatar : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest';
+      const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+      try {
+        const res = await fetch('/api/chat/public/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sender: senderName, avatar: avatarUrl, text })
+        });
+        if (res.ok) {
+          input.value = '';
+          fetchLiveChat();
+        } else {
+          localLiveChatMsgs.push({ sender: senderName, text, time });
+          input.value = '';
+          renderLiveChatMessages(localLiveChatMsgs);
+        }
+      } catch (err) {
+        localLiveChatMsgs.push({ sender: senderName, text, time });
+        input.value = '';
+        renderLiveChatMessages(localLiveChatMsgs);
       }
     }
 
-    function openCommentModal(docId) {
-      currentActiveDocForComment = documentsData.find(d => d.id === docId);
-      if (!currentActiveDocForComment) return;
-      document.getElementById('commentDocTitle').innerText = `💬 Góp ý & Bình luận: ${currentActiveDocForComment.title}`;
-      renderCommentList();
-      document.getElementById('commentModal').classList.remove('hidden');
+    /* 2. XỬ LÝ NHÓM CHAT & TẠO NHÓM MỚI (GROUP CHAT) */
+    function openCreateGroupModal() {
+      const el = document.getElementById('createGroupModal');
+      if (el) el.classList.remove('hidden');
+    }
+    function closeCreateGroupModal() {
+      const el = document.getElementById('createGroupModal');
+      if (el) el.classList.add('hidden');
     }
 
-    function closeCommentModal() { document.getElementById('commentModal').classList.add('hidden'); }
+    async function submitCreateGroup() {
+      const nameInput = document.getElementById('newGroupNameInput');
+      const name = nameInput ? nameInput.value.trim() : '';
+      if (!name) return alert('Vui lòng nhập tên nhóm chat!');
 
-    function renderCommentList() {
-      const box = document.getElementById('commentList');
-      const comments = currentActiveDocForComment.comments || [];
+      try {
+        const res = await fetch('/api/chat/groups/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            creatorId: currentUser ? currentUser.id : '1',
+            memberIds: []
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          nameInput.value = '';
+          closeCreateGroupModal();
+          fetchGroups();
+          alert('✅ Đã tạo nhóm chat mới thành công!');
+        }
+      } catch (err) {
+        groupsData.push({
+          id: 'g_' + Date.now(),
+          name: name,
+          members: [currentUser ? currentUser.id : '1'],
+          messages: []
+        });
+        nameInput.value = '';
+        closeCreateGroupModal();
+        renderGroupList(groupsData);
+        alert('✅ Đã tạo nhóm chat mới thành công!');
+      }
+    }
 
-      if (comments.length === 0) {
-        box.innerHTML = `<div class="text-center text-slate-500 py-4">Chưa có bình luận nào. Hãy gửi ý kiến đóng góp đầu tiên!</div>`;
+    async function fetchGroups() {
+      try {
+        const res = await fetch('/api/chat/groups');
+        if (res.ok) {
+          groupsData = await res.json();
+          renderGroupList(groupsData);
+        } else {
+          renderGroupList(groupsData);
+        }
+      } catch (err) {
+        renderGroupList(groupsData);
+      }
+    }
+
+    function renderGroupList(groups) {
+      const container = document.getElementById('groupListContainer');
+      if (!container) return;
+      if (!groups || groups.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 py-2">Chưa có nhóm chat nào. Bấm "+ Tạo Nhóm" để tạo nhóm đầu tiên!</p>`;
         return;
       }
 
-      box.innerHTML = comments.map(c => `
-        <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 space-y-2">
-          <div class="flex justify-between text-xs text-amber-400 font-bold">
-            <span>${c.user}</span>
-            <span class="text-slate-400 text-[10px]">${c.date}</span>
-          </div>
-          <p class="text-xs text-slate-200">${c.text}</p>
+      container.innerHTML = groups.map(g => `
+        <div onclick="selectGroup('${g.id}')" class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 cursor-pointer flex items-center justify-between transition ${activeGroupId === g.id ? 'border-emerald-500 bg-slate-700' : ''}">
+          <div class="font-bold text-slate-200 truncate"><i class="fa-solid fa-user-group text-emerald-400 mr-2"></i>${g.name}</div>
+          <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">${(g.messages || []).length} tin</span>
         </div>
       `).join('');
     }
 
-    function submitComment() {
-      const text = document.getElementById('commentInput').value.trim();
-      if (!text || !currentActiveDocForComment) return;
-      currentActiveDocForComment.comments.push({
-        id: 'c_' + Date.now(),
-        user: currentUser ? currentUser.fullname : 'Khách MTU',
-        text,
-        date: 'Vừa xong'
-      });
-      document.getElementById('commentInput').value = '';
-      renderCommentList();
-      renderDocuments();
+    function selectGroup(groupId) {
+      activeGroupId = groupId;
+      const group = groupsData.find(g => g.id === groupId);
+      if (!group) return;
+
+      document.getElementById('groupChatTitle').innerHTML = `<i class="fa-solid fa-users text-amber-400 mr-2"></i><span>Nhóm: <strong>${group.name}</strong></span>`;
+      renderGroupMessages(group.messages || []);
+      renderGroupList(groupsData);
     }
 
-    async function fetchForumPosts() {}
-    async function fetchLiveChat() {}
-    async function fetchGroups() {}
-
-    function handleAvatarLocalUpload(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const base64Img = evt.target.result;
-          document.getElementById('modalAvatarPreview').src = base64Img;
-          document.getElementById('profAvatarUrl').value = base64Img;
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    function openProfileModal() {
-      if (!currentUser) return openLoginModal();
-      document.getElementById('profFullname').value = currentUser.fullname || '';
-      document.getElementById('profEmailPhone').value = currentUser.emailPhone || '';
-      document.getElementById('profAvatarUrl').value = currentUser.avatar || '';
-      document.getElementById('modalAvatarPreview').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
-      document.getElementById('profileModal').classList.remove('hidden');
-    }
-
-    function closeProfileModal() { document.getElementById('profileModal').classList.add('hidden'); }
-
-    function handleSaveProfile(e) {
-      e.preventDefault();
-      const newPass = document.getElementById('profNewPass').value;
-      const confirmPass = document.getElementById('profConfirmNewPass').value;
-
-      if (newPass && newPass !== confirmPass) {
-        alert("⚠️ Mật khẩu mới và Xác nhận mật khẩu mới không khớp nhau!");
+    function renderGroupMessages(messages) {
+      const box = document.getElementById('groupChatMessagesBox');
+      if (!box) return;
+      if (!messages || messages.length === 0) {
+        box.innerHTML = `<div class="text-center text-slate-500 py-4">Chưa có tin nhắn trong nhóm này. Hãy gửi tin nhắn đầu tiên!</div>`;
         return;
       }
 
-      currentUser.fullname = document.getElementById('profFullname').value;
-      currentUser.emailPhone = document.getElementById('profEmailPhone').value;
-      currentUser.avatar = document.getElementById('profAvatarUrl').value;
-      localStorage.setItem('edushare_user', JSON.stringify(currentUser));
-      updateUserUI();
-      closeProfileModal();
-      alert("✅ Đã xác nhận cập nhật thông tin cá nhân thành công!");
+      box.innerHTML = messages.map(m => {
+        const isMe = currentUser && m.sender === currentUser.fullname;
+        return `
+          <div class="p-2 rounded-lg border border-slate-700 max-w-[85%] mb-1.5 ${isMe ? 'ml-auto bg-emerald-600 text-white' : 'bg-slate-900 text-slate-100'}">
+            <div class="flex justify-between items-center text-[10px] font-bold ${isMe ? 'text-emerald-100' : 'text-amber-400'} mb-0.5">
+              <span>${m.sender}</span>
+              <span class="text-[9px] opacity-75 ml-2">${m.time || ''}</span>
+            </div>
+            <p class="text-xs">${m.text}</p>
+          </div>
+        `;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
     }
 
-    function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
-    function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
-    function openRegisterModal() { closeLoginModal(); }
-    function openUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
-    function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
-    function goHome() { document.getElementById('searchInput').value = ''; switchMainTab('docs'); }
-    function handleSearch() { renderDocuments(); }
+    async function sendGroupChatMessage() {
+      if (!activeGroupId) return alert('Vui lòng bấm chọn 1 nhóm bên danh sách trước khi gửi tin nhắn!');
+      const input = document.getElementById('groupChatInput');
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
 
-    function handleUploadSubmit(e) {
-      e.preventDefault();
-      const title = document.getElementById('uploadTitle').value.trim();
-      const subject = document.getElementById('uploadSubject').value.trim();
-      const newDoc = {
-        id: 'd_' + Date.now(),
-        title,
-        subject,
-        author: currentUser ? currentUser.fullname : 'Khách MTU',
-        type: 'PDF',
-        faculty: 'Công nghệ thông tin',
-        likes: 0,
-        dislikes: 0,
-        url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-        date: '05/11/2026',
-        comments: []
-      };
-      documentsData.unshift(newDoc);
-      renderDocuments();
-      closeUploadModal();
-      alert("✅ Đã tải lên học liệu mới thành công!");
-    }
+      const senderName = currentUser ? currentUser.fullname : 'Khách MTU';
+      const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
-    function loginGoogle(e) { if (e) e.preventDefault(); closeLoginModal(); }
-    function loginFacebook(e) { if (e) e.preventDefault(); closeLoginModal(); }
-    function handleLogin(e) { e.preventDefault(); closeLoginModal(); }
-
-    function handleDownloadCheck(e) {
-      if (!currentUser) { e.preventDefault(); alert("🔒 Vui lòng Đăng nhập để tải tài liệu!"); openLoginModal(); return false; }
-      return true;
-    }
-
-    function toggleFavorite(id) {
-      if (favoritesList.includes(id)) favoritesList = favoritesList.filter(item => item !== id);
-      else favoritesList.push(id);
-      localStorage.setItem('edushare_favs', JSON.stringify(favoritesList));
-      renderDocuments();
-    }
-
-    function logout() {
-      localStorage.removeItem('edushare_user');
-      currentUser = null;
-      updateUserUI();
-      alert("Đã đăng xuất!");
+      try {
+        const res = await fetch('/api/chat/groups/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ groupId: activeGroupId, sender: senderName, text })
+        });
+        const data = await res.json();
+        if (data.success) {
+          input.value = '';
+          const group = groupsData.find(g => g.id === activeGroupId);
+          if (group) {
+            group.messages = data.group.messages;
+            renderGroupMessages(group.messages);
+          }
+        } else {
+          const group = groupsData.find(g => g.id === activeGroupId);
+          if (group) {
+            group.messages = group.messages || [];
+            group.messages.push({ sender: senderName, text, time });
+            input.value = '';
+            renderGroupMessages(group.messages);
+          }
+        }
+      } catch (err) {
+        const group = groupsData.find(g => g.id === activeGroupId);
+        if (group) {
+          group.messages = group.messages || [];
+          group.messages.push({ sender: senderName, text, time });
+          input.value = '';
+          renderGroupMessages(group.messages);
+        }
+      }
     }
   </script>
 </body>
