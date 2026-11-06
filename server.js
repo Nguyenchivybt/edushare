@@ -23,7 +23,7 @@ Tác giả phát triển: Nguyễn Chí Vỹ (SĐT: 0862204069, Email: nguyenchi
 Địa chỉ trường MTU: Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long (SĐT: 0270 3 825 903, Email: dhxdmt@muce.edu.vn, Website: https://mtu.edu.vn).
 `;
 
-// THƯ MỤC UPLOAD TỆP TIN
+// CẤU HÌNH THƯ MỤC LƯU TỆP TẢI LÊN MULTI-FILE
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -51,7 +51,7 @@ function detectFileType(filename) {
   return 'TẬP TIN';
 }
 
-// IN-MEMORY DATABASE
+// CƠ SỞ DỮ LIỆU TẠM THỜI TRÊN BỘ NHỚ RAM
 let users = [
   { 
     id: '1', 
@@ -109,40 +109,44 @@ let users = [
 let documents = [
   {
     id: '101',
-    title: 'Giaotrinh_LapTrinh_Web_NodeJS.pdf',
+    title: 'Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật',
     type: 'PDF',
     category: 'Tài liệu bài giảng',
-    subject: 'Lập trình Web',
+    subject: 'Cấu trúc dữ liệu',
     school: 'Trường Đại học Xây dựng Miền Tây',
     faculty: 'Công nghệ thông tin',
     major: 'Kỹ thuật phần mềm',
     author: 'Nguyễn Chí Vỹ',
     authorId: '1',
-    views: 310, downloads: 120, likes: 45, dislikes: 0,
+    views: 310, downloads: 120, likes: 45, dislikes: 2,
     likedUsers: [], dislikedUsers: [], comments: [],
-    date: '05/11/2026',
+    date: '01/11/2026',
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   },
   {
     id: '102',
-    title: 'BaiTap_UML_Design_Pattern.docx',
+    title: 'Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server',
     type: 'DOCX',
-    category: 'Bài tập mẫu',
-    subject: 'Phân tích thiết kế hệ thống',
+    category: 'Tài liệu bài thi',
+    subject: 'Cơ sở dữ liệu',
     school: 'Trường Đại học Xây dựng Miền Tây',
     faculty: 'Công nghệ thông tin',
     major: 'Kỹ thuật phần mềm',
-    author: 'Sinh viên MTU',
-    authorId: '3',
+    author: 'TS. Nguyễn Văn Giảng',
+    authorId: '2',
     views: 185, downloads: 74, likes: 28, dislikes: 1,
     likedUsers: [], dislikedUsers: [], comments: [],
-    date: '04/11/2026',
+    date: '01/11/2026',
     url: 'https://calibre-ebook.com/downloads/demos/demo.docx'
   }
 ];
 
+let liveChatMessages = [
+  { id: 'm1', sender: 'Nguyễn Chí Vỹ', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', files: [], time: '10:00' }
+];
+
 let chatGroups = [
-  { id: 'g1', name: 'Nhóm Nghiên Cứu Đồ Án KTPM', members: ['1', '2', '3'], messages: [] }
+  { id: 'g1', name: 'Nhóm Nghiên Cứu Đồ Án KTPM', members: ['1', '2', '3'], messages: [{ sender: 'TS. Nguyễn Văn Giảng', text: 'Thầy vừa upload tài liệu đồ án mẫu nhé.', files: [], time: '10:15' }] }
 ];
 
 /* API ENDPOINTS */
@@ -162,14 +166,14 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
       const fileUrl = `/uploads/${file.filename}`;
       const docItem = {
         id: String(Date.now() + index),
-        title: req.files.length > 1 ? `${title} (Tệp ${index + 1}: ${file.originalname})` : title || file.originalname,
+        title: req.files.length > 1 ? `${title} (Tệp ${index + 1}: ${file.originalname})` : title,
         type: detectFileType(file.originalname),
         category: category || 'Tài liệu bài giảng',
         subject: subject || 'Chung',
         school: 'Trường Đại học Xây dựng Miền Tây',
         faculty: faculty || 'Công nghệ thông tin',
         major: major || 'Kỹ thuật phần mềm',
-        author: author || 'Nguyễn Chí Vỹ',
+        author: author || 'Thành viên MTU',
         authorId: authorId || '1',
         views: 1, downloads: 0, likes: 0, dislikes: 0,
         likedUsers: [], dislikedUsers: [], comments: [],
@@ -185,10 +189,73 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
   return res.status(400).json({ success: false, message: 'Tải tệp thất bại. Vui lòng thử lại sau!' });
 });
 
-app.delete('/api/documents/:id', (req, res) => {
-  const { id } = req.params;
-  documents = documents.filter(d => d.id !== id);
-  res.json({ success: true, message: 'Đã xóa Tệp tin!' });
+app.post('/api/chat/upload', upload.array('attachments', 10), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ success: false, message: 'Không có tệp được chọn' });
+  }
+
+  const uploadedFiles = req.files.map(f => ({
+    name: f.originalname,
+    url: `/uploads/${f.filename}`,
+    type: detectFileType(f.originalname)
+  }));
+
+  res.json({ success: true, files: uploadedFiles });
+});
+
+app.get('/api/chat/public', (req, res) => res.json(liveChatMessages));
+
+app.post('/api/chat/public/send', (req, res) => {
+  const { sender, avatar, text, files } = req.body;
+  if ((!text || !text.trim()) && (!files || files.length === 0)) {
+    return res.status(400).json({ success: false });
+  }
+
+  const msg = {
+    id: 'm_' + Date.now(),
+    sender: sender || 'Thành viên MTU',
+    avatar: avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=User',
+    text: text ? text.trim() : '',
+    files: files || [],
+    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+  };
+  liveChatMessages.push(msg);
+  res.json({ success: true, message: msg });
+});
+
+app.get('/api/chat/groups', (req, res) => res.json(chatGroups));
+
+app.post('/api/chat/groups/create', (req, res) => {
+  const { name, creatorId, memberIds } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Tạo nhóm thất bại, vui lòng thử lại!' });
+  const newGroup = {
+    id: 'g_' + Date.now(),
+    name: name.trim(),
+    members: [creatorId || '1', ...(memberIds || [])],
+    messages: []
+  };
+  chatGroups.push(newGroup);
+  res.json({ success: true, message: 'Đã tạo nhóm thành công!', group: newGroup });
+});
+
+app.post('/api/chat/groups/send', (req, res) => {
+  const { groupId, sender, text, files } = req.body;
+  const group = chatGroups.find(g => g.id === groupId);
+  if (!group) return res.status(404).json({ success: false, message: 'Không tìm thấy nhóm chat' });
+  if ((!text || !text.trim()) && (!files || files.length === 0)) {
+    return res.status(400).json({ success: false, message: 'Nội dung không được để trống' });
+  }
+
+  const msg = {
+    id: 'gm_' + Date.now(),
+    sender: sender || 'Thành viên MTU',
+    text: text ? text.trim() : '',
+    files: files || [],
+    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+  };
+  group.messages = group.messages || [];
+  group.messages.push(msg);
+  res.json({ success: true, message: msg, group });
 });
 
 app.post('/api/register', (req, res) => {
@@ -260,19 +327,6 @@ app.post('/api/forgot-password/reset', (req, res) => {
   }
 });
 
-app.post('/api/chat/groups/create', (req, res) => {
-  const { name, creatorId, memberIds } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Tạo nhóm thất bại, vui lòng thử lại!' });
-  const newGroup = {
-    id: 'g_' + Date.now(),
-    name: name.trim(),
-    members: [creatorId || '1', ...(memberIds || [])],
-    messages: []
-  };
-  chatGroups.push(newGroup);
-  res.json({ success: true, message: 'Đã tạo nhóm thành công!', group: newGroup });
-});
-
 app.post('/api/chatbot', async (req, res) => {
   const { message } = req.body;
   if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập nội dung câu hỏi!' });
@@ -285,12 +339,16 @@ app.post('/api/chatbot', async (req, res) => {
     }
   } catch (err) {}
 
-  return res.json({ reply: `🤖 **EduShare AI**: Đã tiếp nhận câu hỏi "${message}". Hệ thống sẵn sàng đồng hành cùng bạn!` });
+  return res.json({ reply: `🤖 **EduShare AI**: Đã tiếp nhận câu hỏi "${message}". Hệ thống đang sẵn sàng đồng hành cùng bạn!` });
 });
 
 app.get('/sitemap.xml', (req, res) => {
   res.header('Content-Type', 'application/xml');
-  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+  const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
+  if (fs.existsSync(sitemapPath)) {
+    res.sendFile(sitemapPath);
+  } else {
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://edushare-i0xh.onrender.com/</loc>
@@ -299,6 +357,7 @@ app.get('/sitemap.xml', (req, res) => {
     <priority>1.0</priority>
   </url>
 </urlset>`);
+  }
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
