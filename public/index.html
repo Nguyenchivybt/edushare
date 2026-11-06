@@ -4,16 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   
-  <!-- SEO Tiêu đề và Mô tả -->
   <title>EduShare - Kho Tài Liệu Tri Thức & Thư Viện Học Liệu MTU</title>
   <meta name="description" content="Nền tảng tra cứu, chia sẻ giáo trình, slide bài giảng, đề thi mẫu và bài báo nghiên cứu khoa học dành cho Giảng viên & Sinh viên MTU.">
   <meta name="keywords" content="EduShare, học liệu MTU, đề thi MTU, bài giảng MTU, tài liệu xây dựng miền tây">
   <meta name="robots" content="index, follow">
-
-  <!-- Thẻ Open Graph chia sẻ lên Facebook/Zalo -->
-  <meta property="og:title" content="EduShare - Kho Tài Liệu Tri Thức MTU">
-  <meta property="og:description" content="Nền tảng tra cứu học liệu số dành cho sinh viên và giảng viên.">
-  <meta property="og:type" content="website">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -42,7 +36,7 @@
 </head>
 <body id="appBody" class="theme-academic bg-slate-100 text-slate-800 font-sans min-h-full flex flex-col antialiased transition-colors duration-300">
 
-  <!-- HEADER LINH HOẠT TRÊN MÁY TÍNH & ĐIỆN THOẠI -->
+  <!-- HEADER LINH HOẠT -->
   <header id="mainHeader" class="header-bg text-white shadow-md sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
       
@@ -101,11 +95,10 @@
           <span>Cộng đồng</span>
         </button>
 
-        <!-- THANH TÌM KIẾM CÓ GỢI Ý TỰ ĐỘNG THÔNG MINH (AUTO-COMPLETE SUGGESTIONS) -->
+        <!-- THANH TÌM KIẾM -->
         <div class="relative w-full max-w-[170px] xl:max-w-[220px] shrink">
           <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" placeholder="Tìm tài liệu, bài báo..." class="w-full h-9 pl-7 pr-2 rounded-lg text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white shadow-inner truncate" autocomplete="off">
           <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-          <!-- KHUNG GỢI Ý TÌM KIẾM -->
           <div id="searchSuggestionsBox" class="hidden absolute top-10 left-0 right-0 bg-slate-900 border border-slate-700 text-white rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto text-xs py-1"></div>
         </div>
       </div>
@@ -134,7 +127,6 @@
           </button>
         </div>
 
-        <!-- NÚT MỞ MENU CÀI ĐẶT TRÊN MÁY TÍNH -->
         <button onclick="toggleSystemMenu()" class="h-9 w-9 flex items-center justify-center text-blue-100 hover:text-white text-base rounded-lg hover:bg-white/10 transition shrink-0" title="Cài đặt hệ thống">
           <i class="fa-solid fa-sliders"></i>
         </button>
@@ -165,6 +157,10 @@
           <button onclick="openProfileModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
             <i class="fa-solid fa-user-pen"></i>
             <span>Mở Trang Cập Nhật Thông Tin Cá Nhân</span>
+          </button>
+          <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Đăng Xuất Tài Khoản</span>
           </button>
         </div>
 
@@ -275,14 +271,14 @@
           <span>Giao diện tối (Dark mode):</span>
           <button onclick="setDarkMode(!document.getElementById('appBody').classList.contains('dark-mode'))" class="px-2.5 py-1 bg-slate-800 rounded font-bold text-amber-400">Đổi</button>
         </div>
-        <button onclick="logout()" class="w-full bg-red-600/80 hover:bg-red-600 text-white py-2 rounded-lg font-bold text-center mt-2">
+        <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold text-center mt-2 shadow transition">
           <i class="fa-solid fa-right-from-bracket mr-1"></i>Đăng xuất
         </button>
       </div>
     </div>
   </aside>
 
-  <!-- THANH LỐI TẮT THÔNG MINH - HỖ TRỢ THÊM PHÍM CHỨC NĂNG HIỆN CÓ TRÊN WEBSITE -->
+  <!-- THANH LỐI TẮT -->
   <section class="bg-white dark:bg-slate-800 border-b shadow-sm py-2">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 flex items-center justify-between text-xs sm:text-sm">
       <div id="shortcutContainer" class="flex items-center space-x-2 overflow-x-auto no-scrollbar whitespace-nowrap py-1 pr-2">
@@ -290,7 +286,6 @@
           <i class="fa-solid fa-bolt text-amber-500"></i>
           <span>Lối tắt:</span>
         </span>
-        <!-- DANH SÁCH LỐI TẮT ĐƯỢC RENDER NĂNG ĐỘNG -->
       </div>
       <button onclick="openAddShortcutModal()" class="text-blue-600 hover:text-blue-800 font-bold shrink-0 ml-2 text-xs flex items-center space-x-1 whitespace-nowrap">
         <i class="fa-solid fa-circle-plus"></i>
@@ -302,7 +297,7 @@
   <!-- NỘI DUNG CHÍNH -->
   <main class="max-w-7xl mx-auto px-3 sm:px-4 py-5 flex-1 w-full space-y-6 pb-24">
 
-    <!-- HERO BANNER SỐNG ĐỘNG -->
+    <!-- HERO BANNER -->
     <div class="banner-box bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-4 sm:p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-5 border border-blue-800">
       <div class="space-y-3 flex-1">
         <div class="flex flex-wrap gap-1.5 sm:gap-2">
@@ -325,7 +320,7 @@
       </div>
     </div>
 
-    <!-- TRUY CẬP NHANH BÀI BÁO KHOA HỌC (CÓ NÚT XÓA VÀ THÊM BÀI BÁO) -->
+    <!-- TRUY CẬP NHANH BÀI BÁO KHOA HỌC -->
     <section class="bg-white dark:bg-slate-800 p-4 sm:p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
       <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
         <h2 class="text-sm sm:text-lg font-bold text-blue-900 dark:text-sky-400 flex items-center space-x-2">
@@ -412,35 +407,55 @@
         <div id="forumList" class="space-y-3"></div>
       </div>
 
-      <div id="commSubLiveChat" class="hidden bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 flex flex-col h-[480px]">
+      <!-- KÊNH CHAT TRỰC TUYẾN 24/7 NÂNG CẤP ĐÍNH KÈM FILE KHÔNG GIỚI HẠN -->
+      <div id="commSubLiveChat" class="hidden bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 flex flex-col h-[520px]">
         <div class="p-3 bg-blue-900 text-white rounded-t-xl font-bold text-xs sm:text-sm flex items-center justify-between">
           <span class="flex items-center space-x-2"><i class="fa-solid fa-comments text-amber-400"></i><span>Kênh Chat Trực Tuyến Phòng Chung MTU</span></span>
-          <span class="text-[10px] text-blue-200">24/7</span>
+          <span class="text-[10px] text-blue-200">24/7 (Đính kèm file ảnh, doc, pdf, mp3, mp4)</span>
         </div>
         <div id="liveChatMessagesBox" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs sm:text-sm"></div>
-        <div class="p-3 border-t border-slate-200 dark:border-slate-700 flex space-x-2">
+        
+        <!-- THANH ĐÍNH KÈM TỆP PREVIEW CỦA CHAT PUBLIC -->
+        <div id="publicChatFilePreview" class="hidden px-3 py-1 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 text-xs"></div>
+
+        <div class="p-3 border-t border-slate-200 dark:border-slate-700 flex items-center space-x-2">
+          <label for="publicChatFileInput" class="p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-lg cursor-pointer transition text-sm shrink-0" title="Đính kèm 1 hoặc nhiều file">
+            <i class="fa-solid fa-paperclip"></i>
+          </label>
+          <input type="file" id="publicChatFileInput" multiple onchange="handlePublicChatFilesSelected(event)" class="hidden">
+          
           <input type="text" id="liveChatInput" onkeypress="if(event.key==='Enter') sendLiveChatMessage()" placeholder="Nhập tin nhắn..." class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm">
-          <button onclick="sendLiveChatMessage()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-lg text-xs">Gửi</button>
+          <button onclick="sendLiveChatMessage()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-lg text-xs shadow transition">Gửi</button>
         </div>
       </div>
 
+      <!-- NHÓM CHAT & NHẮN TIN RIÊNG NÂNG CẤP ĐÍNH KÈM FILE -->
       <div id="commSubGroups" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
           <div class="flex items-center justify-between">
             <h4 class="font-bold text-sm text-blue-900 dark:text-sky-400"><i class="fa-solid fa-users mr-1"></i>Nhóm Chat</h4>
-            <button onclick="openCreateGroupModal()" class="bg-emerald-600 text-white px-2.5 py-1 rounded text-xs font-bold">+ Tạo Nhóm</button>
+            <button onclick="openCreateGroupModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded text-xs font-bold shadow">+ Tạo Nhóm</button>
           </div>
           <div id="groupListContainer" class="space-y-2 text-xs"></div>
         </div>
 
-        <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col h-[400px]">
+        <div class="md:col-span-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col h-[440px]">
           <div class="p-3 bg-slate-800 text-white font-bold text-xs rounded-t-xl" id="groupChatTitle">
             Chọn một nhóm hoặc người dùng để trao đổi riêng
           </div>
           <div id="groupChatMessagesBox" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
-          <div class="p-2.5 border-t border-slate-200 dark:border-slate-700 flex space-x-2">
+          
+          <!-- PREVIEW TỆP NHÓM CHAT -->
+          <div id="groupChatFilePreview" class="hidden px-3 py-1 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 text-xs"></div>
+
+          <div class="p-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center space-x-2">
+            <label for="groupChatFileInput" class="p-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 rounded-lg cursor-pointer transition text-xs shrink-0" title="Đính kèm file">
+              <i class="fa-solid fa-paperclip"></i>
+            </label>
+            <input type="file" id="groupChatFileInput" multiple onchange="handleGroupChatFilesSelected(event)" class="hidden">
+
             <input type="text" id="groupChatInput" onkeypress="if(event.key==='Enter') sendGroupChatMessage()" placeholder="Nhập tin nhắn..." class="flex-1 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded px-3 py-1.5 text-xs">
-            <button onclick="sendGroupChatMessage()" class="bg-emerald-600 text-white font-bold px-3 py-1.5 rounded text-xs">Gửi</button>
+            <button onclick="sendGroupChatMessage()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded text-xs shadow">Gửi</button>
           </div>
         </div>
       </div>
@@ -448,7 +463,7 @@
 
   </main>
 
-  <!-- CHATBOT AI NÂNG CẤP THÔNG MINH -->
+  <!-- CHATBOT AI -->
   <div class="fixed bottom-4 right-4 z-40">
     <button onclick="toggleChatbot()" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 sm:w-14 sm:h-14 rounded-full shadow-2xl flex items-center justify-center text-xl sm:text-2xl transition transform hover:scale-105 border-2 border-white/20">
       <i class="fa-solid fa-robot"></i>
@@ -535,7 +550,7 @@
     </div>
   </div>
 
-  <!-- MODAL THÊM LỐI TẮT CHỨC NĂNG HỆ THỐNG -->
+  <!-- MODAL THÊM LỐI TẮT -->
   <div id="addShortcutModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
     <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 border border-slate-700">
       <div class="flex justify-between items-center mb-3">
@@ -563,7 +578,7 @@
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG TẢI BÀI BÁO KHOA HỌC MỚI -->
+  <!-- MODAL ĐĂNG TẢI BÀI BÁO -->
   <div id="articleModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
     <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 border border-slate-700">
       <div class="flex justify-between items-center mb-3">
@@ -619,7 +634,7 @@
     </div>
   </div>
 
-  <!-- MODAL HỒ SƠ -->
+  <!-- MODAL HỒ SƠ & THÔNG TIN CÁ NHÂN -->
   <div id="profileModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
     <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 shadow-2xl relative border border-slate-700 max-h-[92vh] overflow-y-auto">
       <button onclick="closeProfileModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
@@ -656,6 +671,11 @@
 
         <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg text-xs sm:text-sm shadow-md transition">
           <i class="fa-solid fa-check-circle mr-1"></i>Xác Nhận Cập Nhật Thông Tin
+        </button>
+
+        <button type="button" onclick="closeProfileModal(); logout();" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg text-xs transition shadow flex items-center justify-center space-x-1">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Đăng Xuất Tài Khoản</span>
         </button>
       </form>
     </div>
@@ -712,18 +732,20 @@
       { name: 'Bài báo khoa học', category: 'Bài báo tiêu biểu' }
     ];
 
-    let forumPostsData = [];
     let favoritesList = JSON.parse(localStorage.getItem('edushare_favs') || '[]');
     let activeTab = 'docs';
     let communitySubTab = 'posts';
     let currentActiveDocForComment = null;
 
-    /* BIẾN STATE CHAT & NHÓM CHAT */
     let activeGroupId = null;
     let groupsData = [];
     let localLiveChatMsgs = [
-      { sender: 'Nguyễn Chí Vỹ', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', time: '10:00' }
+      { sender: 'Nguyễn Chí Vỹ', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', files: [], time: '10:00' }
     ];
+
+    // BIẾN LƯU TỆP CHỜ GỬI ĐÍNH KÈM CHAT
+    let selectedPublicChatFiles = [];
+    let selectedGroupChatFiles = [];
 
     window.onload = function() {
       loadSavedTheme();
@@ -731,11 +753,9 @@
       renderShortcuts();
       renderDocuments();
       renderQuickArticles();
-      fetchForumPosts();
       fetchLiveChat();
       fetchGroups();
 
-      // Đóng gợi ý tìm kiếm khi bấm ra ngoài
       document.addEventListener('click', (e) => {
         if (!e.target.closest('#searchInput') && !e.target.closest('#searchSuggestionsBox')) {
           document.getElementById('searchSuggestionsBox').classList.add('hidden');
@@ -743,7 +763,81 @@
       });
     };
 
-    /* XỬ LÝ KÊNH CHAT TRỰC TUYẾN (PUBLIC LIVE CHAT) */
+    /* XỬ LÝ CHAT NÂNG CẤP ĐÍNH KÈM FILE ẢNH, PDF, DOCX, MP3, MP4 */
+    function handlePublicChatFilesSelected(e) {
+      const files = Array.from(e.target.files);
+      if (files.length > 0) {
+        selectedPublicChatFiles = selectedPublicChatFiles.concat(files);
+        renderPublicFilePreview();
+      }
+    }
+
+    function renderPublicFilePreview() {
+      const box = document.getElementById('publicChatFilePreview');
+      if (!box) return;
+      if (selectedPublicChatFiles.length === 0) {
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        return;
+      }
+      box.classList.remove('hidden');
+      box.innerHTML = selectedPublicChatFiles.map((f, i) => `
+        <span class="inline-flex items-center bg-blue-100 dark:bg-slate-700 text-blue-900 dark:text-blue-200 px-2 py-0.5 rounded text-[11px]">
+          <i class="fa-solid fa-file mr-1"></i>${f.name}
+          <button onclick="removePublicFile(${i})" class="ml-1 text-red-500 hover:text-red-700"><i class="fa-solid fa-xmark"></i></button>
+        </span>
+      `).join('');
+    }
+
+    function removePublicFile(i) {
+      selectedPublicChatFiles.splice(i, 1);
+      renderPublicFilePreview();
+    }
+
+    function handleGroupChatFilesSelected(e) {
+      const files = Array.from(e.target.files);
+      if (files.length > 0) {
+        selectedGroupChatFiles = selectedGroupChatFiles.concat(files);
+        renderGroupFilePreview();
+      }
+    }
+
+    function renderGroupFilePreview() {
+      const box = document.getElementById('groupChatFilePreview');
+      if (!box) return;
+      if (selectedGroupChatFiles.length === 0) {
+        box.classList.add('hidden');
+        box.innerHTML = '';
+        return;
+      }
+      box.classList.remove('hidden');
+      box.innerHTML = selectedGroupChatFiles.map((f, i) => `
+        <span class="inline-flex items-center bg-emerald-100 dark:bg-slate-700 text-emerald-900 dark:text-emerald-200 px-2 py-0.5 rounded text-[11px]">
+          <i class="fa-solid fa-file mr-1"></i>${f.name}
+          <button onclick="removeGroupFile(${i})" class="ml-1 text-red-500 hover:text-red-700"><i class="fa-solid fa-xmark"></i></button>
+        </span>
+      `).join('');
+    }
+
+    function removeGroupFile(i) {
+      selectedGroupChatFiles.splice(i, 1);
+      renderGroupFilePreview();
+    }
+
+    async function uploadChatAttachments(filesArray) {
+      if (!filesArray || filesArray.length === 0) return [];
+      const formData = new FormData();
+      filesArray.forEach(f => formData.append('attachments', f));
+      try {
+        const res = await fetch('/api/chat/upload', { method: 'POST', body: formData });
+        if (res.ok) {
+          const data = await res.json();
+          return data.files || [];
+        }
+      } catch (err) {}
+      return filesArray.map(f => ({ name: f.name, url: '#', type: 'FILE' }));
+    }
+
     async function fetchLiveChat() {
       try {
         const res = await fetch('/api/chat/public');
@@ -767,13 +861,25 @@
       }
       box.innerHTML = msgs.map(m => {
         const isMe = currentUser && (m.sender === currentUser.fullname || m.sender === currentUser.username);
+        
+        let filesHtml = '';
+        if (m.files && m.files.length > 0) {
+          filesHtml = `<div class="mt-1.5 space-y-1">` + m.files.map(f => {
+            if (f.type === 'HÌNH ẢNH') {
+              return `<img src="${f.url}" class="max-w-[200px] max-h-[150px] rounded-lg border my-1 object-cover">`;
+            }
+            return `<a href="${f.url}" download target="_blank" class="inline-flex items-center space-x-1 underline text-amber-300 hover:text-amber-200 text-xs font-semibold block"><i class="fa-solid fa-paperclip"></i><span>${f.name}</span></a>`;
+          }).join('') + `</div>`;
+        }
+
         return `
           <div class="p-2.5 rounded-xl border border-slate-700 max-w-[85%] mb-2 ${isMe ? 'ml-auto bg-blue-600 text-white' : 'bg-slate-800 text-slate-100'}">
             <div class="flex justify-between items-center text-[11px] font-bold ${isMe ? 'text-blue-100' : 'text-amber-400'} mb-0.5">
               <span>${m.sender}</span>
               <span class="text-[9px] opacity-75 ml-2">${m.time || ''}</span>
             </div>
-            <p class="text-xs leading-relaxed">${m.text}</p>
+            ${m.text ? `<p class="text-xs leading-relaxed">${m.text}</p>` : ''}
+            ${filesHtml}
           </div>
         `;
       }).join('');
@@ -783,43 +889,48 @@
     async function sendLiveChatMessage() {
       const input = document.getElementById('liveChatInput');
       const text = input ? input.value.trim() : '';
-      if (!text) return;
+
+      if (!text && selectedPublicChatFiles.length === 0) return;
 
       const senderName = currentUser ? currentUser.fullname : 'Khách MTU';
       const avatarUrl = currentUser ? currentUser.avatar : 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest';
       const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
+      let uploadedFiles = [];
+      if (selectedPublicChatFiles.length > 0) {
+        uploadedFiles = await uploadChatAttachments(selectedPublicChatFiles);
+      }
+
       try {
         const res = await fetch('/api/chat/public/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sender: senderName, avatar: avatarUrl, text })
+          body: JSON.stringify({ sender: senderName, avatar: avatarUrl, text, files: uploadedFiles })
         });
         if (res.ok) {
           input.value = '';
+          selectedPublicChatFiles = [];
+          renderPublicFilePreview();
           fetchLiveChat();
         } else {
-          localLiveChatMsgs.push({ sender: senderName, text, time });
+          localLiveChatMsgs.push({ sender: senderName, text, files: uploadedFiles, time });
           input.value = '';
+          selectedPublicChatFiles = [];
+          renderPublicFilePreview();
           renderLiveChatMessages(localLiveChatMsgs);
         }
       } catch (err) {
-        localLiveChatMsgs.push({ sender: senderName, text, time });
+        localLiveChatMsgs.push({ sender: senderName, text, files: uploadedFiles, time });
         input.value = '';
+        selectedPublicChatFiles = [];
+        renderPublicFilePreview();
         renderLiveChatMessages(localLiveChatMsgs);
       }
     }
 
-    /* XỬ LÝ NHÓM CHAT & TẠO NHÓM MỚI (GROUP CHAT) */
-    function openCreateGroupModal() {
-      const modal = document.getElementById('createGroupModal');
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closeCreateGroupModal() {
-      const modal = document.getElementById('createGroupModal');
-      if (modal) modal.classList.add('hidden');
-    }
+    /* NHÓM CHAT CHUYÊN SÂU */
+    function openCreateGroupModal() { document.getElementById('createGroupModal').classList.remove('hidden'); }
+    function closeCreateGroupModal() { document.getElementById('createGroupModal').classList.add('hidden'); }
 
     async function submitCreateGroup() {
       const input = document.getElementById('newGroupNameInput');
@@ -830,11 +941,7 @@
         const res = await fetch('/api/chat/groups/create', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name,
-            creatorId: currentUser ? currentUser.id : '1',
-            memberIds: []
-          })
+          body: JSON.stringify({ name, creatorId: currentUser ? currentUser.id : '1', memberIds: [] })
         });
         const data = await res.json();
         if (data.success) {
@@ -842,16 +949,9 @@
           closeCreateGroupModal();
           fetchGroups();
           alert('✅ Đã tạo nhóm chat mới thành công!');
-        } else {
-          alert(data.message || 'Lỗi tạo nhóm');
         }
       } catch (err) {
-        const newG = {
-          id: 'g_' + Date.now(),
-          name: name,
-          members: [currentUser ? currentUser.id : '1'],
-          messages: []
-        };
+        const newG = { id: 'g_' + Date.now(), name, members: [currentUser ? currentUser.id : '1'], messages: [] };
         groupsData.push(newG);
         input.value = '';
         closeCreateGroupModal();
@@ -867,9 +967,7 @@
         if (res.ok) {
           groupsData = await res.json();
           renderGroupList(groupsData);
-          if (activeGroupId) {
-            selectGroup(activeGroupId);
-          }
+          if (activeGroupId) selectGroup(activeGroupId);
         } else {
           renderGroupList(groupsData);
         }
@@ -917,13 +1015,25 @@
 
       box.innerHTML = messages.map(m => {
         const isMe = currentUser && (m.sender === currentUser.fullname || m.sender === currentUser.username);
+
+        let filesHtml = '';
+        if (m.files && m.files.length > 0) {
+          filesHtml = `<div class="mt-1.5 space-y-1">` + m.files.map(f => {
+            if (f.type === 'HÌNH ẢNH') {
+              return `<img src="${f.url}" class="max-w-[200px] max-h-[150px] rounded-lg border my-1 object-cover">`;
+            }
+            return `<a href="${f.url}" download target="_blank" class="inline-flex items-center space-x-1 underline text-amber-300 hover:text-amber-200 text-xs font-semibold block"><i class="fa-solid fa-paperclip"></i><span>${f.name}</span></a>`;
+          }).join('') + `</div>`;
+        }
+
         return `
           <div class="p-2 rounded-lg border border-slate-700 max-w-[85%] mb-1.5 ${isMe ? 'ml-auto bg-emerald-600 text-white' : 'bg-slate-900 text-slate-100'}">
             <div class="flex justify-between items-center text-[10px] font-bold ${isMe ? 'text-emerald-100' : 'text-amber-400'} mb-0.5">
               <span>${m.sender}</span>
               <span class="text-[9px] opacity-75 ml-2">${m.time || ''}</span>
             </div>
-            <p class="text-xs">${m.text}</p>
+            ${m.text ? `<p class="text-xs">${m.text}</p>` : ''}
+            ${filesHtml}
           </div>
         `;
       }).join('');
@@ -934,47 +1044,57 @@
       if (!activeGroupId) return alert('Vui lòng chọn 1 nhóm chat từ danh sách bên trái!');
       const input = document.getElementById('groupChatInput');
       const text = input ? input.value.trim() : '';
-      if (!text) return;
+
+      if (!text && selectedGroupChatFiles.length === 0) return;
 
       const senderName = currentUser ? currentUser.fullname : 'Khách MTU';
       const time = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+      let uploadedFiles = [];
+      if (selectedGroupChatFiles.length > 0) {
+        uploadedFiles = await uploadChatAttachments(selectedGroupChatFiles);
+      }
 
       try {
         const res = await fetch('/api/chat/groups/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ groupId: activeGroupId, sender: senderName, text })
+          body: JSON.stringify({ groupId: activeGroupId, sender: senderName, text, files: uploadedFiles })
         });
         const data = await res.json();
         if (data.success) {
           input.value = '';
+          selectedGroupChatFiles = [];
+          renderGroupFilePreview();
           const group = groupsData.find(g => g.id === activeGroupId);
           if (group) {
             group.messages = data.group.messages;
             renderGroupMessages(group.messages);
           }
           fetchGroups();
-        } else {
-          const group = groupsData.find(g => g.id === activeGroupId);
-          if (group) {
-            group.messages = group.messages || [];
-            group.messages.push({ sender: senderName, text, time });
-            input.value = '';
-            renderGroupMessages(group.messages);
-          }
         }
       } catch (err) {
         const group = groupsData.find(g => g.id === activeGroupId);
         if (group) {
           group.messages = group.messages || [];
-          group.messages.push({ sender: senderName, text, time });
+          group.messages.push({ sender: senderName, text, files: uploadedFiles, time });
           input.value = '';
+          selectedGroupChatFiles = [];
+          renderGroupFilePreview();
           renderGroupMessages(group.messages);
         }
       }
     }
 
-    /* XỬ LÝ GỢI Ý TÌM KIẾM THÔNG MINH AUTO-COMPLETE */
+    /* ĐĂNG XUẤT TÀI KHOẢN AN TOÀN & ĐỒNG BỘ */
+    function logout() {
+      localStorage.removeItem('edushare_user');
+      currentUser = null;
+      updateUserUI();
+      alert("Đã đăng xuất tài khoản thành công!");
+    }
+
+    /* GỢI Ý TÌM KIẾM AUTO-COMPLETE */
     function handleSearchInput(val) {
       const box = document.getElementById('searchSuggestionsBox');
       const query = val.trim().toLowerCase();
@@ -1009,18 +1129,6 @@
         });
       }
 
-      if (artMatches.length > 0) {
-        html += `<div class="px-3 py-1 bg-slate-800 text-emerald-400 font-bold text-[10px] uppercase">📰 Bài Báo Khoa Học (${artMatches.length})</div>`;
-        artMatches.forEach(a => {
-          html += `
-            <div onclick="selectSearchSuggestion('${a.title.replace(/'/g, "\\'")}')" class="px-3 py-1.5 hover:bg-slate-800 cursor-pointer flex items-center justify-between border-b border-slate-800/50">
-              <span class="truncate pr-2 font-medium">${a.title}</span>
-              <span class="text-[9px] bg-emerald-900 text-emerald-200 px-1.5 py-0.5 rounded shrink-0">${a.author}</span>
-            </div>
-          `;
-        });
-      }
-
       box.innerHTML = html;
       box.classList.remove('hidden');
     }
@@ -1031,7 +1139,6 @@
       renderDocuments();
     }
 
-    /* QUẢN LÝ LỐI TẮT CHỨC NĂNG HỆ THỐNG */
     function renderShortcuts() {
       const container = document.getElementById('shortcutContainer');
       const staticPrefix = `
@@ -1073,7 +1180,6 @@
       renderShortcuts();
     }
 
-    /* QUẢN LÝ BÀI BÁO KHOA HỌC */
     function renderQuickArticles() {
       const grid = document.getElementById('quickArticleGrid');
       if (articlesData.length === 0) {
@@ -1123,7 +1229,6 @@
       }
     }
 
-    /* CHATBOT AI */
     function toggleChatbot() { document.getElementById('chatbotDrawer').classList.toggle('hidden'); }
 
     function sendChatMessage() {
@@ -1144,12 +1249,6 @@
           reply = "📚 EduShare hiện có các bộ Slide Bài Giảng chuẩn thuộc Khoa CNTT và Khoa Xây Dựng. Bạn hãy chọn mục <strong>Danh mục Tài liệu > Tài liệu Bài giảng</strong> để xem ngay nhé!";
         } else if (q.includes('đề thi') || q.includes('thi mẫu')) {
           reply = "📝 Kho Đề thi bao gồm các đề thi môn Cơ sở dữ liệu, Cấu trúc dữ liệu và Kiến trúc máy tính. Bạn có thể tra cứu và chọn <strong>Xem trực tiếp</strong> mà không cần tải tệp về máy.";
-        } else if (q.includes('bài báo') || q.includes('nghiên cứu')) {
-          reply = "📰 Công trình nghiên cứu khoa học sinh viên & giảng viên MTU được đăng tải trực tiếp tại phần <strong>Truy Cập Nhanh Bài Báo Khoa Học</strong> ngay trên trang chủ!";
-        } else if (q.includes('xem') || q.includes('tải')) {
-          reply = "💡 Nút <strong>Xem</strong> giúp bạn đọc tài liệu trực tiếp trên trình duyệt, còn nút <strong>Tải xuống</strong> cho phép lưu tệp về máy cá nhân.";
-        } else if (q.includes('vỹ') || q.includes('tác giả')) {
-          reply = "👨‍💻 Nền tảng EduShare được phát triển bởi tác giả <strong>Nguyễn Chí Vỹ</strong> (SĐT: 0862204069) nhằm kết nối tri thức cho toàn thể sinh viên MTU!";
         }
 
         box.innerHTML += `<div class="bg-blue-50 dark:bg-slate-800 text-blue-950 dark:text-slate-100 p-2.5 rounded-xl max-w-[88%] text-xs mb-2 border border-blue-100 dark:border-slate-700 leading-relaxed">${reply}</div>`;
@@ -1157,7 +1256,6 @@
       }, 500);
     }
 
-    /* XEM TÀI LIỆU TRỰC TIẾP KHÔNG TỰ ĐỘNG TẢI TỆP */
     function viewDocDirectly(url, title) {
       document.getElementById('viewDocModalTitle').innerText = title;
       document.getElementById('docViewerIframe').src = url;
@@ -1169,7 +1267,6 @@
       document.getElementById('viewDocModal').classList.add('hidden');
     }
 
-    /* XÓA HỌC LIỆU / TÀI LIỆU */
     function deleteDoc(id) {
       if (confirm(" Bạn có chắc muốn xóa học liệu này khỏi hệ thống?")) {
         documentsData = documentsData.filter(d => d.id !== id);
@@ -1177,9 +1274,7 @@
       }
     }
 
-    function toggleSystemMenu() {
-      document.getElementById('systemMenuDrawer').classList.toggle('hidden');
-    }
+    function toggleSystemMenu() { document.getElementById('systemMenuDrawer').classList.toggle('hidden'); }
 
     function toggleMobileDrawer() {
       const drawer = document.getElementById('mobileDrawer');
@@ -1251,6 +1346,7 @@
         document.getElementById('userName').innerText = currentUser.fullname;
         document.getElementById('headerAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
         
+        document.getElementById('mobileUserBox').classList.remove('hidden');
         document.getElementById('mobileUserName').innerText = currentUser.fullname;
         document.getElementById('mobileAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
         
@@ -1262,6 +1358,7 @@
       } else {
         document.getElementById('guestNav').classList.remove('hidden');
         document.getElementById('userNav').classList.add('hidden');
+        document.getElementById('mobileUserBox').classList.add('hidden');
       }
       renderDocuments();
     }
@@ -1392,8 +1489,7 @@
       }).join('');
     }
 
-    async function toggleLikeDislike(docId, type) {
-      const uid = currentUser ? currentUser.id : 'guest';
+    function toggleLikeDislike(docId, type) {
       const doc = documentsData.find(d => d.id === docId);
       if (doc) {
         if (type === 'like') doc.likes = (doc.likes || 0) + 1;
@@ -1446,8 +1542,6 @@
       renderDocuments();
     }
 
-    async function fetchForumPosts() {}
-
     function handleAvatarLocalUpload(e) {
       const file = e.target.files[0];
       if (file) {
@@ -1497,7 +1591,6 @@
     function openUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
     function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
     function goHome() { document.getElementById('searchInput').value = ''; switchMainTab('docs'); }
-    function handleSearch() { renderDocuments(); }
 
     function handleUploadSubmit(e) {
       e.preventDefault();
@@ -1505,16 +1598,12 @@
       const subject = document.getElementById('uploadSubject').value.trim();
       const newDoc = {
         id: 'd_' + Date.now(),
-        title,
-        subject,
+        title, subject,
         author: currentUser ? currentUser.fullname : 'Khách MTU',
-        type: 'PDF',
-        faculty: 'Công nghệ thông tin',
-        likes: 0,
-        dislikes: 0,
+        type: 'PDF', faculty: 'Công nghệ thông tin',
+        likes: 0, dislikes: 0,
         url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-        date: '05/11/2026',
-        comments: []
+        date: '05/11/2026', comments: []
       };
       documentsData.unshift(newDoc);
       renderDocuments();
@@ -1536,13 +1625,6 @@
       else favoritesList.push(id);
       localStorage.setItem('edushare_favs', JSON.stringify(favoritesList));
       renderDocuments();
-    }
-
-    function logout() {
-      localStorage.removeItem('edushare_user');
-      currentUser = null;
-      updateUserUI();
-      alert("Đã đăng xuất!");
     }
   </script>
 </body>

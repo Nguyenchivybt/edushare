@@ -106,8 +106,6 @@ let users = [
   }
 ];
 
-let otpStore = {};
-
 let documents = [
   {
     id: '101',
@@ -120,23 +118,8 @@ let documents = [
     major: 'Kỹ thuật phần mềm',
     author: 'Nguyễn Chí Vỹ',
     authorId: '1',
-    views: 310,
-    downloads: 120,
-    likes: 45,
-    dislikes: 2,
-    likedUsers: [],
-    dislikedUsers: [],
-    comments: [
-      { 
-        id: 'c1', 
-        user: 'Sinh viên IT MTU', 
-        text: 'Tài liệu trình bày rất trực quan và chi tiết!', 
-        date: '02/11/2026',
-        replies: [
-          { id: 'r1', user: 'Nguyễn Chí Vỹ', text: 'Cảm ơn em! Chúc em đạt kết quả cao môn này.', date: '02/11/2026' }
-        ]
-      }
-    ],
+    views: 310, downloads: 120, likes: 45, dislikes: 2,
+    likedUsers: [], dislikedUsers: [], comments: [],
     date: '01/11/2026',
     url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
   },
@@ -151,13 +134,8 @@ let documents = [
     major: 'Kỹ thuật phần mềm',
     author: 'TS. Nguyễn Văn Giảng',
     authorId: '2',
-    views: 185,
-    downloads: 74,
-    likes: 28,
-    dislikes: 1,
-    likedUsers: [],
-    dislikedUsers: [],
-    comments: [],
+    views: 185, downloads: 74, likes: 28, dislikes: 1,
+    likedUsers: [], dislikedUsers: [], comments: [],
     date: '01/11/2026',
     url: 'https://calibre-ebook.com/downloads/demos/demo.docx'
   }
@@ -173,18 +151,16 @@ let forumPosts = [
     title: 'Chào mừng các bạn đến với Cộng đồng trao đổi học thuật MTU!',
     content: 'Diễn đàn trao đổi học thuật dành cho Sinh viên & Giảng viên MTU cùng thảo luận chuyên môn, đồ án và đề thi các năm.',
     likes: 15,
-    replies: [
-      { id: 'r1', user: 'Nguyenchivysinhvien', text: 'Giao diện rất mượt mà và dễ dùng admin ơi!', date: '04/11/2026' }
-    ]
+    replies: []
   }
 ];
 
 let liveChatMessages = [
-  { id: 'm1', sender: 'Nguyễn Chí Vỹ', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', time: '10:00' }
+  { id: 'm1', sender: 'Nguyễn Chí Vỹ', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', files: [], time: '10:00' }
 ];
 
 let chatGroups = [
-  { id: 'g1', name: 'Nhóm Nghiên Cứu Đồ Án KTPM', members: ['1', '2', '3'], messages: [{ sender: 'TS. Nguyễn Văn Giảng', text: 'Thầy vừa upload tài liệu đồ án mẫu nhé.', time: '10:15' }] }
+  { id: 'g1', name: 'Nhóm Nghiên Cứu Đồ Án KTPM', members: ['1', '2', '3'], messages: [{ sender: 'TS. Nguyễn Văn Giảng', text: 'Thầy vừa upload tài liệu đồ án mẫu nhé.', files: [], time: '10:15' }] }
 ];
 
 /* API ENDPOINTS */
@@ -223,140 +199,38 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
     });
   }
 
-  if (articleLink && articleLink.trim()) {
-    const linkDoc = {
-      id: String(Date.now() + 99),
-      title: `${title} [Bài báo nghiên cứu]`,
-      type: 'LINK',
-      category: category || 'Bài báo tiêu biểu',
-      subject: subject || 'Nghiên cứu',
-      school: 'Trường Đại học Xây dựng Miền Tây',
-      faculty: faculty || 'Công nghệ thông tin',
-      major: major || 'Kỹ thuật phần mềm',
-      author: author || 'Thành viên MTU',
-      authorId: authorId || '1',
-      views: 1, downloads: 0, likes: 0, dislikes: 0,
-      likedUsers: [], dislikedUsers: [], comments: [], isArticle: true,
-      date: new Date().toLocaleDateString('vi-VN'),
-      url: articleLink.trim()
-    };
-    documents.unshift(linkDoc);
-    createdDocs.push(linkDoc);
-  }
-
   res.json({ success: true, message: `🎉 Đã đăng thành công ${createdDocs.length} học liệu mới!`, documents: createdDocs });
 });
 
-/* API THÍCH / KHÔNG THÍCH 2 CHIỀU */
-app.post('/api/documents/reaction-toggle', (req, res) => {
-  const { docId, type, userId } = req.body;
-  const doc = documents.find(d => d.id === docId);
-  if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy tài liệu' });
-
-  doc.likedUsers = doc.likedUsers || [];
-  doc.dislikedUsers = doc.dislikedUsers || [];
-  const uid = userId || 'guest';
-
-  if (type === 'like') {
-    if (doc.likedUsers.includes(uid)) {
-      doc.likedUsers = doc.likedUsers.filter(u => u !== uid);
-      doc.likes = Math.max(0, (doc.likes || 1) - 1);
-    } else {
-      doc.likedUsers.push(uid);
-      doc.likes = (doc.likes || 0) + 1;
-      if (doc.dislikedUsers.includes(uid)) {
-        doc.dislikedUsers = doc.dislikedUsers.filter(u => u !== uid);
-        doc.dislikes = Math.max(0, (doc.dislikes || 1) - 1);
-      }
-    }
-  } else if (type === 'dislike') {
-    if (doc.dislikedUsers.includes(uid)) {
-      doc.dislikedUsers = doc.dislikedUsers.filter(u => u !== uid);
-      doc.dislikes = Math.max(0, (doc.dislikes || 1) - 1);
-    } else {
-      doc.dislikedUsers.push(uid);
-      doc.dislikes = (doc.dislikes || 0) + 1;
-      if (doc.likedUsers.includes(uid)) {
-        doc.likedUsers = doc.likedUsers.filter(u => u !== uid);
-        doc.likes = Math.max(0, (doc.likes || 1) - 1);
-      }
-    }
+/* API GỬI FILE KÈM NHẮN TIN CHAT PUBLIC VÀ NHÓM CHAT */
+app.post('/api/chat/upload', upload.array('attachments', 10), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ success: false, message: 'Không có tệp được chọn' });
   }
 
-  res.json({ success: true, likes: doc.likes, dislikes: doc.dislikes, likedUsers: doc.likedUsers, dislikedUsers: doc.dislikedUsers });
+  const uploadedFiles = req.files.map(f => ({
+    name: f.originalname,
+    url: `/uploads/${f.filename}`,
+    type: detectFileType(f.originalname)
+  }));
+
+  res.json({ success: true, files: uploadedFiles });
 });
 
-/* API BÌNH LUẬN NỔI NÂNG CẤP */
-app.post('/api/documents/comment', (req, res) => {
-  const { docId, user, text, parentCommentId } = req.body;
-  const doc = documents.find(d => d.id === docId);
-  if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy tài liệu' });
-  if (!text || !text.trim()) return res.status(400).json({ success: false, message: 'Nội dung không được trống' });
-
-  doc.comments = doc.comments || [];
-
-  if (parentCommentId) {
-    const parent = doc.comments.find(c => c.id === parentCommentId);
-    if (parent) {
-      parent.replies = parent.replies || [];
-      parent.replies.push({
-        id: 'r_' + Date.now(),
-        user: user || 'Thành viên MTU',
-        text: text.trim(),
-        date: new Date().toLocaleDateString('vi-VN')
-      });
-    }
-  } else {
-    doc.comments.push({
-      id: 'c_' + Date.now(),
-      user: user || 'Thành viên MTU',
-      text: text.trim(),
-      date: new Date().toLocaleDateString('vi-VN'),
-      replies: []
-    });
-  }
-
-  res.json({ success: true, comments: doc.comments });
-});
-
-app.delete('/api/documents/:id', (req, res) => {
-  const { id } = req.params;
-  const initialLen = documents.length;
-  documents = documents.filter(d => d.id !== id);
-  if (documents.length < initialLen) return res.json({ success: true, message: '🗑️ Đã xóa học liệu thành công!' });
-  res.status(404).json({ success: false, message: '❌ Không tìm thấy học liệu!' });
-});
-
-app.get('/api/forum', (req, res) => res.json(forumPosts));
-
-app.post('/api/forum/create', (req, res) => {
-  const { author, avatar, role, title, content } = req.body;
-  if (!title || !content) return res.status(400).json({ success: false, message: 'Nhập tiêu đề và nội dung!' });
-
-  const newPost = {
-    id: 'f_' + Date.now(),
-    author: author || 'Sinh viên MTU',
-    avatar: avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Student',
-    role: role || 'student',
-    date: new Date().toLocaleDateString('vi-VN'),
-    title, content, likes: 0, replies: []
-  };
-  forumPosts.unshift(newPost);
-  res.json({ success: true, message: '🎉 Đã đăng bài viết thảo luận thành công!', post: newPost });
-});
-
-/* CHAT TRỰC TUYẾN & NHÓM CHAT API */
 app.get('/api/chat/public', (req, res) => res.json(liveChatMessages));
 
 app.post('/api/chat/public/send', (req, res) => {
-  const { sender, avatar, text } = req.body;
-  if (!text || !text.trim()) return res.status(400).json({ success: false });
+  const { sender, avatar, text, files } = req.body;
+  if ((!text || !text.trim()) && (!files || files.length === 0)) {
+    return res.status(400).json({ success: false });
+  }
 
   const msg = {
     id: 'm_' + Date.now(),
     sender: sender || 'Thành viên MTU',
     avatar: avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=User',
-    text: text.trim(),
+    text: text ? text.trim() : '',
+    files: files || [],
     time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
   };
   liveChatMessages.push(msg);
@@ -379,15 +253,18 @@ app.post('/api/chat/groups/create', (req, res) => {
 });
 
 app.post('/api/chat/groups/send', (req, res) => {
-  const { groupId, sender, text } = req.body;
+  const { groupId, sender, text, files } = req.body;
   const group = chatGroups.find(g => g.id === groupId);
   if (!group) return res.status(404).json({ success: false, message: 'Không tìm thấy nhóm chat' });
-  if (!text || !text.trim()) return res.status(400).json({ success: false, message: 'Nội dung không được để trống' });
+  if ((!text || !text.trim()) && (!files || files.length === 0)) {
+    return res.status(400).json({ success: false, message: 'Nội dung không được để trống' });
+  }
 
   const msg = {
     id: 'gm_' + Date.now(),
     sender: sender || 'Thành viên MTU',
-    text: text.trim(),
+    text: text ? text.trim() : '',
+    files: files || [],
     time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
   };
   group.messages = group.messages || [];
@@ -433,7 +310,6 @@ app.post('/api/chatbot', async (req, res) => {
   return res.json({ reply: `🤖 **EduShare AI**: Đã tiếp nhận câu hỏi "${message}". Hệ thống đang sẵn sàng đồng hành cùng bạn!` });
 });
 
-/* ROUTE CỤ THỂ ĐỂ PHỤC VỤ SITEMAP.XML CHUẨN CHO GOOGLE SEARCH CONSOLE */
 app.get('/sitemap.xml', (req, res) => {
   res.header('Content-Type', 'application/xml');
   const sitemapPath = path.join(__dirname, 'public', 'sitemap.xml');
@@ -452,7 +328,6 @@ app.get('/sitemap.xml', (req, res) => {
   }
 });
 
-/* FALLBACK SPA ROUTE - PHẢI ĐẶT DƯỚI CÙNG */
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.listen(PORT, () => console.log(`🚀 EduShare Server đang chạy tại: http://localhost:${PORT}`));
