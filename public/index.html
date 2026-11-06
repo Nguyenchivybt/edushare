@@ -36,12 +36,11 @@
 </head>
 <body id="appBody" class="theme-academic bg-slate-100 text-slate-800 font-sans min-h-full flex flex-col antialiased transition-colors duration-300">
 
-  <!-- HEADER LINH HOẠT -->
- <!-- HEADER LINH HOẠT - ĐÃ SỬA LỖI CHỒNG CHÉO -->
+  <!-- HEADER LINH HOẠT - ĐÃ SỬA LỖI CHỒNG CHÉO -->
   <header id="mainHeader" class="header-bg text-white shadow-md sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 flex items-center justify-between gap-2">
       
-      <!-- LOGO EDUSHARE (CỤM TRÁI) -->
+      <!-- LOGO EDUSHARE -->
       <div class="flex items-center space-x-2 shrink-0">
         <div class="flex items-center space-x-2 cursor-pointer" onclick="goHome()">
           <div class="relative flex flex-col items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-amber-400 text-blue-950 rounded-xl shadow-md font-bold shrink-0">
@@ -55,7 +54,7 @@
         </div>
       </div>
 
-      <!-- MENU ĐIỀU HƯỚNG (CỤM GIỮA) -->
+      <!-- MENU ĐIỀU HƯỚNG -->
       <div class="hidden lg:flex items-center gap-1 xl:gap-1.5 text-xs flex-1 min-w-0 justify-center px-2">
         <button onclick="goHome()" class="h-8 xl:h-9 bg-white/10 hover:bg-white/20 text-white font-medium px-2 xl:px-2.5 rounded-lg flex items-center space-x-1 shrink-0 transition">
           <i class="fa-solid fa-house"></i>
@@ -97,28 +96,23 @@
         </button>
       </div>
 
-      <!-- THANH TÌM KIẾM & TÀI KHOẢN (CỤM PHẢI) -->
+      <!-- TÌM KIẾM & TÀI KHOẢN -->
       <div class="hidden lg:flex items-center space-x-1.5 xl:space-x-2 shrink-0 relative">
-        
-        <!-- THANH TÌM KIẾM CO GIÃN THÔNG MINH -->
         <div class="relative w-32 md:w-40 lg:w-44 xl:w-56 transition-all duration-200 shrink">
           <input type="text" id="searchInput" oninput="handleSearchInput(this.value)" placeholder="Tìm tài liệu..." class="w-full h-8 xl:h-9 pl-7 pr-2 rounded-lg text-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white shadow-inner truncate" autocomplete="off">
           <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
           <div id="searchSuggestionsBox" class="hidden absolute top-10 left-0 right-0 bg-slate-900 border border-slate-700 text-white rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto text-xs py-1"></div>
         </div>
 
-        <!-- BADGE ONLINE -->
         <span class="hidden xl:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 shrink-0">
           <span class="w-1.5 h-1.5 mr-1 bg-emerald-400 rounded-full animate-pulse"></span>Online
         </span>
 
-        <!-- KHU VỰC KHÁCH -->
         <div id="guestNav" class="flex space-x-1 shrink-0">
           <button onclick="openLoginModal(event)" class="h-8 xl:h-9 bg-amber-500 hover:bg-amber-600 text-blue-950 px-2.5 rounded-lg font-bold text-xs shadow transition">Đăng Nhập</button>
           <button onclick="openRegisterModal(event)" class="h-8 xl:h-9 bg-white/10 hover:bg-white/20 text-white px-2.5 rounded-lg font-semibold text-xs transition">Đăng Ký</button>
         </div>
 
-        <!-- KHU VỰC ĐÃ ĐĂNG NHẬP (GIỚI HẠN ĐỘ RỘNG TÊN CÓ TRUNCATE) -->
         <div id="userNav" class="hidden flex items-center space-x-1.5 shrink-0">
           <button onclick="toggleUserDropdown(event)" class="font-semibold text-xs text-blue-100 flex items-center space-x-1.5 hover:opacity-90 shrink-0 bg-white/10 px-2 py-1 rounded-xl border border-white/10">
             <span id="userName" class="max-w-[80px] md:max-w-[100px] xl:max-w-[120px] truncate block">Nguyễn Chí Vỹ</span>
@@ -137,7 +131,6 @@
           <i class="fa-solid fa-sliders"></i>
         </button>
 
-        <!-- MENU USER FACEBOOK DROPDOWN -->
         <div id="fbUserDropdownMenu" class="hidden absolute top-11 xl:top-12 right-0 w-80 bg-slate-900 text-slate-100 rounded-2xl shadow-2xl border border-slate-700/80 p-3 z-50 space-y-2">
           <div class="bg-slate-800/90 p-3 rounded-xl border border-slate-700 flex items-center space-x-3">
             <img id="fbMenuAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen" class="w-12 h-12 rounded-full object-cover border-2 border-amber-400 shadow">
@@ -208,7 +201,7 @@
 
       </div>
 
-      <!-- NÚT HAMBURGER MOBILE -->
+      <!-- HAMBURGER MOBILE -->
       <div class="flex items-center space-x-2 lg:hidden">
         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
           <span class="w-1.5 h-1.5 mr-1 bg-emerald-400 rounded-full animate-pulse"></span>Online
@@ -220,7 +213,7 @@
 
     </div>
 
-    <!-- MENU CÀI ĐẶT HỆ THỐNG TRÊN MÁY TÍNH -->
+    <!-- MENU CÀI ĐẶT HỆ THỐNG -->
     <div id="systemMenuDrawer" class="hidden bg-slate-900 border-t border-slate-800 text-slate-200 px-4 py-4 shadow-xl">
       <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
         
@@ -287,6 +280,7 @@
 
       </div>
     </div>
+  </header>
   </header>
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
       
