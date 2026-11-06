@@ -36,7 +36,7 @@
 </head>
 <body id="appBody" class="theme-academic bg-slate-100 text-slate-800 font-sans min-h-full flex flex-col antialiased transition-colors duration-300">
 
-  <!-- HEADER LINH HOẠT - ĐÃ SỬA LỖI CHỒNG CHÉO -->
+<!-- HEADER LINH HOẠT - CHUẨN DUY NHẤT -->
   <header id="mainHeader" class="header-bg text-white shadow-md sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2 flex items-center justify-between gap-2">
       
@@ -108,11 +108,13 @@
           <span class="w-1.5 h-1.5 mr-1 bg-emerald-400 rounded-full animate-pulse"></span>Online
         </span>
 
+        <!-- KHU VỰC KHÁCH -->
         <div id="guestNav" class="flex space-x-1 shrink-0">
           <button onclick="openLoginModal(event)" class="h-8 xl:h-9 bg-amber-500 hover:bg-amber-600 text-blue-950 px-2.5 rounded-lg font-bold text-xs shadow transition">Đăng Nhập</button>
           <button onclick="openRegisterModal(event)" class="h-8 xl:h-9 bg-white/10 hover:bg-white/20 text-white px-2.5 rounded-lg font-semibold text-xs transition">Đăng Ký</button>
         </div>
 
+        <!-- KHU VỰC ĐÃ ĐĂNG NHẬP -->
         <div id="userNav" class="hidden flex items-center space-x-1.5 shrink-0">
           <button onclick="toggleUserDropdown(event)" class="font-semibold text-xs text-blue-100 flex items-center space-x-1.5 hover:opacity-90 shrink-0 bg-white/10 px-2 py-1 rounded-xl border border-white/10">
             <span id="userName" class="max-w-[80px] md:max-w-[100px] xl:max-w-[120px] truncate block">Nguyễn Chí Vỹ</span>
@@ -131,6 +133,7 @@
           <i class="fa-solid fa-sliders"></i>
         </button>
 
+        <!-- MENU USER FACEBOOK DROPDOWN -->
         <div id="fbUserDropdownMenu" class="hidden absolute top-11 xl:top-12 right-0 w-80 bg-slate-900 text-slate-100 rounded-2xl shadow-2xl border border-slate-700/80 p-3 z-50 space-y-2">
           <div class="bg-slate-800/90 p-3 rounded-xl border border-slate-700 flex items-center space-x-3">
             <img id="fbMenuAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen" class="w-12 h-12 rounded-full object-cover border-2 border-amber-400 shadow">
@@ -280,7 +283,6 @@
 
       </div>
     </div>
-  </header>
   </header>
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2">
       
