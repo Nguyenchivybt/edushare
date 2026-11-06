@@ -5,110 +5,82 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Express Middlewares
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Mock In-Memory Databases
+// Mock Data Stores
 let files = [
-    { id: 101, name: 'Giaotrinh_LapTrinh_Web_NodeJS.pdf', size: '2.4 MB', date: '05/11/2026' },
-    { id: 102, name: 'BaiTap_UML_Design_Pattern.docx', size: '1.1 MB', date: '04/11/2026' }
+    { id: 101, name: 'Giaotrinh_LapTrinh_Web_NodeJS.pdf', size: '2.4 MB', date: '05/11/2026', owner: 'Giảng viên' },
+    { id: 102, name: 'BaiTap_UML_Design_Pattern.docx', size: '1.1 MB', date: '04/11/2026', owner: 'Sinh viên' }
 ];
 
 let news = [
-    { id: 201, title: 'Cập nhật công nghệ AI trong giáo dục đại học 2026', author: 'Admin', time: '10 phút trước' }
+    { id: 201, title: 'Cập nhật công nghệ AI trong giáo dục đại học 2026', author: 'Quản trị viên', time: '10 phút trước' }
 ];
 
-// --- AUTH ROUTES ---
+let groups = [];
 
-// 1. Đăng ký
+// Authentication Routes
 app.post('/api/auth/register', (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
     if (!name || !email || !password) {
-        return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ thông tin!' });
+        return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
     }
-    return res.json({ success: true, message: 'Đăng ký thành công! Vui lòng đăng nhập.' });
+    return res.json({ success: true, message: 'Đã đăng ký thành công!' });
 });
 
-// 2. Đăng nhập
 app.post('/api/auth/login', (req, res) => {
-    const { email, password, rememberMe } = req.body;
+    const { email, password } = req.body;
     if (!email || !password) {
-        return res.status(400).json({ success: false, message: 'Email và Mật khẩu không được để trống!' });
+        return res.status(400).json({ success: false, message: 'Đăng nhập thất bại. Vui lòng thử lại!' });
     }
     return res.json({
         success: true,
-        message: 'Đăng nhập thành công!',
-        token: 'jwt_mock_token_edushare_2026',
-        user: { email, name: email.split('@')[0] }
+        message: 'Đã đăng nhập thành công!',
+        user: { name: email.split('@')[0], email, role: 'Giảng viên' }
     });
 });
 
-// 3. Quên Mật Khẩu & Gửi OTP
 app.post('/api/auth/forgot-password', (req, res) => {
     const { email } = req.body;
     if (!email) {
-        return res.status(400).json({ success: false, message: 'Vui lòng nhập Email!' });
+        return res.status(400).json({ success: false, message: 'Đăng nhập thất bại. Vui lòng thử lại!' });
     }
-    return res.json({ success: true, message: `Mã OTP đã được gửi đến email ${email}` });
+    return res.json({ success: true, message: `Mã OTP đã gửi về ${email}` });
 });
 
-// 4. Xác thực OTP
-app.post('/api/auth/verify-otp', (req, res) => {
-    const { otp } = req.body;
-    if (!otp || otp.length < 6) {
-        return res.status(400).json({ success: false, message: 'Mã OTP không hợp lệ!' });
+// Academic Group Routes
+app.post('/api/groups', (req, res) => {
+    const { name, description } = req.body;
+    if (!name) {
+        return res.status(400).json({ success: false, message: 'Tạo nhóm thất bại, vui lòng thử lại!' });
     }
-    return res.json({ success: true, message: 'Xác nhận mã OTP thành công!' });
+    const newGroup = { id: Date.now(), name, description };
+    groups.push(newGroup);
+    return res.json({ success: true, message: 'Đã tạo nhóm thành công!', group: newGroup });
 });
 
-// 5. Đặt lại Mật khẩu mới
-app.post('/api/auth/reset-password', (req, res) => {
-    const { newPassword } = req.body;
-    if (!newPassword || newPassword.length < 6) {
-        return res.status(400).json({ success: false, message: 'Mật khẩu phải từ 6 ký tự trở lên!' });
-    }
-    return res.json({ success: true, message: 'Đổi mật khẩu thành công! Vui lòng đăng nhập lại.' });
-});
-
-// --- SEARCH & CONTENT ROUTES ---
-
-// Search API
-app.get('/api/search', (req, res) => {
-    const query = (req.query.q || '').toLowerCase();
-    const matchedFiles = files.filter(f => f.name.toLowerCase().includes(query));
-    const matchedNews = news.filter(n => n.title.toLowerCase().includes(query));
-    
-    return res.json({
-        success: true,
-        results: [
-            ...matchedFiles.map(f => ({ ...f, type: 'Tệp tin' })),
-            ...matchedNews.map(n => ({ ...n, type: 'Bài báo' }))
-        ]
-    });
-});
-
-// Delete File API
+// File Management Routes
 app.delete('/api/files/:id', (req, res) => {
     const id = parseInt(req.params.id);
     files = files.filter(f => f.id !== id);
     return res.json({ success: true, message: 'Đã xóa Tệp tin!' });
 });
 
-// Delete News API
 app.delete('/api/news/:id', (req, res) => {
     const id = parseInt(req.params.id);
     news = news.filter(n => n.id !== id);
     return res.json({ success: true, message: 'Đã xóa bài báo!' });
 });
 
-// Fallback Route for Single Page Application
+// SPA Fallback Route
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`EduShare Server running on http://localhost:${PORT}`);
+    console.log(`EduShare Server running on port ${PORT}`);
 });
