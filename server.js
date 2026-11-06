@@ -1,86 +1,306 @@
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
+const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Express Middlewares
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Mock Data Stores
-let files = [
-    { id: 101, name: 'Giaotrinh_LapTrinh_Web_NodeJS.pdf', size: '2.4 MB', date: '05/11/2026', owner: 'Giảng viên' },
-    { id: 102, name: 'BaiTap_UML_Design_Pattern.docx', size: '1.1 MB', date: '04/11/2026', owner: 'Sinh viên' }
-];
+// CẤU HÌNH GOOGLE GEMINI AI
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AIzaSy_YOUR_API_KEY_HERE";
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-let news = [
-    { id: 201, title: 'Cập nhật công nghệ AI trong giáo dục đại học 2026', author: 'Quản trị viên', time: '10 phút trước' }
-];
+const systemInstruction = `
+Bạn là "EduShare AI" - Trợ lý tri thức & Cố vấn học thuật của Thư viện học liệu số EduShare thuộc Trường Đại học Xây dựng Miền Tây (MTU).
+Tác giả phát triển: Nguyễn Chí Vỹ (SĐT: 0862204069, Email: nguyenchivybt2006@gmail.com, Địa chỉ: Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long).
+Địa chỉ trường MTU: Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long (SĐT: 0270 3 825 903, Email: dhxdmt@muce.edu.vn, Website: https://mtu.edu.vn).
+`;
 
-let groups = [];
+// THƯ MỤC UPLOAD TỆP TIN
+const uploadDir = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-// Authentication Routes
-app.post('/api/auth/register', (req, res) => {
-    const { name, email, password, role } = req.body;
-    if (!name || !email || !password) {
-        return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
-    }
-    return res.json({ success: true, message: 'Đã đăng ký thành công!' });
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + '-' + Math.round(Math.random() * 1E9) + ext);
+  }
 });
 
-app.post('/api/auth/login', (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ success: false, message: 'Đăng nhập thất bại. Vui lòng thử lại!' });
-    }
-    return res.json({
-        success: true,
-        message: 'Đã đăng nhập thành công!',
-        user: { name: email.split('@')[0], email, role: 'Giảng viên' }
+const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } });
+
+function detectFileType(filename) {
+  if (!filename) return 'LINK';
+  const ext = path.extname(filename).toLowerCase();
+  if (['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'].includes(ext)) return 'HÌNH ẢNH';
+  if (ext === '.pdf') return 'PDF';
+  if (['.docx', '.doc', '.txt'].includes(ext)) return 'DOCX';
+  if (['.pptx', '.ppt'].includes(ext)) return 'PPTX';
+  if (['.mp3', '.wav', '.m4a', '.flac'].includes(ext)) return 'AUDIO';
+  if (['.mp4', '.mkv', '.avi', '.mov'].includes(ext)) return 'VIDEO';
+  return 'TẬP TIN';
+}
+
+// IN-MEMORY DATABASE
+let users = [
+  { 
+    id: '1', 
+    fullname: 'Nguyễn Chí Vỹ', 
+    username: 'admin', 
+    password: 'adminpassword123', 
+    role: 'admin', 
+    gender: 'Nam',
+    dob: '2006-01-06',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Công nghệ thông tin',
+    major: 'Kỹ thuật phần mềm',
+    studentClass: 'KTPM2024',
+    address: 'Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long',
+    emailPhone: 'nguyenchivybt2006@gmail.com',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen',
+    authProvider: 'local' 
+  },
+  { 
+    id: '2', 
+    fullname: 'TS. Nguyễn Văn Giảng', 
+    username: 'giangnv', 
+    password: '123', 
+    role: 'teacher', 
+    gender: 'Nam',
+    dob: '1980-05-15',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Xây dựng',
+    major: 'Kỹ thuật xây dựng',
+    studentClass: 'GV-XD',
+    address: 'Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long',
+    emailPhone: 'giang.nv@mtu.edu.vn',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Giang',
+    authProvider: 'local' 
+  },
+  { 
+    id: '3', 
+    fullname: 'Nguyenchivysinhvien', 
+    username: 'Nguyenchivysinhvien', 
+    password: '123', 
+    role: 'student', 
+    gender: 'Nam',
+    dob: '2006-01-06',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Công nghệ thông tin',
+    major: 'Kỹ thuật phần mềm',
+    studentClass: 'DH2024',
+    address: 'Tỉnh Vĩnh Long',
+    emailPhone: '0862204069',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=StudentVy',
+    authProvider: 'local' 
+  }
+];
+
+let documents = [
+  {
+    id: '101',
+    title: 'Giaotrinh_LapTrinh_Web_NodeJS.pdf',
+    type: 'PDF',
+    category: 'Tài liệu bài giảng',
+    subject: 'Lập trình Web',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Công nghệ thông tin',
+    major: 'Kỹ thuật phần mềm',
+    author: 'Nguyễn Chí Vỹ',
+    authorId: '1',
+    views: 310, downloads: 120, likes: 45, dislikes: 0,
+    likedUsers: [], dislikedUsers: [], comments: [],
+    date: '05/11/2026',
+    url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+  },
+  {
+    id: '102',
+    title: 'BaiTap_UML_Design_Pattern.docx',
+    type: 'DOCX',
+    category: 'Bài tập mẫu',
+    subject: 'Phân tích thiết kế hệ thống',
+    school: 'Trường Đại học Xây dựng Miền Tây',
+    faculty: 'Công nghệ thông tin',
+    major: 'Kỹ thuật phần mềm',
+    author: 'Sinh viên MTU',
+    authorId: '3',
+    views: 185, downloads: 74, likes: 28, dislikes: 1,
+    likedUsers: [], dislikedUsers: [], comments: [],
+    date: '04/11/2026',
+    url: 'https://calibre-ebook.com/downloads/demos/demo.docx'
+  }
+];
+
+let chatGroups = [
+  { id: 'g1', name: 'Nhóm Nghiên Cứu Đồ Án KTPM', members: ['1', '2', '3'], messages: [] }
+];
+
+/* API ENDPOINTS */
+app.get('/api/users', (req, res) => {
+  const safeUsers = users.map(u => ({ id: u.id, fullname: u.fullname, username: u.username, role: u.role, avatar: u.avatar }));
+  res.json(safeUsers);
+});
+
+app.get('/api/documents', (req, res) => res.json(documents));
+
+app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
+  const { title, category, subject, faculty, major, author, authorId } = req.body;
+  const createdDocs = [];
+
+  if (req.files && req.files.length > 0) {
+    req.files.forEach((file, index) => {
+      const fileUrl = `/uploads/${file.filename}`;
+      const docItem = {
+        id: String(Date.now() + index),
+        title: req.files.length > 1 ? `${title} (Tệp ${index + 1}: ${file.originalname})` : title || file.originalname,
+        type: detectFileType(file.originalname),
+        category: category || 'Tài liệu bài giảng',
+        subject: subject || 'Chung',
+        school: 'Trường Đại học Xây dựng Miền Tây',
+        faculty: faculty || 'Công nghệ thông tin',
+        major: major || 'Kỹ thuật phần mềm',
+        author: author || 'Nguyễn Chí Vỹ',
+        authorId: authorId || '1',
+        views: 1, downloads: 0, likes: 0, dislikes: 0,
+        likedUsers: [], dislikedUsers: [], comments: [],
+        date: new Date().toLocaleDateString('vi-VN'),
+        url: fileUrl
+      };
+      documents.unshift(docItem);
+      createdDocs.push(docItem);
     });
+    return res.json({ success: true, message: 'Tải tệp thành công!', documents: createdDocs });
+  }
+
+  return res.status(400).json({ success: false, message: 'Tải tệp thất bại. Vui lòng thử lại sau!' });
 });
 
-app.post('/api/auth/forgot-password', (req, res) => {
-    const { email } = req.body;
-    if (!email) {
-        return res.status(400).json({ success: false, message: 'Đăng nhập thất bại. Vui lòng thử lại!' });
+app.delete('/api/documents/:id', (req, res) => {
+  const { id } = req.params;
+  documents = documents.filter(d => d.id !== id);
+  res.json({ success: true, message: 'Đã xóa Tệp tin!' });
+});
+
+app.post('/api/register', (req, res) => {
+  const { username, emailPhone, password, confirmPassword, fullname, role, gender, dob, school, faculty, major, studentClass, address } = req.body;
+  if (!username || !emailPhone || !password) {
+    return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
+  }
+  if (password !== confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
+  }
+
+  const existing = users.find(u => u.username.toLowerCase() === username.toLowerCase() || u.emailPhone.toLowerCase() === emailPhone.toLowerCase());
+  if (existing) {
+    return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc Email/SĐT đã tồn tại!' });
+  }
+
+  const newUser = {
+    id: String(Date.now()),
+    fullname: fullname || username,
+    username,
+    password,
+    emailPhone,
+    gender: gender || 'Nam',
+    dob: dob || '',
+    school: school || 'Trường Đại học Xây dựng Miền Tây',
+    faculty: faculty || 'Công nghệ thông tin',
+    major: major || 'Kỹ thuật phần mềm',
+    studentClass: studentClass || 'DH2024',
+    address: address || 'Vĩnh Long',
+    role: role || 'student',
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+    authProvider: 'local'
+  };
+  users.push(newUser);
+  res.json({ success: true, message: 'Đã đăng ký thành công!', user: newUser });
+});
+
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  const key = (username || '').trim().toLowerCase();
+  const user = users.find(u => (u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key) && u.password === password);
+  if (user) res.json({ success: true, message: 'Đã đăng nhập thành công!', user });
+  else res.status(400).json({ success: false, message: 'Đăng nhập thất bại. Vui lòng thử lại!' });
+});
+
+app.post('/api/forgot-password/request-otp', (req, res) => {
+  const { userKey } = req.body;
+  const key = (userKey || '').trim().toLowerCase();
+  const user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
+  if (user) {
+    res.json({ success: true, message: 'Mã xác nhận OTP đã được gửi!', otpCode: '123456' });
+  } else {
+    res.status(400).json({ success: false, message: 'Sai cú pháp vui lòng nhập lại!' });
+  }
+});
+
+app.post('/api/forgot-password/reset', (req, res) => {
+  const { userKey, newPassword, confirmPassword } = req.body;
+  if (!newPassword || newPassword !== confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Mật khẩu xác nhận không trùng khớp!' });
+  }
+  const key = (userKey || '').trim().toLowerCase();
+  const user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
+  if (user) {
+    user.password = newPassword;
+    res.json({ success: true, message: 'Đã cập nhật mật khẩu mới thành công!' });
+  } else {
+    res.status(400).json({ success: false, message: 'Không tìm thấy người dùng!' });
+  }
+});
+
+app.post('/api/chat/groups/create', (req, res) => {
+  const { name, creatorId, memberIds } = req.body;
+  if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Tạo nhóm thất bại, vui lòng thử lại!' });
+  const newGroup = {
+    id: 'g_' + Date.now(),
+    name: name.trim(),
+    members: [creatorId || '1', ...(memberIds || [])],
+    messages: []
+  };
+  chatGroups.push(newGroup);
+  res.json({ success: true, message: 'Đã tạo nhóm thành công!', group: newGroup });
+});
+
+app.post('/api/chatbot', async (req, res) => {
+  const { message } = req.body;
+  if (!message || !message.trim()) return res.status(400).json({ reply: 'Vui lòng nhập nội dung câu hỏi!' });
+
+  try {
+    if (GEMINI_API_KEY && !GEMINI_API_KEY.includes("YOUR_API_KEY")) {
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction });
+      const result = await model.generateContent(message);
+      if (result.response.text()) return res.json({ reply: result.response.text() });
     }
-    return res.json({ success: true, message: `Mã OTP đã gửi về ${email}` });
+  } catch (err) {}
+
+  return res.json({ reply: `🤖 **EduShare AI**: Đã tiếp nhận câu hỏi "${message}". Hệ thống sẵn sàng đồng hành cùng bạn!` });
 });
 
-// Academic Group Routes
-app.post('/api/groups', (req, res) => {
-    const { name, description } = req.body;
-    if (!name) {
-        return res.status(400).json({ success: false, message: 'Tạo nhóm thất bại, vui lòng thử lại!' });
-    }
-    const newGroup = { id: Date.now(), name, description };
-    groups.push(newGroup);
-    return res.json({ success: true, message: 'Đã tạo nhóm thành công!', group: newGroup });
+app.get('/sitemap.xml', (req, res) => {
+  res.header('Content-Type', 'application/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://edushare-i0xh.onrender.com/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>`);
 });
 
-// File Management Routes
-app.delete('/api/files/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    files = files.filter(f => f.id !== id);
-    return res.json({ success: true, message: 'Đã xóa Tệp tin!' });
-});
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-app.delete('/api/news/:id', (req, res) => {
-    const id = parseInt(req.params.id);
-    news = news.filter(n => n.id !== id);
-    return res.json({ success: true, message: 'Đã xóa bài báo!' });
-});
-
-// SPA Fallback Route
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.listen(PORT, () => {
-    console.log(`EduShare Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 EduShare Server đang chạy tại: http://localhost:${PORT}`));

@@ -20,26 +20,26 @@
             --input-bg: #0f172a;
         }
 
-        /* Light Mode Variables */
+        /* Light Mode Theme */
         [data-theme="light"] {
-            --bg-body: #f1f5f9;
+            --bg-body: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #0f172a;
-            --text-muted: #64748b;
+            --text-muted: #475569;
             --border-color: #cbd5e1;
-            --input-bg: #f8fafc;
+            --input-bg: #f1f5f9;
         }
 
         /* Style Themes */
         [data-style="classic"] {
-            --primary: #8b5cf6;
-            --primary-hover: #7c3aed;
+            --primary: #7c3aed;
+            --primary-hover: #6d28d9;
             font-family: 'Times New Roman', Georgia, serif;
         }
         [data-style="academic"] {
             --primary: #059669;
             --primary-hover: #047857;
-            font-family: 'Cambria', 'Georgia', serif;
+            font-family: 'Cambria', Georgia, serif;
         }
         [data-style="modern"] {
             --primary: #2563eb;
@@ -75,12 +75,13 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .logo-group {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.85rem;
             text-decoration: none;
             color: var(--text-main);
         }
@@ -91,7 +92,7 @@
             align-items: center;
             justify-content: center;
             color: var(--primary);
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             line-height: 1;
         }
 
@@ -101,23 +102,23 @@
         }
 
         .logo-title {
-            font-size: 1.25rem;
+            font-size: 1.3rem;
             font-weight: 800;
             color: var(--primary);
             letter-spacing: -0.5px;
         }
 
         .logo-subtitle {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         /* Navigation Menu */
         .nav-menu {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             list-style: none;
         }
 
@@ -126,12 +127,12 @@
         }
 
         .nav-link {
-            padding: 0.5rem 0.85rem;
+            padding: 0.55rem 0.85rem;
             color: var(--text-main);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             gap: 0.4rem;
@@ -139,7 +140,7 @@
         }
 
         .nav-link:hover, .nav-link.active {
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(37, 99, 235, 0.12);
             color: var(--primary);
         }
 
@@ -150,9 +151,9 @@
             left: 0;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            min-width: 200px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            min-width: 220px;
             display: none;
             flex-direction: column;
             z-index: 200;
@@ -164,17 +165,18 @@
         }
 
         .dropdown-item {
-            padding: 0.6rem 1rem;
+            padding: 0.65rem 1rem;
             color: var(--text-main);
             text-decoration: none;
-            font-size: 0.85rem;
+            font-size: 0.86rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
+            font-weight: 500;
         }
 
         .dropdown-item:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(37, 99, 235, 0.1);
             color: var(--primary);
         }
 
@@ -182,7 +184,7 @@
         .search-container {
             position: relative;
             flex: 1;
-            max-width: 380px;
+            max-width: 360px;
         }
 
         .search-wrapper {
@@ -236,7 +238,7 @@
             display: block;
         }
 
-        /* User Controls & Avatar */
+        /* User Controls & Profile */
         .user-controls {
             display: flex;
             align-items: center;
@@ -244,7 +246,7 @@
         }
 
         .btn {
-            padding: 0.45rem 1rem;
+            padding: 0.5rem 1.1rem;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
@@ -259,25 +261,30 @@
         .btn-primary { background-color: var(--primary); color: white; }
         .btn-primary:hover { background-color: var(--primary-hover); }
         .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border-color); }
-        .btn-outline:hover { background: rgba(255,255,255,0.08); }
+        .btn-outline:hover { background: rgba(255,255,255,0.08); border-color: var(--primary); }
         .btn-danger { background-color: var(--danger); color: white; }
         .btn-danger:hover { opacity: 0.9; }
         .btn-success { background-color: var(--success); color: white; }
-        .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.8rem; }
+        .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.82rem; }
 
         .user-profile-bar {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.65rem;
             cursor: pointer;
-            padding: 0.2rem 0.5rem;
+            padding: 0.25rem 0.6rem;
             border-radius: 8px;
             border: 1px solid var(--border-color);
+            background: var(--card-bg);
+        }
+
+        .user-profile-bar:hover {
+            border-color: var(--primary);
         }
 
         .avatar-circle {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: var(--primary);
             color: white;
@@ -288,6 +295,7 @@
             font-size: 0.95rem;
             overflow: hidden;
             border: 2px solid var(--primary);
+            flex-shrink: 0;
         }
 
         .avatar-circle img {
@@ -299,29 +307,33 @@
         .user-info-text {
             display: flex;
             flex-direction: column;
-            line-height: 1.2;
+            line-height: 1.25;
         }
 
         .user-name {
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.86rem;
         }
 
         .user-role-badge {
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             color: var(--primary);
             font-weight: 600;
         }
 
         /* Status Indicator Dot */
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: var(--success);
             display: inline-block;
+            box-shadow: 0 0 6px var(--success);
         }
-        .status-dot.offline { background: var(--text-muted); }
+        .status-dot.offline {
+            background: var(--text-muted);
+            box-shadow: none;
+        }
 
         /* Main Content Layout */
         main {
@@ -338,11 +350,11 @@
             align-items: center;
             margin-bottom: 1.25rem;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5rem;
+            padding-bottom: 0.6rem;
         }
 
         .section-title {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -351,7 +363,7 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
             gap: 1.25rem;
             margin-bottom: 2.5rem;
         }
@@ -375,20 +387,20 @@
         }
 
         .card-icon {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: var(--primary);
         }
 
         .card-title {
             font-size: 0.98rem;
             font-weight: 700;
-            line-height: 1.3;
+            line-height: 1.35;
         }
 
         .card-meta {
             font-size: 0.78rem;
             color: var(--text-muted);
-            margin-top: 0.3rem;
+            margin-top: 0.35rem;
         }
 
         /* Interaction Bar (Like, Dislike, Bookmark, Comment) */
@@ -410,13 +422,13 @@
             display: flex;
             align-items: center;
             gap: 0.3rem;
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
+            padding: 0.25rem 0.45rem;
+            border-radius: 6px;
         }
 
         .interaction-btn:hover, .interaction-btn.active {
             color: var(--primary);
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(37, 99, 235, 0.12);
         }
 
         .card-actions {
@@ -433,30 +445,35 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            width: 54px;
-            height: 54px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             background: var(--primary);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            font-size: 1.5rem;
+            box-shadow: 0 8px 22px rgba(0,0,0,0.4);
             cursor: pointer;
             z-index: 1500;
+            transition: transform 0.2s;
+        }
+
+        .ai-chat-toggle:hover {
+            transform: scale(1.08);
         }
 
         .ai-chat-box {
             position: fixed;
-            bottom: 5rem;
+            bottom: 5.5rem;
             right: 2rem;
-            width: 360px;
-            height: 480px;
+            width: 370px;
+            height: 490px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.5);
             display: none;
             flex-direction: column;
             z-index: 1500;
@@ -489,8 +506,9 @@
 
         .chat-msg {
             padding: 0.65rem 0.85rem;
-            border-radius: 10px;
+            border-radius: 12px;
             max-width: 85%;
+            line-height: 1.4;
         }
 
         .chat-msg.bot {
@@ -524,16 +542,16 @@
         }
 
         .toast {
-            min-width: 280px;
-            padding: 0.85rem 1.1rem;
+            min-width: 300px;
+            padding: 0.85rem 1.15rem;
             border-radius: 10px;
             background: var(--card-bg);
             color: var(--text-main);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.45);
             border-left: 5px solid var(--primary);
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.85rem;
             font-size: 0.9rem;
             font-weight: 600;
             animation: slideInLeft 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -544,27 +562,29 @@
         .toast.warning { border-left-color: var(--warning); }
 
         .toast-icon-check {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: var(--success);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            flex-shrink: 0;
         }
 
         .toast-icon-cross {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: var(--danger);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            flex-shrink: 0;
         }
 
         @keyframes slideInLeft {
@@ -610,9 +630,11 @@
             background: none;
             border: none;
             color: var(--text-muted);
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             cursor: pointer;
         }
+
+        .close-modal:hover { color: var(--danger); }
 
         .auth-tabs {
             display: flex;
@@ -644,7 +666,7 @@
         .form-group label {
             display: block;
             font-size: 0.82rem;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.35rem;
             color: var(--text-muted);
             font-weight: 600;
         }
@@ -692,7 +714,7 @@
         footer {
             background-color: var(--card-bg);
             border-top: 1px solid var(--border-color);
-            padding: 2rem 1.5rem 1rem 1.5rem;
+            padding: 2.2rem 1.5rem 1rem 1.5rem;
             margin-top: auto;
             font-size: 0.85rem;
         }
@@ -706,20 +728,24 @@
         }
 
         .footer-col h3 {
-            font-size: 1rem;
+            font-size: 1.05rem;
             color: var(--primary);
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .footer-col p, .footer-col ul {
+        .footer-col p {
             color: var(--text-muted);
             line-height: 1.6;
-            list-style: none;
+            margin-bottom: 0.4rem;
         }
 
         .footer-col a {
             color: var(--primary);
             text-decoration: none;
+            font-weight: 600;
         }
 
         .footer-col a:hover { text-decoration: underline; }
@@ -732,7 +758,7 @@
             font-size: 0.8rem;
         }
 
-        /* Responsive Fixes */
+        /* Responsive */
         @media (max-width: 768px) {
             header { flex-direction: column; align-items: stretch; }
             .nav-menu { flex-wrap: wrap; justify-content: center; }
@@ -745,11 +771,11 @@
 
     <!-- Header Navigation -->
     <header>
-        <!-- Logo với mũ tốt nghiệp + chồng sách -->
+        <!-- Logo với Mũ Tốt Nghiệp & Chồng Sách + Slogan -->
         <a href="#" class="logo-group">
             <div class="logo-icon-box">
                 <i class="fa-solid fa-graduation-cap"></i>
-                <i class="fa-solid fa-book-open" style="font-size: 0.9rem; margin-top: -4px;"></i>
+                <i class="fa-solid fa-book-open" style="font-size: 0.95rem; margin-top: -5px;"></i>
             </div>
             <div class="logo-text">
                 <span class="logo-title">EduShare</span>
@@ -798,20 +824,20 @@
         <div class="search-container">
             <div class="search-wrapper">
                 <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-                <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm tài liệu, giáo trình, bài báo..." autocomplete="off">
+                <input type="text" id="searchInput" class="search-input" placeholder="Tìm kiếm tài liệu, bài giảng, đề thi..." autocomplete="off">
                 <button id="clearSearchBtn" class="clear-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="searchResultsDropdown" class="search-results-dropdown"></div>
         </div>
 
-        <!-- User Controls / Account -->
+        <!-- User Controls / Dynamic Account UI -->
         <div class="user-controls" id="userControls">
-            <button class="btn btn-outline" id="openLoginBtn"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
-            <button class="btn btn-primary" id="openRegisterBtn"><i class="fa-solid fa-user-plus"></i> Đăng ký</button>
+            <button class="btn btn-outline" id="openLoginBtn" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
+            <button class="btn btn-primary" id="openRegisterBtn" onclick="openAuthModal('register')"><i class="fa-solid fa-user-plus"></i> Đăng ký</button>
         </div>
     </header>
 
-    <!-- Main Section -->
+    <!-- Main Content -->
     <main>
 
         <!-- Dynamic User Status & Settings Banner -->
@@ -821,10 +847,10 @@
                 <span style="font-size: 0.88rem; font-weight: 600;" id="globalStatusText">Trạng thái: Đang hoạt động (Online)</span>
             </div>
 
-            <!-- Fast Theme & Style Switcher -->
+            <!-- Theme & Style Options Dropdown -->
             <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                 <label style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);">Giao diện:</label>
-                <select id="styleSelect" class="form-control" style="width: auto; padding: 0.3rem 0.6rem; font-size: 0.82rem;">
+                <select id="styleSelect" class="form-control" style="width: auto; padding: 0.35rem 0.65rem; font-size: 0.82rem;">
                     <option value="modern">Hiện đại</option>
                     <option value="academic">Học thuật</option>
                     <option value="classic">Cổ điển</option>
@@ -845,17 +871,17 @@
             </div>
 
             <div class="grid-container" id="fileGrid">
-                <!-- Sample Document Card 1 -->
+                <!-- Document Card 1 -->
                 <div class="card" id="file-card-101">
                     <div class="card-header">
                         <i class="fa-solid fa-file-pdf card-icon"></i>
                         <div>
                             <div class="card-title">Giaotrinh_LapTrinh_Web_NodeJS.pdf</div>
-                            <div class="card-meta">2.4 MB • 05/11/2026 • Đăng bởi: Giảng viên</div>
+                            <div class="card-meta">2.4 MB • 05/11/2026 • Đăng bởi: Nguyễn Chí Vỹ</div>
                         </div>
                     </div>
                     <div class="card-interactions">
-                        <button class="interaction-btn" onclick="toggleLike(this)"><i class="fa-solid fa-thumbs-up"></i> 12</button>
+                        <button class="interaction-btn" onclick="toggleLike(this)"><i class="fa-solid fa-thumbs-up"></i> 15</button>
                         <button class="interaction-btn" onclick="toggleDislike(this)"><i class="fa-solid fa-thumbs-down"></i> 0</button>
                         <button class="interaction-btn" onclick="toggleBookmark(this)"><i class="fa-solid fa-heart"></i> Yêu thích</button>
                         <button class="interaction-btn" onclick="openCommentModal(101)"><i class="fa-solid fa-comment"></i> Bình luận</button>
@@ -867,17 +893,17 @@
                     </div>
                 </div>
 
-                <!-- Sample Document Card 2 -->
+                <!-- Document Card 2 -->
                 <div class="card" id="file-card-102">
                     <div class="card-header">
                         <i class="fa-solid fa-file-word card-icon" style="color: #3b82f6;"></i>
                         <div>
                             <div class="card-title">BaiTap_UML_Design_Pattern.docx</div>
-                            <div class="card-meta">1.1 MB • 04/11/2026 • Đăng bởi: Sinh viên</div>
+                            <div class="card-meta">1.1 MB • 04/11/2026 • Đăng bởi: Sinh viên MTU</div>
                         </div>
                     </div>
                     <div class="card-interactions">
-                        <button class="interaction-btn" onclick="toggleLike(this)"><i class="fa-solid fa-thumbs-up"></i> 8</button>
+                        <button class="interaction-btn" onclick="toggleLike(this)"><i class="fa-solid fa-thumbs-up"></i> 9</button>
                         <button class="interaction-btn" onclick="toggleDislike(this)"><i class="fa-solid fa-thumbs-down"></i> 1</button>
                         <button class="interaction-btn" onclick="toggleBookmark(this)"><i class="fa-solid fa-heart"></i> Yêu thích</button>
                         <button class="interaction-btn" onclick="openCommentModal(102)"><i class="fa-solid fa-comment"></i> Bình luận</button>
@@ -891,7 +917,7 @@
             </div>
         </section>
 
-        <!-- Section 2: Articles & News -->
+        <!-- Section 2: Articles & Scientific News -->
         <section>
             <div class="section-header">
                 <div class="section-title">
@@ -904,12 +930,12 @@
                     <div class="card-header">
                         <i class="fa-solid fa-newspaper card-icon" style="color: #10b981;"></i>
                         <div>
-                            <div class="card-title">Cập nhật công nghệ AI trong giáo dục đại học 2026</div>
-                            <div class="card-meta">Đăng bởi Quản trị viên • 10 phút trước</div>
+                            <div class="card-title">Ứng dụng AI Gemini trong chuyển đổi số Giáo dục Đại học 2026</div>
+                            <div class="card-meta">Đăng bởi Quản trị viên • 15 phút trước</div>
                         </div>
                     </div>
                     <div class="card-interactions">
-                        <button class="interaction-btn" onclick="toggleLike(this)"><i class="fa-solid fa-thumbs-up"></i> 25</button>
+                        <button class="interaction-btn" onclick="toggleLike(this)"><i class="fa-solid fa-thumbs-up"></i> 32</button>
                         <button class="interaction-btn" onclick="toggleBookmark(this)"><i class="fa-solid fa-heart"></i> Yêu thích</button>
                     </div>
                     <div class="card-actions">
@@ -933,15 +959,15 @@
             <button style="background:none; border:none; color:white; cursor:pointer;" onclick="toggleAiChat()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="ai-chat-body" id="aiChatBody">
-            <div class="chat-msg bot">Chào bạn! Tui là trợ lý AI EduShare. Bạn cần tìm kiếm tài liệu hay giải đáp bài tập gì hôm nay?</div>
+            <div class="chat-msg bot">Chào bạn! Tui là Trợ lý AI EduShare. Bạn cần hỗ trợ tìm kiếm bài giảng, đề thi hay tư vấn thông tin gì hôm nay?</div>
         </div>
         <div class="ai-chat-footer">
-            <input type="text" id="aiChatInput" class="form-control" placeholder="Hỏi AI..." onkeypress="handleAiKeyPress(event)">
+            <input type="text" id="aiChatInput" class="form-control" placeholder="Hỏi AI EduShare..." onkeypress="handleAiKeyPress(event)">
             <button class="btn btn-primary" onclick="sendAiMessage()"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
     </div>
 
-    <!-- Toast Container -->
+    <!-- Toast Notification Container -->
     <div id="toast-container"></div>
 
     <!-- Auth Modal Overlay -->
@@ -958,8 +984,8 @@
             <div class="auth-form-step active" id="stepLogin">
                 <form id="loginForm">
                     <div class="form-group">
-                        <label><i class="fa-solid fa-envelope"></i> Tên người dùng / Email / SĐT</label>
-                        <input type="text" id="loginEmail" class="form-control" placeholder="nhap@example.com" required>
+                        <label><i class="fa-solid fa-user"></i> Tên người dùng / Email / SĐT</label>
+                        <input type="text" id="loginEmail" class="form-control" placeholder="Tên đăng nhập hoặc Email/SĐT" required>
                     </div>
                     <div class="form-group">
                         <label><i class="fa-solid fa-lock"></i> Mật khẩu</label>
@@ -970,13 +996,13 @@
                             <input type="checkbox" id="rememberMeCheckbox">
                             <span>Lưu mật khẩu và duy trì đăng nhập lần sau</span>
                         </label>
-                        <span style="color: var(--primary); cursor: pointer;" onclick="switchAuthStep('forgot')">Quên mật khẩu?</span>
+                        <span style="color: var(--primary); cursor: pointer; font-weight: 600;" onclick="switchAuthStep('forgot')">Quên mật khẩu?</span>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập ngay</button>
 
                     <!-- OAuth Buttons -->
                     <div style="margin-top: 1.25rem; text-align: center; border-top: 1px solid var(--border-color); padding-top: 1rem;">
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Hoặc đăng nhập bằng</p>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">Hoặc đăng nhập nhanh bằng</p>
                         <div style="display: flex; gap: 0.75rem; justify-content: center;">
                             <button type="button" class="btn btn-outline" onclick="loginSocial('Google')"><i class="fa-brands fa-google" style="color: #ea4335;"></i> Google</button>
                             <button type="button" class="btn btn-outline" onclick="loginSocial('Facebook')"><i class="fa-brands fa-facebook" style="color: #1877f2;"></i> Facebook</button>
@@ -989,7 +1015,7 @@
             <div class="auth-form-step" id="stepRegister">
                 <form id="registerForm">
                     <div class="form-group">
-                        <label><i class="fa-solid fa-user"></i> Họ và tên</label>
+                        <label><i class="fa-solid fa-id-card"></i> Họ và tên</label>
                         <input type="text" id="regName" class="form-control" placeholder="Nguyễn Chí Vỹ" required>
                     </div>
                     <div class="form-row">
@@ -1009,7 +1035,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label><i class="fa-solid fa-envelope"></i> Email</label>
-                            <input type="email" id="regEmail" class="form-control" placeholder="email@domain.com" required>
+                            <input type="email" id="regEmail" class="form-control" placeholder="nguyenchivybt2006@gmail.com" required>
                         </div>
                         <div class="form-group">
                             <label><i class="fa-solid fa-phone"></i> Số điện thoại</label>
@@ -1029,8 +1055,8 @@
                     <div class="form-group">
                         <label><i class="fa-solid fa-user-gear"></i> Phân quyền vai trò</label>
                         <select id="regRole" class="form-control" required>
-                            <option value="Sinh viên">Học sinh / Sinh viên</option>
-                            <option value="Giảng viên">Giáo viên / Giảng viên</option>
+                            <option value="Học sinh/Sinh viên">Học sinh / Sinh viên</option>
+                            <option value="Giáo viên/Giảng viên">Giáo viên / Giảng viên</option>
                             <option value="Quản trị viên">Quản trị viên (Admin)</option>
                         </select>
                     </div>
@@ -1044,7 +1070,7 @@
                             <input type="password" id="regConfirmPassword" class="form-control" placeholder="••••••••" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-user-plus"></i> Tạo tài khoản</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-user-plus"></i> Tạo tài khoản mới</button>
                 </form>
             </div>
 
@@ -1055,7 +1081,7 @@
                     <div class="form-group">
                         <label>Nhập Username / Email / SĐT đã đăng ký</label>
                         <div style="display: flex; gap: 0.5rem;">
-                            <input type="text" id="forgotInput" class="form-control" placeholder="nhap@example.com" required>
+                            <input type="text" id="forgotInput" class="form-control" placeholder="nguyenchivybt2006@gmail.com" required>
                             <button type="button" class="btn btn-outline" id="sendOtpBtn" onclick="requestOtp()">Gửi OTP</button>
                         </div>
                     </div>
@@ -1070,11 +1096,11 @@
                             <input type="text" maxlength="1" class="otp-box" required>
                             <input type="text" maxlength="1" class="otp-box" required>
                         </div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-check"></i> Xác thực OTP</button>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-check"></i> Xác thực mã OTP</button>
                     </div>
                 </form>
                 <div style="text-align: center; margin-top: 1rem;">
-                    <span style="color: var(--primary); cursor: pointer;" onclick="switchAuthStep('login')"><i class="fa-solid fa-arrow-left"></i> Quay lại Đăng nhập</span>
+                    <span style="color: var(--primary); cursor: pointer; font-weight: 600;" onclick="switchAuthStep('login')"><i class="fa-solid fa-arrow-left"></i> Quay lại Đăng nhập</span>
                 </div>
             </div>
 
@@ -1097,18 +1123,20 @@
         </div>
     </div>
 
-    <!-- Profile & Edit Modal Overlay -->
+    <!-- Profile & Settings Modal -->
     <div class="modal-overlay" id="profileModal">
         <div class="auth-card" style="max-width: 520px;">
             <button class="close-modal" onclick="closeProfileModal()"><i class="fa-solid fa-xmark"></i></button>
-            <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Thông tin cá nhân & Cài đặt</h3>
+            <h3 style="margin-bottom: 1.2rem;"><i class="fa-solid fa-id-card" style="color: var(--primary);"></i> Thông tin cá nhân & Cài đặt</h3>
             
             <form id="profileForm">
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
-                    <div class="avatar-circle" style="width: 64px; height: 64px; font-size: 1.5rem;" id="profileAvatarLarge">V</div>
+                <div style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.25rem; background: var(--input-bg); padding: 0.85rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div class="avatar-circle" style="width: 64px; height: 64px; font-size: 1.6rem;" id="profileAvatarLarge">V</div>
                     <div>
+                        <div style="font-weight: 700; font-size: 1.05rem;" id="profileDisplayName">Nguyễn Chí Vỹ</div>
+                        <div style="font-size: 0.8rem; color: var(--primary); font-weight: 600; margin-bottom: 0.4rem;" id="profileDisplayRole">Quản trị viên</div>
                         <label class="btn btn-outline btn-sm" style="cursor: pointer;">
-                            <i class="fa-solid fa-camera"></i> Tải ảnh đại diện
+                            <i class="fa-solid fa-camera"></i> Thay ảnh đại diện
                             <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
                         </label>
                     </div>
@@ -1129,7 +1157,7 @@
                     </div>
                 </div>
 
-                <h4 style="margin: 1rem 0 0.5rem 0; font-size: 0.9rem; color: var(--primary);">Đổi mật khẩu (Nếu có nhu cầu)</h4>
+                <h4 style="margin: 1rem 0 0.5rem 0; font-size: 0.9rem; color: var(--primary);"><i class="fa-solid fa-key"></i> Đổi mật khẩu (Nếu cần)</h4>
                 <div class="form-group">
                     <label>Mật khẩu hiện tại</label>
                     <input type="password" id="profCurrPass" class="form-control" placeholder="••••••••">
@@ -1145,7 +1173,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;"><i class="fa-solid fa-check"></i> Lưu thay đổi</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;"><i class="fa-solid fa-check"></i> Lưu thay đổi & Áp dụng</button>
             </form>
         </div>
     </div>
@@ -1157,14 +1185,14 @@
             <h3 style="margin-bottom: 1rem;"><i class="fa-solid fa-cloud-arrow-up" style="color: var(--primary);"></i> Tải tài liệu lên</h3>
             <form id="uploadForm">
                 <div class="form-group">
-                    <label>Chọn tệp (Hỗ trợ nhiều tệp PDF, Word, MP3, MP4, PPT, Slide, Hình ảnh)</label>
+                    <label>Chọn tệp (Hỗ trợ multi-file PDF, Word, MP3, MP4, PPT, Slide, Hình ảnh)</label>
                     <input type="file" id="multiFileInput" class="form-control" multiple required>
                 </div>
                 <div class="form-group">
-                    <label>Hoặc nhập Link bài báo / Link tin tức đa kênh</label>
+                    <label>Hoặc nhập Link bài báo / Link tin tức khoa học</label>
                     <input type="url" id="newsUrlInput" class="form-control" placeholder="https://news.example.com/article">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-upload"></i> Xử lý Tải lên</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-upload"></i> Bắt đầu Tải lên</button>
             </form>
         </div>
     </div>
@@ -1181,54 +1209,54 @@
                 </div>
                 <div class="form-group">
                     <label>Mô tả nhóm</label>
-                    <textarea id="groupDescInput" class="form-control" rows="3" placeholder="Mô tả mục tiêu nhóm..."></textarea>
+                    <textarea id="groupDescInput" class="form-control" rows="3" placeholder="Mục tiêu trao đổi, học tập nhóm..."></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-check"></i> Tạo Nhóm</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-solid fa-check"></i> Tạo Nhóm Ngay</button>
             </form>
         </div>
     </div>
 
-    <!-- Footer Information -->
+    <!-- Footer System -->
     <footer>
         <div class="footer-grid">
-            <!-- Col 1: Developer Info -->
+            <!-- Developer Info -->
             <div class="footer-col">
-                <h3><i class="fa-solid fa-user-code"></i> Người phát triển Website</h3>
+                <h3><i class="fa-solid fa-code"></i> Tác giả phát triển Website</h3>
                 <p><strong>Họ tên:</strong> Nguyễn Chí Vỹ</p>
                 <p><strong>Số điện thoại:</strong> 0862204069</p>
                 <p><strong>Địa chỉ:</strong> Số nhà 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long</p>
                 <p><strong>Email:</strong> nguyenchivybt2006@gmail.com</p>
-                <p style="margin-top: 0.5rem; display: flex; gap: 0.75rem;">
+                <p style="margin-top: 0.6rem; display: flex; gap: 0.85rem;">
                     <a href="https://www.facebook.com/profile.php?id=61578961204573" target="_blank"><i class="fa-brands fa-facebook font-size: 1.2rem;"></i> Facebook</a>
                     <a href="https://www.tiktok.com/@nguyenchivybentre" target="_blank"><i class="fa-brands fa-tiktok font-size: 1.2rem;"></i> TikTok</a>
                 </p>
             </div>
 
-            <!-- Col 2: School Info -->
+            <!-- School Info -->
             <div class="footer-col">
                 <h3><i class="fa-solid fa-university"></i> Trường Đại học Xây dựng Miền Tây (MTU)</h3>
                 <p><strong>Số điện thoại:</strong> (0270) 3 825 903</p>
                 <p><strong>Địa chỉ:</strong> Số 20B Phó Cơ Điều, Phường Phước Hậu, Tỉnh Vĩnh Long</p>
                 <p><strong>Email:</strong> dhxdmt@muce.edu.vn</p>
-                <p style="margin-top: 0.5rem; display: flex; gap: 0.75rem;">
-                    <a href="https://www.facebook.com/mtu.edu.vn" target="_blank"><i class="fa-brands fa-facebook"></i> Fanpage Trường</a>
-                    <a href="https://www.tiktok.com/@dhxaydungmientay" target="_blank"><i class="fa-brands fa-tiktok"></i> TikTok Trường</a>
+                <p style="margin-top: 0.6rem; display: flex; gap: 0.85rem;">
+                    <a href="https://www.facebook.com/mtu.edu.vn" target="_blank"><i class="fa-brands fa-facebook"></i> Fanpage MTU</a>
+                    <a href="https://www.tiktok.com/@dhxaydungmientay" target="_blank"><i class="fa-brands fa-tiktok"></i> TikTok MTU</a>
                 </p>
             </div>
 
-            <!-- Col 3: About App -->
+            <!-- About App -->
             <div class="footer-col">
                 <h3><i class="fa-solid fa-circle-info"></i> Về EduShare</h3>
-                <p>Hệ thống Thư viện học liệu số & Quản lý chia sẻ tài liệu giáo dục dành cho Học sinh, Sinh viên, Giảng viên và Quản trị viên.</p>
+                <p>Hệ thống Thư viện học liệu số & Quản lý chia sẻ tài liệu giáo dục thuộc Trường Đại học Xây dựng Miền Tây, phục vụ Học sinh, Sinh viên, Giảng viên và Quản trị viên.</p>
             </div>
         </div>
 
         <div class="footer-bottom">
-            &copy; 2026 EduShare - Phát triển bởi Nguyễn Chí Vỹ. Bản quyền đã được bảo hộ.
+            &copy; 2026 EduShare - Phát triển bởi Nguyễn Chí Vỹ. Tất cả quyền được bảo lưu.
         </div>
     </footer>
 
-    <!-- App Logic Script -->
+    <!-- Frontend Script -->
     <script>
         // Custom Toast Notifications with V (Check) & X (Cross) Icons
         function showToast(message, type = 'success') {
@@ -1252,7 +1280,7 @@
             }, 3500);
         }
 
-        // Delete File Alert
+        // Delete File Notification
         function deleteFile(id) {
             if (confirm("Bạn có chắc chắn muốn xóa tệp tin này?")) {
                 const card = document.getElementById(`file-card-${id}`);
@@ -1261,7 +1289,7 @@
             }
         }
 
-        // Delete News Alert
+        // Delete News Notification
         function deleteNews(id) {
             if (confirm("Bạn có chắc chắn muốn xóa bài báo này?")) {
                 const card = document.getElementById(`news-card-${id}`);
@@ -1278,7 +1306,7 @@
             showToast(`Đang mở xem tài liệu: ${name}`, "success");
         }
 
-        // Interaction Bar Logic (Like / Dislike / Bookmark)
+        // Interactions (Like / Dislike / Bookmark / Comment)
         function toggleLike(btn) {
             btn.classList.toggle('active');
             showToast("Đã ghi nhận phản hồi Thích!", "success");
@@ -1292,18 +1320,16 @@
             showToast("Đã lưu vào Mục Yêu thích!", "success");
         }
         function openCommentModal(id) {
-            const comment = prompt("Nhập ý kiến góp ý / bình luận của bạn:");
+            const comment = prompt("Nhập góp ý / bình luận của bạn:");
             if (comment) {
                 showToast("Gửi bình luận thành công!", "success");
             }
         }
 
-        // Auth State & User Data System
+        // User Auth State Management
         let currentUser = null;
 
         const authModal = document.getElementById('authModal');
-        const openLoginBtn = document.getElementById('openLoginBtn');
-        const openRegisterBtn = document.getElementById('openRegisterBtn');
 
         function openAuthModal(step = 'login') {
             authModal.classList.add('active');
@@ -1312,9 +1338,6 @@
         function closeAuthModal() {
             authModal.classList.remove('active');
         }
-
-        if (openLoginBtn) openLoginBtn.addEventListener('click', () => openAuthModal('login'));
-        if (openRegisterBtn) openRegisterBtn.addEventListener('click', () => openAuthModal('register'));
 
         function switchAuthStep(step) {
             document.getElementById('stepLogin').classList.remove('active');
@@ -1341,21 +1364,22 @@
             }
         }
 
-        // Form Submit Handlers
+        // Submit Login Form
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const inputVal = document.getElementById('loginEmail').value.trim();
+            const passVal = document.getElementById('loginPassword').value.trim();
             const rememberMe = document.getElementById('rememberMeCheckbox').checked;
 
-            if (!inputVal) {
+            if (!inputVal || !passVal) {
                 showToast("Đăng nhập thất bại. Vui lòng thử lại!", "error");
                 return;
             }
 
             currentUser = {
-                name: inputVal.split('@')[0] || "Nguyễn Chí Vỹ",
-                email: inputVal,
-                role: "Giảng viên",
+                name: inputVal.includes('@') ? inputVal.split('@')[0] : inputVal,
+                email: inputVal.includes('@') ? inputVal : "nguyenchivybt2006@gmail.com",
+                role: "Quản trị viên",
                 avatar: ""
             };
 
@@ -1371,15 +1395,15 @@
             showToast("Đã đăng nhập thành công!", "success");
         });
 
+        // Submit Register Form
         document.getElementById('registerForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
+            const name = document.getElementById('regName').value.trim();
             const pass = document.getElementById('regPassword').value;
             const confirmPass = document.getElementById('regConfirmPassword').value;
             const role = document.getElementById('regRole').value;
 
-            if (pass !== confirmPass) {
+            if (pass !== confirmPass || !name) {
                 showToast("Đăng ký thất bại. Vui lòng thử lại!", "error");
                 return;
             }
@@ -1389,18 +1413,18 @@
         });
 
         function requestOtp() {
-            const input = document.getElementById('forgotInput').value;
+            const input = document.getElementById('forgotInput').value.trim();
             if (!input) {
-                showToast("Đăng nhập thất bại. Vui lòng thử lại!", "error");
+                showToast("Vui lòng nhập Username/Email/SĐT!", "error");
                 return;
             }
             document.getElementById('otpBoxSection').style.display = 'block';
-            showToast(`Mã OTP đã gửi về ${input}`, "success");
+            showToast(`Mã xác nhận OTP đã gửi về ${input}`, "success");
         }
 
         document.getElementById('forgotOTPForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            showToast("Xác thực OTP thành công!", "success");
+            showToast("Xác thực mã OTP thành công!", "success");
             switchAuthStep('reset');
         });
 
@@ -1409,20 +1433,25 @@
             const p1 = document.getElementById('newPass').value;
             const p2 = document.getElementById('newConfirmPass').value;
             if (p1 !== p2) {
-                showToast("Tạo mật khẩu thất bại. Mật khẩu không trùng khớp!", "error");
+                showToast("Mật khẩu không trùng khớp!", "error");
                 return;
             }
-            showToast("Đã đổi mật khẩu thành công!", "success");
+            showToast("Đã cập nhật mật khẩu mới!", "success");
             switchAuthStep('login');
         });
 
         function loginSocial(provider) {
-            currentUser = { name: `${provider} User`, email: `user@${provider.toLowerCase()}.com`, role: "Sinh viên", avatar: "" };
+            currentUser = {
+                name: `Tài khoản ${provider}`,
+                email: `user@${provider.toLowerCase()}.com`,
+                role: "Học sinh/Sinh viên",
+                avatar: ""
+            };
             localStorage.setItem('edushare_session', 'active');
             localStorage.setItem('edushare_saved_user', JSON.stringify(currentUser));
             updateUserUI();
             closeAuthModal();
-            showToast(`Đã đăng nhập thành công với ${provider}!`, "success");
+            showToast(`Đã đăng nhập thành công!`, "success");
         }
 
         function updateUserUI() {
@@ -1445,8 +1474,8 @@
                 `;
             } else {
                 container.innerHTML = `
-                    <button class="btn btn-outline" id="openLoginBtn" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
-                    <button class="btn btn-primary" id="openRegisterBtn" onclick="openAuthModal('register')"><i class="fa-solid fa-user-plus"></i> Đăng ký</button>
+                    <button class="btn btn-outline" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
+                    <button class="btn btn-primary" onclick="openAuthModal('register')"><i class="fa-solid fa-user-plus"></i> Đăng ký</button>
                 `;
             }
         }
@@ -1454,15 +1483,18 @@
         function logoutUser() {
             currentUser = null;
             localStorage.removeItem('edushare_session');
+            localStorage.removeItem('edushare_saved_user');
             updateUserUI();
             showToast("Đã đăng xuất thành công!", "success");
         }
 
-        // Profile Modal Logic
+        // Profile Modal Handlers
         function openProfileModal() {
             if (!currentUser) return;
             document.getElementById('profName').value = currentUser.name;
             document.getElementById('profEmail').value = currentUser.email;
+            document.getElementById('profileDisplayName').innerText = currentUser.name;
+            document.getElementById('profileDisplayRole').innerText = currentUser.role;
             document.getElementById('profileAvatarLarge').innerText = currentUser.name.charAt(0).toUpperCase();
             document.getElementById('profileModal').classList.add('active');
         }
@@ -1492,10 +1524,10 @@
                 updateUserUI();
             }
             closeProfileModal();
-            showToast("Áp dụng cài đặt thông tin thành công!", "success");
+            showToast("Áp dụng cài đặt thành công!", "success");
         });
 
-        // Upload Multi-file & News Form Handlers
+        // Upload Modal Handlers
         function openUploadModal() { document.getElementById('uploadModal').classList.add('active'); }
         function closeUploadModal() { document.getElementById('uploadModal').classList.remove('active'); }
 
@@ -1505,7 +1537,7 @@
             showToast("Tải tệp thành công!", "success");
         });
 
-        // Create Group Form Handlers
+        // Group Creation Handlers
         function openCreateGroupModal() { document.getElementById('createGroupModal').classList.add('active'); }
         function closeCreateGroupModal() { document.getElementById('createGroupModal').classList.remove('active'); }
 
@@ -1515,7 +1547,7 @@
             showToast("Đã tạo nhóm thành công!", "success");
         });
 
-        // Theme Persistence & Toggle Settings
+        // Theme Persistence & Settings Toggle
         const toggleThemeBtn = document.getElementById('toggleThemeBtn');
         const styleSelect = document.getElementById('styleSelect');
 
@@ -1523,7 +1555,7 @@
             const selectedStyle = styleSelect.value;
             document.documentElement.setAttribute('data-style', selectedStyle);
             localStorage.setItem('edushare_style', selectedStyle);
-            showToast("Đã áp dụng giao diện mới!", "success");
+            showToast("Áp dụng cài đặt thành công!", "success");
         }
 
         toggleThemeBtn.addEventListener('click', () => {
@@ -1531,10 +1563,10 @@
             const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', nextTheme);
             localStorage.setItem('edushare_theme', nextTheme);
-            showToast(`Đã chuyển sang chế độ ${nextTheme === 'dark' ? 'Tối' : 'Sáng'}`, "success");
+            showToast(`Đã chuyển sang chế độ ${nextTheme === 'dark' ? 'Tối' : 'Sáng'}!`, "success");
         });
 
-        // Restoring Theme settings on load
+        // Restore Theme & Session State on Load
         window.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('edushare_theme') || 'dark';
             const savedStyle = localStorage.getItem('edushare_style') || 'modern';
@@ -1550,7 +1582,7 @@
             }
         });
 
-        // Search Bar Smooth Filter Logic
+        // Search Bar Logic
         const searchInput = document.getElementById('searchInput');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
         const searchResultsDropdown = document.getElementById('searchResultsDropdown');
@@ -1558,7 +1590,7 @@
         const mockDb = [
             { id: 101, title: 'Giaotrinh_LapTrinh_Web_NodeJS.pdf', type: 'Tệp tin', icon: 'fa-file-pdf' },
             { id: 102, title: 'BaiTap_UML_Design_Pattern.docx', type: 'Tệp tin', icon: 'fa-file-word' },
-            { id: 201, title: 'Cập nhật công nghệ AI trong giáo dục đại học 2026', type: 'Bài báo', icon: 'fa-newspaper' }
+            { id: 201, title: 'Ứng dụng AI Gemini trong chuyển đổi số Giáo dục Đại học 2026', type: 'Bài báo', icon: 'fa-newspaper' }
         ];
 
         let searchDebounce;
@@ -1576,12 +1608,12 @@
                 const results = mockDb.filter(i => i.title.toLowerCase().includes(q));
                 searchResultsDropdown.innerHTML = '';
                 if (results.length === 0) {
-                    searchResultsDropdown.innerHTML = `<div style="padding:0.75rem; text-align:center; color:var(--text-muted);">Không tìm thấy kết quả</div>`;
+                    searchResultsDropdown.innerHTML = `<div style="padding:0.75rem; text-align:center; color:var(--text-muted);">Không tìm thấy kết quả phù hợp</div>`;
                 } else {
                     results.forEach(r => {
                         const div = document.createElement('div');
-                        div.style.cssText = 'padding:0.6rem 1rem; cursor:pointer; border-bottom:1px solid var(--border-color); font-size:0.85rem; display:flex; align-items:center; gap:0.5rem;';
-                        div.innerHTML = `<i class="fa-solid ${r.icon}"></i> <div><strong>${r.title}</strong> <br><small style="color:var(--text-muted);">${r.type}</small></div>`;
+                        div.style.cssText = 'padding:0.65rem 1rem; cursor:pointer; border-bottom:1px solid var(--border-color); font-size:0.86rem; display:flex; align-items:center; gap:0.6rem;';
+                        div.innerHTML = `<i class="fa-solid ${r.icon}" style="color:var(--primary); font-size:1.1rem;"></i> <div><strong>${r.title}</strong> <br><small style="color:var(--text-muted);">${r.type}</small></div>`;
                         div.onclick = () => {
                             showToast(`Đã chọn: ${r.title}`, "success");
                             searchResultsDropdown.classList.remove('active');
@@ -1626,10 +1658,10 @@
             setTimeout(() => {
                 const botMsgDiv = document.createElement('div');
                 botMsgDiv.className = 'chat-msg bot';
-                botMsgDiv.innerText = `EduShare Gemini AI: Đã nhận thông tin "${msg}". Tôi có thể trợ giúp bạn tìm tài liệu học tập phù hợp tại Trường Đại học Xây dựng Miền Tây!`;
+                botMsgDiv.innerText = `EduShare AI: Đã nhận thông tin "${msg}". Tôi có thể trợ giúp bạn tìm kiếm học liệu tại Trường Đại học Xây dựng Miền Tây (MTU)!`;
                 body.appendChild(botMsgDiv);
                 body.scrollTop = body.scrollHeight;
-            }, 600);
+            }, 500);
         }
     </script>
 </body>
