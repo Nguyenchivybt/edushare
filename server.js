@@ -189,6 +189,45 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
   return res.status(400).json({ success: false, message: 'Tải tệp thất bại. Vui lòng thử lại sau!' });
 });
 
+app.post('/api/documents/:id/like-dislike', (req, res) => {
+  const { id } = req.params;
+  const { userId, type } = req.body;
+  const doc = documents.find(d => d.id === id);
+  if (!doc) return res.status(404).json({ success: false, message: 'Không tìm thấy tài liệu' });
+
+  const uid = userId || 'guest';
+  doc.likedUsers = doc.likedUsers || [];
+  doc.dislikedUsers = doc.dislikedUsers || [];
+
+  if (type === 'like') {
+    if (doc.likedUsers.includes(uid)) {
+      doc.likedUsers = doc.likedUsers.filter(i => i !== uid);
+      doc.likes = Math.max(0, (doc.likes || 1) - 1);
+    } else {
+      doc.likedUsers.push(uid);
+      doc.likes = (doc.likes || 0) + 1;
+      if (doc.dislikedUsers.includes(uid)) {
+        doc.dislikedUsers = doc.dislikedUsers.filter(i => i !== uid);
+        doc.dislikes = Math.max(0, (doc.dislikes || 1) - 1);
+      }
+    }
+  } else if (type === 'dislike') {
+    if (doc.dislikedUsers.includes(uid)) {
+      doc.dislikedUsers = doc.dislikedUsers.filter(i => i !== uid);
+      doc.dislikes = Math.max(0, (doc.dislikes || 1) - 1);
+    } else {
+      doc.dislikedUsers.push(uid);
+      doc.dislikes = (doc.dislikes || 0) + 1;
+      if (doc.likedUsers.includes(uid)) {
+        doc.likedUsers = doc.likedUsers.filter(i => i !== uid);
+        doc.likes = Math.max(0, (doc.likes || 1) - 1);
+      }
+    }
+  }
+
+  res.json({ success: true, doc });
+});
+
 app.post('/api/chat/upload', upload.array('attachments', 10), (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ success: false, message: 'Không có tệp được chọn' });
