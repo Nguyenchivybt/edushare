@@ -259,15 +259,35 @@ app.post('/api/chat/groups/send', (req, res) => {
 });
 
 app.post('/api/register', (req, res) => {
-  const { username, emailPhone, password, confirmPassword, fullname, role } = req.body;
-  if (!username || !emailPhone || !password) return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
-  if (password !== confirmPassword) return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
+  const { username, emailPhone, password, confirmPassword, fullname, role, gender, dob, school, faculty, major, studentClass, address } = req.body;
+  if (!username || !emailPhone || !password) {
+    return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
+  }
+  if (password !== confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
+  }
+
+  const existing = users.find(u => u.username.toLowerCase() === username.toLowerCase() || u.emailPhone.toLowerCase() === emailPhone.toLowerCase());
+  if (existing) {
+    return res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc Email/SĐT đã tồn tại!' });
+  }
 
   const newUser = {
-    id: String(Date.now()), fullname: fullname || username, username, password, emailPhone,
-    gender: 'Nam', dob: '', school: 'MTU', faculty: 'IT',
-    major: 'KTPM', studentClass: 'DH2024', address: 'Vĩnh Long',
-    role: role || 'student', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`, authProvider: 'local'
+    id: String(Date.now()),
+    fullname: fullname || username,
+    username,
+    password,
+    emailPhone,
+    gender: gender || 'Nam',
+    dob: dob || '',
+    school: school || 'Trường Đại học Xây dựng Miền Tây',
+    faculty: faculty || 'Công nghệ thông tin',
+    major: major || 'Kỹ thuật phần mềm',
+    studentClass: studentClass || 'DH2024',
+    address: address || 'Vĩnh Long',
+    role: role || 'student',
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+    authProvider: 'local'
   };
   users.push(newUser);
   res.json({ success: true, message: 'Đã đăng ký thành công!', user: newUser });
@@ -279,6 +299,32 @@ app.post('/api/login', (req, res) => {
   const user = users.find(u => (u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key) && u.password === password);
   if (user) res.json({ success: true, message: 'Đã đăng nhập thành công!', user });
   else res.status(400).json({ success: false, message: 'Đăng nhập thất bại. Vui lòng thử lại!' });
+});
+
+app.post('/api/forgot-password/request-otp', (req, res) => {
+  const { userKey } = req.body;
+  const key = (userKey || '').trim().toLowerCase();
+  const user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
+  if (user) {
+    res.json({ success: true, message: 'Mã xác nhận OTP đã được gửi!', otpCode: '123456' });
+  } else {
+    res.status(400).json({ success: false, message: 'Sai cú pháp vui lòng nhập lại!' });
+  }
+});
+
+app.post('/api/forgot-password/reset', (req, res) => {
+  const { userKey, newPassword, confirmPassword } = req.body;
+  if (!newPassword || newPassword !== confirmPassword) {
+    return res.status(400).json({ success: false, message: 'Mật khẩu xác nhận không trùng khớp!' });
+  }
+  const key = (userKey || '').trim().toLowerCase();
+  const user = users.find(u => u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key);
+  if (user) {
+    user.password = newPassword;
+    res.json({ success: true, message: 'Đã cập nhật mật khẩu mới thành công!' });
+  } else {
+    res.status(400).json({ success: false, message: 'Không tìm thấy người dùng!' });
+  }
 });
 
 app.post('/api/chatbot', async (req, res) => {

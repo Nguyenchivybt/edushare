@@ -68,11 +68,11 @@
             <i class="fa-solid fa-chevron-down text-[9px] ml-0.5"></i>
           </button>
           <div class="dropdown-content bg-slate-900 text-slate-200 rounded-xl shadow-xl border border-slate-700 py-2 mt-1">
-            <a href="#" onclick="filterByCategory('Phòng ban')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-building mr-2 text-blue-400"></i>Phòng ban</a>
-            <a href="#" onclick="filterByCategory('Khoa')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-graduation-cap mr-2 text-emerald-400"></i>Khoa / Bộ môn</a>
-            <a href="#" onclick="filterByCategory('Ngành')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-laptop-code mr-2 text-purple-400"></i>Ngành học</a>
-            <a href="#" onclick="filterByCategory('Khóa')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-layer-group mr-2 text-amber-400"></i>Khóa đào tạo</a>
-            <a href="#" onclick="filterByCategory('Lớp')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-user-group mr-2 text-cyan-400"></i>Lớp học phần</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Phòng ban')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-building mr-2 text-blue-400"></i>Phòng ban</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Khoa')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-graduation-cap mr-2 text-emerald-400"></i>Khoa / Bộ môn</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Ngành')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-laptop-code mr-2 text-purple-400"></i>Ngành học</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Khóa')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-layer-group mr-2 text-amber-400"></i>Khóa đào tạo</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Lớp')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-user-group mr-2 text-cyan-400"></i>Lớp học phần</a>
           </div>
         </div>
 
@@ -83,10 +83,10 @@
             <i class="fa-solid fa-chevron-down text-[9px] ml-0.5"></i>
           </button>
           <div class="dropdown-content bg-slate-900 text-slate-200 rounded-xl shadow-xl border border-slate-700 py-2 mt-1">
-            <a href="#" onclick="filterByCategory('Học thuật')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-book-open mr-2 text-amber-400"></i>Nghiên cứu Học thuật</a>
-            <a href="#" onclick="filterByCategory('Tài liệu bài giảng')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-file-powerpoint mr-2 text-blue-400"></i>Tài liệu Bài giảng</a>
-            <a href="#" onclick="filterByCategory('Bài tập mẫu')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-pen-to-square mr-2 text-emerald-400"></i>Bài tập mẫu / Đồ án</a>
-            <a href="#" onclick="filterByCategory('Tài liệu bài thi')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-file-signature mr-2 text-purple-400"></i>Đề thi các năm</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Học thuật')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-book-open mr-2 text-amber-400"></i>Nghiên cứu Học thuật</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Tài liệu bài giảng')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-file-powerpoint mr-2 text-blue-400"></i>Tài liệu Bài giảng</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Bài tập mẫu')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-pen-to-square mr-2 text-emerald-400"></i>Bài tập mẫu / Đồ án</a>
+            <a href="#" onclick="event.preventDefault(); filterByCategory('Tài liệu bài thi')" class="block px-4 py-2 hover:bg-slate-800 hover:text-amber-400"><i class="fa-solid fa-file-signature mr-2 text-purple-400"></i>Đề thi các năm</a>
           </div>
         </div>
 
@@ -110,18 +110,18 @@
         </span>
 
         <div id="guestNav" class="flex space-x-1 shrink-0">
-          <button onclick="openLoginModal()" class="h-9 bg-amber-500 hover:bg-amber-600 text-blue-950 px-2.5 rounded-lg font-bold text-xs shadow transition">Đăng Nhập</button>
-          <button onclick="openRegisterModal()" class="h-9 bg-white/10 hover:bg-white/20 text-white px-2.5 rounded-lg font-semibold text-xs transition">Đăng Ký</button>
+          <button onclick="openLoginModal(event)" class="h-9 bg-amber-500 hover:bg-amber-600 text-blue-950 px-2.5 rounded-lg font-bold text-xs shadow transition">Đăng Nhập</button>
+          <button onclick="openRegisterModal(event)" class="h-9 bg-white/10 hover:bg-white/20 text-white px-2.5 rounded-lg font-semibold text-xs transition">Đăng Ký</button>
         </div>
 
         <div id="userNav" class="hidden flex items-center space-x-2 shrink-0">
-          <button onclick="openProfileModal()" class="font-semibold text-xs text-blue-100 flex items-center space-x-1.5 hover:opacity-90 shrink-0">
+          <button onclick="openProfileModal(event)" class="font-semibold text-xs text-blue-100 flex items-center space-x-1.5 hover:opacity-90 shrink-0">
             <span id="userName" class="max-w-[100px] xl:max-w-[130px] truncate block">Nguyễn Chí Vỹ</span>
             <img id="headerAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen" alt="Avatar" class="w-8 h-8 rounded-full object-cover border-2 border-amber-400 shadow shrink-0">
             <span id="userBadge" class="bg-amber-400 text-blue-950 text-[9px] font-extrabold px-1.5 py-0.5 rounded uppercase shrink-0">QUẢN TRỊ</span>
           </button>
 
-          <button onclick="openUploadModal()" class="h-9 bg-emerald-500 hover:bg-emerald-600 text-white px-2.5 rounded-lg text-xs font-semibold flex items-center space-x-1 shadow transition shrink-0">
+          <button onclick="openUploadModal(event)" class="h-9 bg-emerald-500 hover:bg-emerald-600 text-white px-2.5 rounded-lg text-xs font-semibold flex items-center space-x-1 shadow transition shrink-0">
             <i class="fa-solid fa-cloud-arrow-up"></i>
             <span>Tải Lên</span>
           </button>
@@ -155,7 +155,7 @@
           </h4>
           <p class="text-slate-400 text-[11px]">Cập nhật tên, ảnh đại diện, email hoặc đổi mật khẩu mới.</p>
           <div id="systemMenuUserActions" class="space-y-2">
-            <button onclick="openProfileModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
+            <button onclick="openProfileModal(event)" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
               <i class="fa-solid fa-user-pen"></i>
               <span>Mở Trang Cập Nhật Thông Tin Cá Nhân</span>
             </button>
@@ -165,11 +165,11 @@
             </button>
           </div>
           <div id="systemMenuGuestActions" class="hidden space-y-2">
-            <button onclick="openLoginModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-blue-950 font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
+            <button onclick="openLoginModal(event)" class="w-full bg-amber-500 hover:bg-amber-600 text-blue-950 font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
               <i class="fa-solid fa-right-to-bracket"></i>
               <span>Đăng Nhập Tài Khoản</span>
             </button>
-            <button onclick="openRegisterModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
+            <button onclick="openRegisterModal(event)" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
               <i class="fa-solid fa-user-plus"></i>
               <span>Đăng Ký Tài Khoản Mới</span>
             </button>
@@ -243,10 +243,10 @@
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2 pt-1">
-          <button onclick="toggleMobileDrawer(); openProfileModal();" class="bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded font-medium text-center">
+          <button onclick="toggleMobileDrawer(); openProfileModal(event);" class="bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded font-medium text-center">
             <i class="fa-solid fa-id-card mr-1"></i>Hồ sơ
           </button>
-          <button onclick="toggleMobileDrawer(); openUploadModal();" class="bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded font-bold text-center">
+          <button onclick="toggleMobileDrawer(); openUploadModal(event);" class="bg-emerald-600 hover:bg-emerald-500 text-white py-1.5 rounded font-bold text-center">
             <i class="fa-solid fa-cloud-arrow-up mr-1"></i>Tải lên
           </button>
         </div>
@@ -255,8 +255,8 @@
       <div id="mobileGuestBox" class="hidden bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-2">
         <p class="text-slate-300 font-medium text-[11px]">Bạn đang ở phiên Khách. Đăng nhập để sử dụng đầy đủ các tính năng.</p>
         <div class="grid grid-cols-2 gap-2">
-          <button onclick="toggleMobileDrawer(); openLoginModal();" class="bg-amber-500 hover:bg-amber-600 text-blue-950 py-1.5 rounded font-bold text-center">Đăng Nhập</button>
-          <button onclick="toggleMobileDrawer(); openRegisterModal();" class="bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded font-bold text-center">Đăng Ký</button>
+          <button onclick="toggleMobileDrawer(); openLoginModal(event);" class="bg-amber-500 hover:bg-amber-600 text-blue-950 py-1.5 rounded font-bold text-center">Đăng Nhập</button>
+          <button onclick="toggleMobileDrawer(); openRegisterModal(event);" class="bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded font-bold text-center">Đăng Ký</button>
         </div>
       </div>
 
@@ -555,19 +555,17 @@
     </div>
   </footer>
 
-  <!-- MODAL THÔNG BÁO POPUP (PHONG CÁCH TÍCH XANH / X ĐỎ CỦA MẪU HÌNH) -->
+  <!-- MODAL THÔNG BÁO POPUP -->
   <div id="customAlertModal" class="fixed inset-0 glass-modal flex items-center justify-center p-4 z-50 hidden">
     <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl relative border border-slate-200 dark:border-slate-700 transition-all transform scale-100">
       <button onclick="closeCustomAlert()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <!-- Vòng tròn Icon -->
       <div id="alertIconBox" class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center shadow-md">
         <i id="alertIcon" class="text-4xl text-white"></i>
       </div>
 
-      <!-- Tiêu đề thông báo -->
       <h3 id="alertTitle" class="text-lg font-bold mb-2 leading-snug"></h3>
       <p id="alertSubTitle" class="text-xs text-slate-500 dark:text-slate-400 mb-5 leading-relaxed hidden"></p>
 
@@ -666,44 +664,129 @@
         <input type="text" id="loginUsername" required placeholder="Tên đăng nhập / Email / SĐT (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400">
         <input type="password" id="loginPassword" required placeholder="Mật khẩu (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400">
         
-        <!-- CƠ CHẾ TÍCH CHỌN GHI NHỚ MẬT KHẨU & TỰ ĐỘNG ĐĂNG NHẬP -->
         <div class="flex items-center space-x-2 my-1">
           <input type="checkbox" id="loginRememberMe" class="w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-800 focus:ring-amber-400">
           <label for="loginRememberMe" class="text-xs text-slate-300 cursor-pointer">Ghi nhớ mật khẩu & Tự động đăng nhập lần sau</label>
         </div>
 
         <div class="flex justify-between items-center text-xs pt-1">
-          <a href="#" onclick="openForgotPasswordModal()" class="text-amber-400 hover:underline">🔑 Quên mật khẩu?</a>
-          <a href="#" onclick="openRegisterModal()" class="text-blue-400 hover:underline">Đăng ký tài khoản</a>
+          <a href="#" onclick="openForgotPasswordModal(event)" class="text-amber-400 hover:underline">🔑 Quên mật khẩu?</a>
+          <a href="#" onclick="openRegisterModal(event)" class="text-blue-400 hover:underline">Đăng ký tài khoản</a>
         </div>
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg text-xs sm:text-sm transition shadow">Đăng Nhập Ngay</button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL ĐĂNG KÝ -->
+  <!-- MODAL ĐĂNG KÝ HOÀN CHỈNH -->
   <div id="registerModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 shadow-2xl relative border border-slate-700">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 shadow-2xl relative border border-slate-700 max-h-[92vh] overflow-y-auto">
       <button onclick="closeRegisterModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      <h3 class="text-lg font-bold mb-4 text-center text-emerald-400">📝 Đăng Ký Tài Khoản EduShare</h3>
-      <form onsubmit="handleRegister(event)" class="space-y-3">
-        <input type="text" id="regUsername" required placeholder="Tên đăng nhập (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-        <input type="text" id="regFullname" placeholder="Họ và tên người dùng" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-        <input type="text" id="regEmailPhone" required placeholder="Email hoặc Số điện thoại (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-        <input type="password" id="regPassword" required placeholder="Mật khẩu (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-        <input type="password" id="regConfirmPassword" required placeholder="Xác nhận mật khẩu (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      <h3 class="text-lg font-bold mb-3 text-center text-emerald-400">📝 Đăng Ký Tài Khoản EduShare</h3>
+      <form onsubmit="handleRegister(event)" class="space-y-2.5 text-xs">
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Tên đăng nhập (*):</label>
+          <input type="text" id="regUsername" required placeholder="Tên đăng nhập" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Họ và tên người dùng:</label>
+          <input type="text" id="regFullname" placeholder="Họ và tên" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Giới tính:</label>
+            <select id="regGender" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+              <option value="Nam">Nam</option>
+              <option value="Nữ">Nữ</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Ngày sinh:</label>
+            <input type="date" id="regDob" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-2 text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Email hoặc Số điện thoại (*):</label>
+          <input type="text" id="regEmailPhone" required placeholder="Email hoặc SĐT" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Khoa đào tạo:</label>
+            <input type="text" id="regFaculty" placeholder="VD: Công nghệ thông tin" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-semibold mb-1">Ngành / Khóa / Lớp:</label>
+            <input type="text" id="regClass" placeholder="VD: KTPM2024" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+          </div>
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Mật khẩu (*):</label>
+          <input type="password" id="regPassword" required placeholder="Nhập mật khẩu" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Xác nhận mật khẩu (*):</label>
+          <input type="password" id="regConfirmPassword" required placeholder="Xác nhận mật khẩu" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-semibold mb-1">Vai trò / Phân quyền:</label>
+          <select id="regRole" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+            <option value="student">Học sinh / Sinh viên</option>
+            <option value="teacher">Giáo viên / Giảng viên</option>
+            <option value="admin">Quản trị viên (Admin)</option>
+          </select>
+        </div>
         
-        <!-- CƠ CHẾ TÍCH CHỌN GHI NHỚ MẬT KHẨU KHI ĐĂNG KÝ -->
         <div class="flex items-center space-x-2 my-1">
           <input type="checkbox" id="regRememberMe" class="w-4 h-4 text-emerald-500 rounded border-slate-700 bg-slate-800 focus:ring-emerald-500">
           <label for="regRememberMe" class="text-xs text-slate-300 cursor-pointer">Ghi nhớ mật khẩu & Tự động đăng nhập lần sau</label>
         </div>
 
         <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs sm:text-sm transition shadow">Xác Nhận Đăng Ký</button>
-        <div class="text-center text-xs text-slate-400 mt-2">
-          Đã có tài khoản? <a href="#" onclick="closeRegisterModal(); openLoginModal();" class="text-amber-400 hover:underline">Đăng nhập tại đây</a>
+        <div class="text-center text-xs text-slate-400 mt-1">
+          Đã có tài khoản? <a href="#" onclick="openLoginModal(event)" class="text-amber-400 hover:underline font-bold">Đăng nhập tại đây</a>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL QUÊN MẬT KHẨU QUY TRÌNH OTP -->
+  <div id="forgotPasswordModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 shadow-2xl relative border border-slate-700">
+      <button onclick="closeForgotPasswordModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-lg font-bold mb-3 text-center text-amber-400">🔑 Khôi Phục Mật Khẩu Qua OTP</h3>
+      
+      <!-- BƯỚC 1: NHẬP THÔNG TIN -->
+      <div id="fpStep1" class="space-y-3 text-xs">
+        <p class="text-slate-300">Vui lòng cung cấp Tên người dùng, Email hoặc Số điện thoại để nhận mã OTP xác nhận:</p>
+        <input type="text" id="fpUserKey" placeholder="Tên người dùng / Email / SĐT (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        <button onclick="handleSendOTP()" class="w-full bg-amber-500 hover:bg-amber-600 text-blue-950 font-bold py-2.5 rounded-lg text-xs shadow">
+          Gửi Mã Xác Nhận OTP
+        </button>
+      </div>
+
+      <!-- BƯỚC 2: NHẬP MÃ OTP -->
+      <div id="fpStep2" class="space-y-3 text-xs hidden">
+        <p class="text-slate-300">Mã xác nhận OTP (6 chữ số) đã được gửi đến thiết bị của bạn. Vui lòng nhập mã bên dưới:</p>
+        <input type="text" id="fpOtpCode" maxlength="6" placeholder="Nhập mã OTP (VD: 123456)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white text-center font-bold tracking-widest text-base">
+        <div class="flex justify-between items-center">
+          <button onclick="handleResendOTP()" class="text-amber-400 hover:underline">🔄 Cấp lại Mã xác nhận</button>
+          <span class="text-slate-400 text-[10px]">Mã có hiệu lực trong 5 phút</span>
+        </div>
+        <button onclick="handleVerifyOTP()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs shadow">
+          Xác Nhận Mã OTP
+        </button>
+      </div>
+
+      <!-- BƯỚC 3: TẠO MẬT KHẨU MỚI -->
+      <div id="fpStep3" class="space-y-3 text-xs hidden">
+        <p class="text-slate-300">Nhập mật khẩu mới và xác nhận để hoàn tất khôi phục tài khoản:</p>
+        <input type="password" id="fpNewPassword" placeholder="Nhập mật khẩu mới (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        <input type="password" id="fpConfirmPassword" placeholder="Xác nhận mật khẩu mới (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white">
+        <button onclick="handleResetPassword()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg text-xs shadow">
+          Xác Nhận Tạo Mật Khẩu Mới
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -790,9 +873,12 @@
 
   <script>
     let currentUser = null;
+    let generatedOTP = '123456';
+    let otpTargetKey = '';
+
     let documentsData = [
-      { id: 'd1', title: 'Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật', subject: 'Cấu trúc dữ liệu', author: 'Nguyễn Chí Vỹ', type: 'PDF', faculty: 'Công nghệ thông tin', likes: 45, dislikes: 2, url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', date: '01/11/2026', comments: [] },
-      { id: 'd2', title: 'Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server', subject: 'Cơ sở dữ liệu', author: 'TS. Nguyễn Văn Giảng', type: 'DOCX', faculty: 'Công nghệ thông tin', likes: 28, dislikes: 1, url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', date: '01/11/2026', comments: [] }
+      { id: 'd1', title: 'Giáo Trình Cấu Trúc Dữ Liệu & Giải Thuật', subject: 'Cấu trúc dữ liệu', author: 'Nguyễn Chí Vỹ', authorId: '1', type: 'PDF', faculty: 'Công nghệ thông tin', likes: 45, dislikes: 2, url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', date: '01/11/2026', comments: [] },
+      { id: 'd2', title: 'Đề Thi Mẫu Môn Cơ Sở Dữ Liệu SQL Server', subject: 'Cơ sở dữ liệu', author: 'TS. Nguyễn Văn Giảng', authorId: '2', type: 'DOCX', faculty: 'Công nghệ thông tin', likes: 28, dislikes: 1, url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', date: '01/11/2026', comments: [] }
     ];
     let articlesData = JSON.parse(localStorage.getItem('edushare_articles') || 'null') || [
       { id: 'a1', title: 'Nghiên cứu mô hình AI nhận diện khuôn mặt sinh viên MTU', author: 'Nguyễn Chí Vỹ', date: '2026', url: 'https://mtu.edu.vn' },
@@ -867,18 +953,29 @@
       document.getElementById('customAlertModal').classList.add('hidden');
     }
 
-    /* KIỂM TRA PHIÊN LƯU TRỮ VÀ FIX LỖI TỰ ĐỘNG ĐĂNG NHẬP KHI TẢI LAI TRANG */
+    /* KIỂM TRA PHIÊN LƯU TRỰ VÀ FIX LỖI TỰ ĐỘNG ĐĂNG NHẬP */
     function checkSavedUser() {
       const savedLocal = localStorage.getItem('edushare_user');
       const savedSession = sessionStorage.getItem('edushare_user');
+      const rememberedCreds = localStorage.getItem('edushare_remembered_credentials');
 
       if (savedLocal) {
         currentUser = JSON.parse(savedLocal);
       } else if (savedSession) {
         currentUser = JSON.parse(savedSession);
       } else {
-        currentUser = null; // Duy trì trạng thái Khách
+        currentUser = null;
       }
+
+      if (rememberedCreds) {
+        try {
+          const creds = JSON.parse(rememberedCreds);
+          if (creds.username) document.getElementById('loginUsername').value = creds.username;
+          if (creds.password) document.getElementById('loginPassword').value = creds.password;
+          document.getElementById('loginRememberMe').checked = true;
+        } catch (e) {}
+      }
+
       updateUserUI();
     }
 
@@ -935,10 +1032,21 @@
 
     /* XỬ LÝ ĐĂNG NHẬP */
     async function handleLogin(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
       const remember = document.getElementById('loginRememberMe').checked;
+
+      if (!username || !password) {
+        showCustomAlert(false, 'Đăng nhập thất bại. Vui lòng thử lại!', 'Vui lòng điền đầy đủ Tên đăng nhập và Mật khẩu.');
+        return;
+      }
+
+      if (remember) {
+        localStorage.setItem('edushare_remembered_credentials', JSON.stringify({ username, password }));
+      } else {
+        localStorage.removeItem('edushare_remembered_credentials');
+      }
 
       try {
         const res = await fetch('/api/login', {
@@ -956,7 +1064,7 @@
           closeLoginModal();
           showCustomAlert(true, 'Đã đăng nhập thành công!');
         } else {
-          showCustomAlert(false, 'Đăng nhập thất bại. Vui lòng thử lại!');
+          showCustomAlert(false, 'Đăng nhập thất bại. Vui lòng thử lại!', data.message || '');
         }
       } catch (err) {
         const key = username.toLowerCase();
@@ -981,13 +1089,23 @@
 
     /* XỬ LÝ ĐĂNG KÝ TÀI KHOẢN MỚI */
     async function handleRegister(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const username = document.getElementById('regUsername').value.trim();
       const fullname = document.getElementById('regFullname').value.trim();
+      const gender = document.getElementById('regGender').value;
+      const dob = document.getElementById('regDob').value;
       const emailPhone = document.getElementById('regEmailPhone').value.trim();
+      const faculty = document.getElementById('regFaculty').value.trim();
+      const studentClass = document.getElementById('regClass').value.trim();
       const password = document.getElementById('regPassword').value;
       const confirmPassword = document.getElementById('regConfirmPassword').value;
+      const role = document.getElementById('regRole').value;
       const remember = document.getElementById('regRememberMe').checked;
+
+      if (!username || !emailPhone || !password || !confirmPassword) {
+        showCustomAlert(false, 'Đăng ký thất bại. Vui lòng thử lại!', 'Vui lòng điền đầy đủ các thông tin bắt buộc (*).');
+        return;
+      }
 
       if (password !== confirmPassword) {
         showCustomAlert(false, 'Đăng ký thất bại. Vui lòng thử lại!', 'Mật khẩu xác nhận không trùng khớp.');
@@ -998,7 +1116,7 @@
         const res = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, fullname, emailPhone, password, confirmPassword })
+          body: JSON.stringify({ username, fullname, gender, dob, emailPhone, faculty, studentClass, password, confirmPassword, role })
         });
         const data = await res.json();
         if (res.ok && data.success) {
@@ -1009,12 +1127,12 @@
           closeRegisterModal();
           showCustomAlert(true, 'Đã đăng ký thành công!');
         } else {
-          showCustomAlert(false, 'Đăng ký thất bại. Vui lòng thử lại!');
+          showCustomAlert(false, 'Đăng ký thất bại. Vui lòng thử lại!', data.message || '');
         }
       } catch (err) {
         const newUser = {
           id: String(Date.now()), fullname: fullname || username, username, password, emailPhone,
-          role: 'student', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+          gender, dob, faculty, studentClass, role, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
         };
         currentUser = newUser;
         if (remember) localStorage.setItem('edushare_user', JSON.stringify(currentUser));
@@ -1025,9 +1143,112 @@
       }
     }
 
+    /* BƯỚC 1: GỬI MÃ OTP QUÊN MẬT KHẨU */
+    async function handleSendOTP() {
+      const userKeyInput = document.getElementById('fpUserKey');
+      const userKey = userKeyInput ? userKeyInput.value.trim() : '';
+
+      if (!userKey) {
+        showCustomAlert(false, 'Sai cú pháp vui lòng nhập lại!', 'Không được để trống thông tin Tên đăng nhập/Email/SĐT.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/forgot-password/request-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userKey })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          otpTargetKey = userKey;
+          generatedOTP = data.otpCode || '123456';
+          document.getElementById('fpStep1').classList.add('hidden');
+          document.getElementById('fpStep2').classList.remove('hidden');
+          document.getElementById('fpStep3').classList.add('hidden');
+          showCustomAlert(true, 'Mã xác nhận (OTP: 123456) đã được gửi!');
+        } else {
+          showCustomAlert(false, 'Sai cú pháp vui lòng nhập lại!', data.message || '');
+        }
+      } catch (err) {
+        otpTargetKey = userKey;
+        generatedOTP = '123456';
+        document.getElementById('fpStep1').classList.add('hidden');
+        document.getElementById('fpStep2').classList.remove('hidden');
+        document.getElementById('fpStep3').classList.add('hidden');
+        showCustomAlert(true, 'Mã xác nhận (OTP: 123456) đã được gửi!');
+      }
+    }
+
+    /* BƯỚC 2: XÁC NHẬN MÃ OTP */
+    function handleVerifyOTP() {
+      const codeInput = document.getElementById('fpOtpCode');
+      const code = codeInput ? codeInput.value.trim() : '';
+
+      if (code === generatedOTP) {
+        document.getElementById('fpStep1').classList.add('hidden');
+        document.getElementById('fpStep2').classList.add('hidden');
+        document.getElementById('fpStep3').classList.remove('hidden');
+      } else {
+        showCustomAlert(false, 'Mã sai vui lòng nhập lại!');
+      }
+    }
+
+    function handleResendOTP() {
+      generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+      showCustomAlert(true, `Mã xác nhận mới là: ${generatedOTP}`);
+    }
+
+    /* BƯỚC 3: ĐỔI MẬT KHẨU MỚI */
+    async function handleResetPassword() {
+      const newPassword = document.getElementById('fpNewPassword').value;
+      const confirmPassword = document.getElementById('fpConfirmPassword').value;
+
+      if (!newPassword || newPassword !== confirmPassword) {
+        showCustomAlert(false, 'Tạo mật khẩu không trùng khớp!', 'Vui lòng nhập lại mật khẩu xác nhận.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/forgot-password/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userKey: otpTargetKey, newPassword, confirmPassword })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          closeForgotPasswordModal();
+          showCustomAlert(true, 'Đã cập nhật mật khẩu mới thành công!', 'Vui lòng đăng nhập lại với mật khẩu vừa tạo.');
+          document.getElementById('loginPassword').value = newPassword;
+          openLoginModal();
+        } else {
+          showCustomAlert(false, 'Tạo mật khẩu thất bại!');
+        }
+      } catch (err) {
+        closeForgotPasswordModal();
+        showCustomAlert(true, 'Đã cập nhật mật khẩu mới thành công!', 'Vui lòng đăng nhập lại với mật khẩu vừa tạo.');
+        document.getElementById('loginPassword').value = newPassword;
+        openLoginModal();
+      }
+    }
+
+    function openForgotPasswordModal(e) {
+      if (e) e.preventDefault();
+      closeLoginModal();
+      closeRegisterModal();
+      document.getElementById('fpStep1').classList.remove('hidden');
+      document.getElementById('fpStep2').classList.add('hidden');
+      document.getElementById('fpStep3').classList.add('hidden');
+      document.getElementById('forgotPasswordModal').classList.remove('hidden');
+    }
+
+    function closeForgotPasswordModal() {
+      document.getElementById('forgotPasswordModal').classList.add('hidden');
+    }
+
     /* XỬ LÝ ĐĂNG TẢI HỌC LIỆU SỐ */
     async function handleUploadSubmit(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const title = document.getElementById('uploadTitle').value.trim();
       const subject = document.getElementById('uploadSubject').value.trim();
       const filesInput = document.getElementById('uploadFiles');
@@ -1066,6 +1287,7 @@
         const newDoc = {
           id: 'd_' + Date.now(), title, subject,
           author: currentUser ? currentUser.fullname : 'Khách MTU',
+          authorId: currentUser ? currentUser.id : '1',
           type: 'PDF', faculty: 'Công nghệ thông tin',
           likes: 0, dislikes: 0,
           url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
@@ -1424,7 +1646,7 @@
         html += `<div class="px-3 py-1 bg-slate-800 text-amber-400 font-bold text-[10px] uppercase">📚 Học Liệu (${docMatches.length})</div>`;
         docMatches.forEach(d => {
           html += `
-            <div onclick="selectSearchSuggestion('${d.title.replace(/'/g, "\\'")}')" class="px-3 py-1.5 hover:bg-slate-800 cursor-pointer flex items-center justify-between border-b border-slate-800/50">
+            <div onclick="selectSearchSuggestion('${d.title.replace(/'/g, "\'")}')" class="px-3 py-1.5 hover:bg-slate-800 cursor-pointer flex items-center justify-between border-b border-slate-800/50">
               <span class="truncate pr-2 font-medium">${d.title}</span>
               <span class="text-[9px] bg-blue-900 text-blue-200 px-1.5 py-0.5 rounded shrink-0">${d.type}</span>
             </div>
@@ -1509,7 +1731,7 @@
     function closeArticleModal() { document.getElementById('articleModal').classList.add('hidden'); }
 
     function handleCreateArticle(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const title = document.getElementById('artTitle').value.trim();
       const author = document.getElementById('artAuthor').value.trim();
       const url = document.getElementById('artUrl').value.trim() || 'https://mtu.edu.vn';
@@ -1523,11 +1745,10 @@
     }
 
     function deleteArticle(id) {
-      if (confirm("Bạn có chắc muốn xóa bài báo này?")) {
-        articlesData = articlesData.filter(a => a.id !== id);
-        localStorage.setItem('edushare_articles', JSON.stringify(articlesData));
-        renderQuickArticles();
-      }
+      articlesData = articlesData.filter(a => a.id !== id);
+      localStorage.setItem('edushare_articles', JSON.stringify(articlesData));
+      renderQuickArticles();
+      showCustomAlert(true, 'Đã xóa bài báo!');
     }
 
     function toggleChatbot() { document.getElementById('chatbotDrawer').classList.toggle('hidden'); }
@@ -1568,10 +1789,9 @@
     }
 
     function deleteDoc(id) {
-      if (confirm("Bạn có chắc muốn xóa học liệu này khỏi hệ thống?")) {
-        documentsData = documentsData.filter(d => d.id !== id);
-        renderDocuments();
-      }
+      documentsData = documentsData.filter(d => d.id !== id);
+      renderDocuments();
+      showCustomAlert(true, 'Đã xóa Tệp tin!');
     }
 
     function toggleSystemMenu() { document.getElementById('systemMenuDrawer').classList.toggle('hidden'); }
@@ -1817,8 +2037,9 @@
       }
     }
 
-    function openProfileModal() {
-      if (!currentUser) return openLoginModal();
+    function openProfileModal(e) {
+      if (e) e.preventDefault();
+      if (!currentUser) return openLoginModal(e);
       document.getElementById('profFullname').value = currentUser.fullname || '';
       document.getElementById('profEmailPhone').value = currentUser.emailPhone || '';
       document.getElementById('profAvatarUrl').value = currentUser.avatar || '';
@@ -1829,7 +2050,7 @@
     function closeProfileModal() { document.getElementById('profileModal').classList.add('hidden'); }
 
     function handleSaveProfile(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const newPass = document.getElementById('profNewPass').value;
       const confirmPass = document.getElementById('profConfirmNewPass').value;
 
@@ -1841,6 +2062,10 @@
       currentUser.fullname = document.getElementById('profFullname').value;
       currentUser.emailPhone = document.getElementById('profEmailPhone').value;
       currentUser.avatar = document.getElementById('profAvatarUrl').value;
+
+      if (newPass) {
+        currentUser.password = newPass;
+      }
       
       if (localStorage.getItem('edushare_user')) {
         localStorage.setItem('edushare_user', JSON.stringify(currentUser));
@@ -1853,24 +2078,69 @@
       showCustomAlert(true, 'Đã cập nhật thông tin thành công!');
     }
 
-    function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
+    function openLoginModal(e) {
+      if (e) e.preventDefault();
+      closeRegisterModal();
+      closeForgotPasswordModal();
+      document.getElementById('loginModal').classList.remove('hidden');
+    }
     function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
-    function openRegisterModal() { closeLoginModal(); document.getElementById('registerModal').classList.remove('hidden'); }
+
+    function openRegisterModal(e) {
+      if (e) e.preventDefault();
+      closeLoginModal();
+      closeForgotPasswordModal();
+      document.getElementById('registerModal').classList.remove('hidden');
+    }
     function closeRegisterModal() { document.getElementById('registerModal').classList.add('hidden'); }
-    function openUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
+
+    function openUploadModal(e) {
+      if (e) e.preventDefault();
+      document.getElementById('uploadModal').classList.remove('hidden');
+    }
     function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
+
     function openCreateGroupModal() { document.getElementById('createGroupModal').classList.remove('hidden'); }
     function closeCreateGroupModal() { document.getElementById('createGroupModal').classList.add('hidden'); }
     function goHome() { document.getElementById('searchInput').value = ''; switchMainTab('docs'); }
 
-    function loginGoogle(e) { if (e) e.preventDefault(); closeLoginModal(); showCustomAlert(true, 'Đã đăng nhập thành công!'); }
-    function loginFacebook(e) { if (e) e.preventDefault(); closeLoginModal(); showCustomAlert(true, 'Đã đăng nhập thành công!'); }
+    function loginGoogle(e) {
+      if (e) e.preventDefault();
+      currentUser = {
+        id: 'google_user',
+        fullname: 'Nguyễn Chí Vỹ (Google)',
+        username: 'nguyenchivy_google',
+        role: 'student',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyGoogle',
+        emailPhone: 'nguyenchivybt2006@gmail.com'
+      };
+      sessionStorage.setItem('edushare_user', JSON.stringify(currentUser));
+      updateUserUI();
+      closeLoginModal();
+      showCustomAlert(true, 'Đã đăng nhập thành công!');
+    }
+
+    function loginFacebook(e) {
+      if (e) e.preventDefault();
+      currentUser = {
+        id: 'facebook_user',
+        fullname: 'Nguyễn Chí Vỹ (Facebook)',
+        username: 'nguyenchivy_fb',
+        role: 'student',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyFB',
+        emailPhone: 'nguyenchivybt2006@gmail.com'
+      };
+      sessionStorage.setItem('edushare_user', JSON.stringify(currentUser));
+      updateUserUI();
+      closeLoginModal();
+      showCustomAlert(true, 'Đã đăng nhập thành công!');
+    }
 
     function handleDownloadCheck(e) {
       if (!currentUser) { 
-        e.preventDefault(); 
+        if (e) e.preventDefault(); 
         showCustomAlert(false, 'Đăng nhập thất bại. Vui lòng thử lại!', 'Vui lòng Đăng nhập để tải tài liệu!'); 
-        openLoginModal(); 
+        openLoginModal(e); 
         return false; 
       }
       return true;
