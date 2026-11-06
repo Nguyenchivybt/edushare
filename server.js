@@ -141,20 +141,6 @@ let documents = [
   }
 ];
 
-let forumPosts = [
-  {
-    id: 'f1',
-    author: 'Nguyễn Chí Vỹ',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen',
-    role: 'admin',
-    date: '04/11/2026',
-    title: 'Chào mừng các bạn đến với Cộng đồng trao đổi học thuật MTU!',
-    content: 'Diễn đàn trao đổi học thuật dành cho Sinh viên & Giảng viên MTU cùng thảo luận chuyên môn, đồ án và đề thi các năm.',
-    likes: 15,
-    replies: []
-  }
-];
-
 let liveChatMessages = [
   { id: 'm1', sender: 'Nguyễn Chí Vỹ', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', files: [], time: '10:00' }
 ];
@@ -172,7 +158,7 @@ app.get('/api/users', (req, res) => {
 app.get('/api/documents', (req, res) => res.json(documents));
 
 app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
-  const { title, category, subject, faculty, major, author, authorId, articleLink } = req.body;
+  const { title, category, subject, faculty, major, author, authorId } = req.body;
   const createdDocs = [];
 
   if (req.files && req.files.length > 0) {
@@ -197,12 +183,12 @@ app.post('/api/documents/batch', upload.array('files', 10), (req, res) => {
       documents.unshift(docItem);
       createdDocs.push(docItem);
     });
+    return res.json({ success: true, message: 'Tải tệp thành công!', documents: createdDocs });
   }
 
-  res.json({ success: true, message: `🎉 Đã đăng thành công ${createdDocs.length} học liệu mới!`, documents: createdDocs });
+  return res.status(400).json({ success: false, message: 'Tải tệp thất bại. Vui lòng thử lại sau!' });
 });
 
-/* API GỬI FILE KÈM NHẮN TIN CHAT PUBLIC VÀ NHÓM CHAT */
 app.post('/api/chat/upload', upload.array('attachments', 10), (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ success: false, message: 'Không có tệp được chọn' });
@@ -241,7 +227,7 @@ app.get('/api/chat/groups', (req, res) => res.json(chatGroups));
 
 app.post('/api/chat/groups/create', (req, res) => {
   const { name, creatorId, memberIds } = req.body;
-  if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Tên nhóm không được để trống' });
+  if (!name || !name.trim()) return res.status(400).json({ success: false, message: 'Tạo nhóm thất bại, vui lòng thử lại!' });
   const newGroup = {
     id: 'g_' + Date.now(),
     name: name.trim(),
@@ -249,7 +235,7 @@ app.post('/api/chat/groups/create', (req, res) => {
     messages: []
   };
   chatGroups.push(newGroup);
-  res.json({ success: true, group: newGroup });
+  res.json({ success: true, message: 'Đã tạo nhóm thành công!', group: newGroup });
 });
 
 app.post('/api/chat/groups/send', (req, res) => {
@@ -273,26 +259,26 @@ app.post('/api/chat/groups/send', (req, res) => {
 });
 
 app.post('/api/register', (req, res) => {
-  const { username, emailPhone, password, confirmPassword, fullname, gender, dob, school, faculty, major, studentClass, address, role } = req.body;
-  if (!username || !emailPhone || !password) return res.status(400).json({ message: 'Vui lòng điền các thông tin bắt buộc!' });
-  if (password !== confirmPassword) return res.status(400).json({ message: 'Mật khẩu xác nhận không trùng khớp!' });
+  const { username, emailPhone, password, confirmPassword, fullname, role } = req.body;
+  if (!username || !emailPhone || !password) return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
+  if (password !== confirmPassword) return res.status(400).json({ success: false, message: 'Đăng ký thất bại. Vui lòng thử lại!' });
 
   const newUser = {
     id: String(Date.now()), fullname: fullname || username, username, password, emailPhone,
-    gender: gender || 'Nam', dob: dob || '', school: school || 'MTU', faculty: faculty || 'IT',
-    major: major || 'KTPM', studentClass: studentClass || 'DH2024', address: address || 'Vĩnh Long',
+    gender: 'Nam', dob: '', school: 'MTU', faculty: 'IT',
+    major: 'KTPM', studentClass: 'DH2024', address: 'Vĩnh Long',
     role: role || 'student', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`, authProvider: 'local'
   };
   users.push(newUser);
-  res.json({ success: true, message: '🎉 Đăng ký tài khoản EduShare thành công!', user: newUser });
+  res.json({ success: true, message: 'Đã đăng ký thành công!', user: newUser });
 });
 
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   const key = (username || '').trim().toLowerCase();
   const user = users.find(u => (u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key) && u.password === password);
-  if (user) res.json({ success: true, message: 'Đăng nhập thành công!', user });
-  else res.status(400).json({ success: false, message: 'Tên đăng nhập hoặc mật khẩu không chính xác!' });
+  if (user) res.json({ success: true, message: 'Đã đăng nhập thành công!', user });
+  else res.status(400).json({ success: false, message: 'Đăng nhập thất bại. Vui lòng thử lại!' });
 });
 
 app.post('/api/chatbot', async (req, res) => {

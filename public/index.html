@@ -154,14 +154,26 @@
             <span>Thông Tin Cá Nhân & Tài Khoản</span>
           </h4>
           <p class="text-slate-400 text-[11px]">Cập nhật tên, ảnh đại diện, email hoặc đổi mật khẩu mới.</p>
-          <button onclick="openProfileModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
-            <i class="fa-solid fa-user-pen"></i>
-            <span>Mở Trang Cập Nhật Thông Tin Cá Nhân</span>
-          </button>
-          <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Đăng Xuất Tài Khoản</span>
-          </button>
+          <div id="systemMenuUserActions" class="space-y-2">
+            <button onclick="openProfileModal()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
+              <i class="fa-solid fa-user-pen"></i>
+              <span>Mở Trang Cập Nhật Thông Tin Cá Nhân</span>
+            </button>
+            <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Đăng Xuất Tài Khoản</span>
+            </button>
+          </div>
+          <div id="systemMenuGuestActions" class="hidden space-y-2">
+            <button onclick="openLoginModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-blue-950 font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span>Đăng Nhập Tài Khoản</span>
+            </button>
+            <button onclick="openRegisterModal()" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-lg text-xs flex items-center justify-center space-x-1.5 shadow transition">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Đăng Ký Tài Khoản Mới</span>
+            </button>
+          </div>
         </div>
 
         <div class="bg-slate-800/80 p-3.5 rounded-xl border border-slate-700 space-y-2">
@@ -240,6 +252,14 @@
         </div>
       </div>
 
+      <div id="mobileGuestBox" class="hidden bg-slate-800/80 p-3 rounded-xl border border-slate-700 space-y-2">
+        <p class="text-slate-300 font-medium text-[11px]">Bạn đang ở phiên Khách. Đăng nhập để sử dụng đầy đủ các tính năng.</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="toggleMobileDrawer(); openLoginModal();" class="bg-amber-500 hover:bg-amber-600 text-blue-950 py-1.5 rounded font-bold text-center">Đăng Nhập</button>
+          <button onclick="toggleMobileDrawer(); openRegisterModal();" class="bg-slate-700 hover:bg-slate-600 text-white py-1.5 rounded font-bold text-center">Đăng Ký</button>
+        </div>
+      </div>
+
       <div class="space-y-1 pt-1">
         <div class="text-[11px] font-bold text-amber-400 uppercase tracking-wider mb-2">Chức Năng Chính</div>
         <button onclick="toggleMobileDrawer(); goHome();" class="w-full text-left bg-slate-800/50 hover:bg-slate-800 p-2.5 rounded-lg flex items-center space-x-2 text-slate-200 font-semibold">
@@ -271,7 +291,7 @@
           <span>Giao diện tối (Dark mode):</span>
           <button onclick="setDarkMode(!document.getElementById('appBody').classList.contains('dark-mode'))" class="px-2.5 py-1 bg-slate-800 rounded font-bold text-amber-400">Đổi</button>
         </div>
-        <button onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold text-center mt-2 shadow transition">
+        <button id="mobileLogoutBtn" onclick="logout()" class="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-bold text-center mt-2 shadow transition hidden">
           <i class="fa-solid fa-right-from-bracket mr-1"></i>Đăng xuất
         </button>
       </div>
@@ -407,7 +427,7 @@
         <div id="forumList" class="space-y-3"></div>
       </div>
 
-      <!-- KÊNH CHAT TRỰC TUYẾN 24/7 NÂNG CẤP ĐÍNH KÈM FILE KHÔNG GIỚI HẠN -->
+      <!-- KÊNH CHAT TRỰC TUYẾN 24/7 -->
       <div id="commSubLiveChat" class="hidden bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 flex flex-col h-[520px]">
         <div class="p-3 bg-blue-900 text-white rounded-t-xl font-bold text-xs sm:text-sm flex items-center justify-between">
           <span class="flex items-center space-x-2"><i class="fa-solid fa-comments text-amber-400"></i><span>Kênh Chat Trực Tuyến Phòng Chung MTU</span></span>
@@ -415,7 +435,6 @@
         </div>
         <div id="liveChatMessagesBox" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs sm:text-sm"></div>
         
-        <!-- THANH ĐÍNH KÈM TỆP PREVIEW CỦA CHAT PUBLIC -->
         <div id="publicChatFilePreview" class="hidden px-3 py-1 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 text-xs"></div>
 
         <div class="p-3 border-t border-slate-200 dark:border-slate-700 flex items-center space-x-2">
@@ -429,7 +448,7 @@
         </div>
       </div>
 
-      <!-- NHÓM CHAT & NHẮN TIN RIÊNG NÂNG CẤP ĐÍNH KÈM FILE -->
+      <!-- NHÓM CHAT & NHẮN TIN RIÊNG -->
       <div id="commSubGroups" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
           <div class="flex items-center justify-between">
@@ -445,7 +464,6 @@
           </div>
           <div id="groupChatMessagesBox" class="flex-1 p-3 overflow-y-auto space-y-2 text-xs"></div>
           
-          <!-- PREVIEW TỆP NHÓM CHAT -->
           <div id="groupChatFilePreview" class="hidden px-3 py-1 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 text-xs"></div>
 
           <div class="p-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center space-x-2">
@@ -537,6 +555,28 @@
     </div>
   </footer>
 
+  <!-- MODAL THÔNG BÁO POPUP (PHONG CÁCH TÍCH XANH / X ĐỎ CỦA MẪU HÌNH) -->
+  <div id="customAlertModal" class="fixed inset-0 glass-modal flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-2xl w-full max-w-sm p-6 text-center shadow-2xl relative border border-slate-200 dark:border-slate-700 transition-all transform scale-100">
+      <button onclick="closeCustomAlert()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Vòng tròn Icon -->
+      <div id="alertIconBox" class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center shadow-md">
+        <i id="alertIcon" class="text-4xl text-white"></i>
+      </div>
+
+      <!-- Tiêu đề thông báo -->
+      <h3 id="alertTitle" class="text-lg font-bold mb-2 leading-snug"></h3>
+      <p id="alertSubTitle" class="text-xs text-slate-500 dark:text-slate-400 mb-5 leading-relaxed hidden"></p>
+
+      <button onclick="closeCustomAlert()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
+        Đồng ý
+      </button>
+    </div>
+  </div>
+
   <!-- MODAL ĐỌC TÀI LIỆU TRỰC TIẾP -->
   <div id="viewDocModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
     <div class="bg-slate-900 text-white rounded-2xl w-full max-w-4xl p-4 shadow-2xl relative border border-slate-700 flex flex-col h-[88vh]">
@@ -623,13 +663,46 @@
         </button>
       </div>
       <form onsubmit="handleLogin(event)" class="space-y-3 mt-2">
-        <input type="text" id="loginUsername" required placeholder="Tên đăng nhập / Email / SĐT (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-        <input type="password" id="loginPassword" required placeholder="Mật khẩu (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-        <div class="flex justify-between items-center text-xs">
+        <input type="text" id="loginUsername" required placeholder="Tên đăng nhập / Email / SĐT (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400">
+        <input type="password" id="loginPassword" required placeholder="Mật khẩu (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-400">
+        
+        <!-- CƠ CHẾ TÍCH CHỌN GHI NHỚ MẬT KHẨU & TỰ ĐỘNG ĐĂNG NHẬP -->
+        <div class="flex items-center space-x-2 my-1">
+          <input type="checkbox" id="loginRememberMe" class="w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-800 focus:ring-amber-400">
+          <label for="loginRememberMe" class="text-xs text-slate-300 cursor-pointer">Ghi nhớ mật khẩu & Tự động đăng nhập lần sau</label>
+        </div>
+
+        <div class="flex justify-between items-center text-xs pt-1">
           <a href="#" onclick="openForgotPasswordModal()" class="text-amber-400 hover:underline">🔑 Quên mật khẩu?</a>
           <a href="#" onclick="openRegisterModal()" class="text-blue-400 hover:underline">Đăng ký tài khoản</a>
         </div>
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg text-xs sm:text-sm transition shadow">Đăng Nhập Ngay</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL ĐĂNG KÝ -->
+  <div id="registerModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-md p-5 shadow-2xl relative border border-slate-700">
+      <button onclick="closeRegisterModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      <h3 class="text-lg font-bold mb-4 text-center text-emerald-400">📝 Đăng Ký Tài Khoản EduShare</h3>
+      <form onsubmit="handleRegister(event)" class="space-y-3">
+        <input type="text" id="regUsername" required placeholder="Tên đăng nhập (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <input type="text" id="regFullname" placeholder="Họ và tên người dùng" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <input type="text" id="regEmailPhone" required placeholder="Email hoặc Số điện thoại (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <input type="password" id="regPassword" required placeholder="Mật khẩu (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        <input type="password" id="regConfirmPassword" required placeholder="Xác nhận mật khẩu (*)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        
+        <!-- CƠ CHẾ TÍCH CHỌN GHI NHỚ MẬT KHẨU KHI ĐĂNG KÝ -->
+        <div class="flex items-center space-x-2 my-1">
+          <input type="checkbox" id="regRememberMe" class="w-4 h-4 text-emerald-500 rounded border-slate-700 bg-slate-800 focus:ring-emerald-500">
+          <label for="regRememberMe" class="text-xs text-slate-300 cursor-pointer">Ghi nhớ mật khẩu & Tự động đăng nhập lần sau</label>
+        </div>
+
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-xs sm:text-sm transition shadow">Xác Nhận Đăng Ký</button>
+        <div class="text-center text-xs text-slate-400 mt-2">
+          Đã có tài khoản? <a href="#" onclick="closeRegisterModal(); openLoginModal();" class="text-amber-400 hover:underline">Đăng nhập tại đây</a>
+        </div>
       </form>
     </div>
   </div>
@@ -683,7 +756,7 @@
 
   <!-- MODAL TẢI LÊN MULTI-FILE -->
   <div id="uploadModal" class="fixed inset-0 glass-modal flex items-center justify-center p-3 z-50 hidden">
-    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 border border-slate-700">
+    <div class="bg-slate-900 text-white rounded-2xl w-full max-w-lg p-5 border border-slate-700 relative">
       <button onclick="closeUploadModal()" class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       <h3 class="text-lg font-bold mb-3 text-center text-emerald-400">📤 Đăng Tải Học Liệu Số MTU</h3>
       <form onsubmit="handleUploadSubmit(event)" class="space-y-3">
@@ -743,7 +816,6 @@
       { sender: 'Nguyễn Chí Vỹ', text: 'Chào mừng mọi người đến với Kênh Chat Trực Tuyến MTU 24/7!', files: [], time: '10:00' }
     ];
 
-    // BIẾN LƯU TỆP CHỜ GỬI ĐÍNH KÈM CHAT
     let selectedPublicChatFiles = [];
     let selectedGroupChatFiles = [];
 
@@ -763,7 +835,285 @@
       });
     };
 
-    /* XỬ LÝ CHAT NÂNG CẤP ĐÍNH KÈM FILE ẢNH, PDF, DOCX, MP3, MP4 */
+    /* HÀM POPUP THÔNG BÁO TÙY CHỈNH CHUẨN PHONG CÁCH TÍCH XANH / X ĐỎ */
+    function showCustomAlert(isSuccess, title, subTitle = '') {
+      const modal = document.getElementById('customAlertModal');
+      const iconBox = document.getElementById('alertIconBox');
+      const icon = document.getElementById('alertIcon');
+      const titleEl = document.getElementById('alertTitle');
+      const subTitleEl = document.getElementById('alertSubTitle');
+
+      if (isSuccess) {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center shadow-md bg-emerald-500";
+        icon.className = "fa-solid fa-check text-4xl text-white";
+      } else {
+        iconBox.className = "w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center shadow-md bg-red-500";
+        icon.className = "fa-solid fa-xmark text-4xl text-white";
+      }
+
+      titleEl.innerText = title;
+      if (subTitle) {
+        subTitleEl.innerText = subTitle;
+        subTitleEl.classList.remove('hidden');
+      } else {
+        subTitleEl.innerText = '';
+        subTitleEl.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeCustomAlert() {
+      document.getElementById('customAlertModal').classList.add('hidden');
+    }
+
+    /* KIỂM TRA PHIÊN LƯU TRỮ VÀ FIX LỖI TỰ ĐỘNG ĐĂNG NHẬP KHI TẢI LAI TRANG */
+    function checkSavedUser() {
+      const savedLocal = localStorage.getItem('edushare_user');
+      const savedSession = sessionStorage.getItem('edushare_user');
+
+      if (savedLocal) {
+        currentUser = JSON.parse(savedLocal);
+      } else if (savedSession) {
+        currentUser = JSON.parse(savedSession);
+      } else {
+        currentUser = null; // Duy trì trạng thái Khách
+      }
+      updateUserUI();
+    }
+
+    /* HÀM ĐĂNG XUẤT CHÍNH THỨC */
+    function logout() {
+      localStorage.removeItem('edushare_user');
+      sessionStorage.removeItem('edushare_user');
+      currentUser = null;
+      updateUserUI();
+      showCustomAlert(true, 'Đã đăng xuất thành công!');
+    }
+
+    /* ĐỒNG BỘ GIAO DIỆN USER / GUEST NGUYÊN BẢN */
+    function updateUserUI() {
+      const guestNav = document.getElementById('guestNav');
+      const userNav = document.getElementById('userNav');
+      const mobileUserBox = document.getElementById('mobileUserBox');
+      const mobileGuestBox = document.getElementById('mobileGuestBox');
+      const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
+      const sysUserActions = document.getElementById('systemMenuUserActions');
+      const sysGuestActions = document.getElementById('systemMenuGuestActions');
+
+      if (currentUser) {
+        guestNav.classList.add('hidden');
+        userNav.classList.remove('hidden');
+        document.getElementById('userName').innerText = currentUser.fullname;
+        document.getElementById('headerAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
+        
+        mobileUserBox.classList.remove('hidden');
+        mobileGuestBox.classList.add('hidden');
+        mobileLogoutBtn.classList.remove('hidden');
+        document.getElementById('mobileUserName').innerText = currentUser.fullname;
+        document.getElementById('mobileAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
+        
+        sysUserActions.classList.remove('hidden');
+        sysGuestActions.classList.add('hidden');
+
+        const badge = document.getElementById('userBadge');
+        const mBadge = document.getElementById('mobileUserBadge');
+        if (currentUser.role === 'admin') { badge.innerText = 'QUẢN TRỊ'; mBadge.innerText = 'QUẢN TRỊ'; }
+        else if (currentUser.role === 'teacher') { badge.innerText = 'GIẢNG VIÊN'; mBadge.innerText = 'GIẢNG VIÊN'; }
+        else { badge.innerText = 'SINH VIÊN'; mBadge.innerText = 'SINH VIÊN'; }
+      } else {
+        guestNav.classList.remove('hidden');
+        userNav.classList.add('hidden');
+        mobileUserBox.classList.add('hidden');
+        mobileGuestBox.classList.remove('hidden');
+        mobileLogoutBtn.classList.add('hidden');
+        sysUserActions.classList.add('hidden');
+        sysGuestActions.classList.remove('hidden');
+      }
+      renderDocuments();
+    }
+
+    /* XỬ LÝ ĐĂNG NHẬP */
+    async function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const remember = document.getElementById('loginRememberMe').checked;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          currentUser = data.user;
+          if (remember) localStorage.setItem('edushare_user', JSON.stringify(currentUser));
+          else sessionStorage.setItem('edushare_user', JSON.stringify(currentUser));
+          updateUserUI();
+          closeLoginModal();
+          showCustomAlert(true, 'Đã đăng nhập thành công!');
+        } else {
+          showCustomAlert(false, 'Đăng nhập thất bại. Vui lòng thử lại!');
+        }
+      } catch (err) {
+        const key = username.toLowerCase();
+        const demoUsers = [
+          { id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', password: 'adminpassword123', role: 'admin', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen', emailPhone: 'nguyenchivybt2006@gmail.com' },
+          { id: '2', fullname: 'TS. Nguyễn Văn Giảng', username: 'giangnv', password: '123', role: 'teacher', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Giang', emailPhone: 'giang.nv@mtu.edu.vn' },
+          { id: '3', fullname: 'Nguyenchivysinhvien', username: 'Nguyenchivysinhvien', password: '123', role: 'student', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=StudentVy', emailPhone: '0862204069' }
+        ];
+        const user = demoUsers.find(u => (u.username.toLowerCase() === key || u.emailPhone.toLowerCase() === key) && u.password === password);
+        if (user) {
+          currentUser = user;
+          if (remember) localStorage.setItem('edushare_user', JSON.stringify(currentUser));
+          else sessionStorage.setItem('edushare_user', JSON.stringify(currentUser));
+          updateUserUI();
+          closeLoginModal();
+          showCustomAlert(true, 'Đã đăng nhập thành công!');
+        } else {
+          showCustomAlert(false, 'Đăng nhập thất bại. Vui lòng thử lại!');
+        }
+      }
+    }
+
+    /* XỬ LÝ ĐĂNG KÝ TÀI KHOẢN MỚI */
+    async function handleRegister(e) {
+      e.preventDefault();
+      const username = document.getElementById('regUsername').value.trim();
+      const fullname = document.getElementById('regFullname').value.trim();
+      const emailPhone = document.getElementById('regEmailPhone').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+      const remember = document.getElementById('regRememberMe').checked;
+
+      if (password !== confirmPassword) {
+        showCustomAlert(false, 'Đăng ký thất bại. Vui lòng thử lại!', 'Mật khẩu xác nhận không trùng khớp.');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, fullname, emailPhone, password, confirmPassword })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          currentUser = data.user;
+          if (remember) localStorage.setItem('edushare_user', JSON.stringify(currentUser));
+          else sessionStorage.setItem('edushare_user', JSON.stringify(currentUser));
+          updateUserUI();
+          closeRegisterModal();
+          showCustomAlert(true, 'Đã đăng ký thành công!');
+        } else {
+          showCustomAlert(false, 'Đăng ký thất bại. Vui lòng thử lại!');
+        }
+      } catch (err) {
+        const newUser = {
+          id: String(Date.now()), fullname: fullname || username, username, password, emailPhone,
+          role: 'student', avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`
+        };
+        currentUser = newUser;
+        if (remember) localStorage.setItem('edushare_user', JSON.stringify(currentUser));
+        else sessionStorage.setItem('edushare_user', JSON.stringify(currentUser));
+        updateUserUI();
+        closeRegisterModal();
+        showCustomAlert(true, 'Đã đăng ký thành công!');
+      }
+    }
+
+    /* XỬ LÝ ĐĂNG TẢI HỌC LIỆU SỐ */
+    async function handleUploadSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('uploadTitle').value.trim();
+      const subject = document.getElementById('uploadSubject').value.trim();
+      const filesInput = document.getElementById('uploadFiles');
+
+      if (!title || !subject) {
+        showCustomAlert(false, 'Tải tệp thất bại. Vui lòng thử lại sau!');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('subject', subject);
+      formData.append('author', currentUser ? currentUser.fullname : 'Thành viên MTU');
+      formData.append('authorId', currentUser ? currentUser.id : '1');
+
+      if (filesInput && filesInput.files.length > 0) {
+        for (let i = 0; i < filesInput.files.length; i++) {
+          formData.append('files', filesInput.files[i]);
+        }
+      }
+
+      try {
+        const res = await fetch('/api/documents/batch', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          if (data.documents && data.documents.length > 0) {
+            documentsData.unshift(...data.documents);
+          }
+          renderDocuments();
+          closeUploadModal();
+          showCustomAlert(true, 'Tải tệp thành công!');
+        } else {
+          showCustomAlert(false, 'Tải tệp thất bại. Vui lòng thử lại sau!');
+        }
+      } catch (err) {
+        const newDoc = {
+          id: 'd_' + Date.now(), title, subject,
+          author: currentUser ? currentUser.fullname : 'Khách MTU',
+          type: 'PDF', faculty: 'Công nghệ thông tin',
+          likes: 0, dislikes: 0,
+          url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+          date: new Date().toLocaleDateString('vi-VN'), comments: []
+        };
+        documentsData.unshift(newDoc);
+        renderDocuments();
+        closeUploadModal();
+        showCustomAlert(true, 'Tải tệp thành công!');
+      }
+    }
+
+    /* XỬ LÝ TẠO NHÓM CHAT MỚI */
+    async function submitCreateGroup() {
+      const input = document.getElementById('newGroupNameInput');
+      const name = input ? input.value.trim() : '';
+      if (!name) {
+        showCustomAlert(false, 'Tạo nhóm thất bại, vui lòng thử lại!');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/chat/groups/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, creatorId: currentUser ? currentUser.id : '1', memberIds: [] })
+        });
+        const data = await res.json();
+        if (data.success) {
+          input.value = '';
+          closeCreateGroupModal();
+          fetchGroups();
+          showCustomAlert(true, 'Đã tạo nhóm thành công!');
+        } else {
+          showCustomAlert(false, 'Tạo nhóm thất bại, vui lòng thử lại!');
+        }
+      } catch (err) {
+        const newG = { id: 'g_' + Date.now(), name, members: [currentUser ? currentUser.id : '1'], messages: [] };
+        groupsData.push(newG);
+        input.value = '';
+        closeCreateGroupModal();
+        renderGroupList(groupsData);
+        selectGroup(newG.id);
+        showCustomAlert(true, 'Đã tạo nhóm thành công!');
+      }
+    }
+
+    /* CHAT LIVE & FILE ATTACHMENTS */
     function handlePublicChatFilesSelected(e) {
       const files = Array.from(e.target.files);
       if (files.length > 0) {
@@ -861,7 +1211,6 @@
       }
       box.innerHTML = msgs.map(m => {
         const isMe = currentUser && (m.sender === currentUser.fullname || m.sender === currentUser.username);
-        
         let filesHtml = '';
         if (m.files && m.files.length > 0) {
           filesHtml = `<div class="mt-1.5 space-y-1">` + m.files.map(f => {
@@ -871,7 +1220,6 @@
             return `<a href="${f.url}" download target="_blank" class="inline-flex items-center space-x-1 underline text-amber-300 hover:text-amber-200 text-xs font-semibold block"><i class="fa-solid fa-paperclip"></i><span>${f.name}</span></a>`;
           }).join('') + `</div>`;
         }
-
         return `
           <div class="p-2.5 rounded-xl border border-slate-700 max-w-[85%] mb-2 ${isMe ? 'ml-auto bg-blue-600 text-white' : 'bg-slate-800 text-slate-100'}">
             <div class="flex justify-between items-center text-[11px] font-bold ${isMe ? 'text-blue-100' : 'text-amber-400'} mb-0.5">
@@ -928,39 +1276,6 @@
       }
     }
 
-    /* NHÓM CHAT CHUYÊN SÂU */
-    function openCreateGroupModal() { document.getElementById('createGroupModal').classList.remove('hidden'); }
-    function closeCreateGroupModal() { document.getElementById('createGroupModal').classList.add('hidden'); }
-
-    async function submitCreateGroup() {
-      const input = document.getElementById('newGroupNameInput');
-      const name = input ? input.value.trim() : '';
-      if (!name) return alert('Vui lòng nhập tên nhóm chat!');
-
-      try {
-        const res = await fetch('/api/chat/groups/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, creatorId: currentUser ? currentUser.id : '1', memberIds: [] })
-        });
-        const data = await res.json();
-        if (data.success) {
-          input.value = '';
-          closeCreateGroupModal();
-          fetchGroups();
-          alert('✅ Đã tạo nhóm chat mới thành công!');
-        }
-      } catch (err) {
-        const newG = { id: 'g_' + Date.now(), name, members: [currentUser ? currentUser.id : '1'], messages: [] };
-        groupsData.push(newG);
-        input.value = '';
-        closeCreateGroupModal();
-        renderGroupList(groupsData);
-        selectGroup(newG.id);
-        alert('✅ Đã tạo nhóm chat mới thành công!');
-      }
-    }
-
     async function fetchGroups() {
       try {
         const res = await fetch('/api/chat/groups');
@@ -983,7 +1298,6 @@
         container.innerHTML = `<p class="text-slate-400 py-2">Chưa có nhóm chat nào. Bấm "+ Tạo Nhóm" để tạo nhóm đầu tiên!</p>`;
         return;
       }
-
       container.innerHTML = groups.map(g => `
         <div onclick="selectGroup('${g.id}')" class="p-2.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 cursor-pointer flex items-center justify-between transition ${activeGroupId === g.id ? 'border-emerald-500 bg-slate-700' : ''}">
           <div class="font-bold text-slate-200 truncate"><i class="fa-solid fa-user-group text-emerald-400 mr-2"></i>${g.name}</div>
@@ -1012,10 +1326,8 @@
         box.innerHTML = `<div class="text-center text-slate-400 py-4">Chưa có tin nhắn trong nhóm này. Hãy gửi tin nhắn đầu tiên!</div>`;
         return;
       }
-
       box.innerHTML = messages.map(m => {
         const isMe = currentUser && (m.sender === currentUser.fullname || m.sender === currentUser.username);
-
         let filesHtml = '';
         if (m.files && m.files.length > 0) {
           filesHtml = `<div class="mt-1.5 space-y-1">` + m.files.map(f => {
@@ -1025,7 +1337,6 @@
             return `<a href="${f.url}" download target="_blank" class="inline-flex items-center space-x-1 underline text-amber-300 hover:text-amber-200 text-xs font-semibold block"><i class="fa-solid fa-paperclip"></i><span>${f.name}</span></a>`;
           }).join('') + `</div>`;
         }
-
         return `
           <div class="p-2 rounded-lg border border-slate-700 max-w-[85%] mb-1.5 ${isMe ? 'ml-auto bg-emerald-600 text-white' : 'bg-slate-900 text-slate-100'}">
             <div class="flex justify-between items-center text-[10px] font-bold ${isMe ? 'text-emerald-100' : 'text-amber-400'} mb-0.5">
@@ -1041,7 +1352,7 @@
     }
 
     async function sendGroupChatMessage() {
-      if (!activeGroupId) return alert('Vui lòng chọn 1 nhóm chat từ danh sách bên trái!');
+      if (!activeGroupId) return showCustomAlert(false, 'Tạo nhóm thất bại, vui lòng thử lại!', 'Chưa chọn nhóm chat.');
       const input = document.getElementById('groupChatInput');
       const text = input ? input.value.trim() : '';
 
@@ -1084,14 +1395,6 @@
           renderGroupMessages(group.messages);
         }
       }
-    }
-
-    /* ĐĂNG XUẤT TÀI KHOẢN AN TOÀN & ĐỒNG BỘ */
-    function logout() {
-      localStorage.removeItem('edushare_user');
-      currentUser = null;
-      updateUserUI();
-      alert("Đã đăng xuất tài khoản thành công!");
     }
 
     /* GỢI Ý TÌM KIẾM AUTO-COMPLETE */
@@ -1147,7 +1450,6 @@
           <span>Lối tắt:</span>
         </span>
       `;
-      
       const buttonsHtml = userShortcuts.map((sc, index) => `
         <div class="inline-flex items-center bg-slate-100 dark:bg-slate-700 rounded-full px-3 py-1 shrink-0 space-x-1 hover:bg-slate-200 dark:hover:bg-slate-600 transition">
           <button onclick="filterByCategory('${sc.category}')" class="text-slate-700 dark:text-slate-200 font-medium text-xs">${sc.name}</button>
@@ -1186,7 +1488,6 @@
         grid.innerHTML = `<div class="col-span-full text-center text-slate-400 py-3">Chưa có bài báo khoa học nào. Hãy bấm "+ Đăng Bài Báo Mới"!</div>`;
         return;
       }
-
       grid.innerHTML = articlesData.map(art => `
         <div class="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between space-y-2">
           <div>
@@ -1218,11 +1519,11 @@
       localStorage.setItem('edushare_articles', JSON.stringify(articlesData));
       renderQuickArticles();
       closeArticleModal();
-      alert("✅ Đã thêm Bài báo khoa học mới thành công!");
+      showCustomAlert(true, 'Đã thêm bài báo khoa học thành công!');
     }
 
     function deleteArticle(id) {
-      if (confirm(" Bạn có chắc muốn xóa bài báo này?")) {
+      if (confirm("Bạn có chắc muốn xóa bài báo này?")) {
         articlesData = articlesData.filter(a => a.id !== id);
         localStorage.setItem('edushare_articles', JSON.stringify(articlesData));
         renderQuickArticles();
@@ -1244,7 +1545,6 @@
       setTimeout(() => {
         let reply = "EduShare AI sẵn sàng đồng hành cùng bạn trong học tập tại MTU!";
         const q = text.toLowerCase();
-
         if (q.includes('bài giảng') || q.includes('slide')) {
           reply = "📚 EduShare hiện có các bộ Slide Bài Giảng chuẩn thuộc Khoa CNTT và Khoa Xây Dựng. Bạn hãy chọn mục <strong>Danh mục Tài liệu > Tài liệu Bài giảng</strong> để xem ngay nhé!";
         } else if (q.includes('đề thi') || q.includes('thi mẫu')) {
@@ -1268,7 +1568,7 @@
     }
 
     function deleteDoc(id) {
-      if (confirm(" Bạn có chắc muốn xóa học liệu này khỏi hệ thống?")) {
+      if (confirm("Bạn có chắc muốn xóa học liệu này khỏi hệ thống?")) {
         documentsData = documentsData.filter(d => d.id !== id);
         renderDocuments();
       }
@@ -1314,7 +1614,7 @@
       body.classList.remove('theme-default', 'theme-academic', 'theme-classic', 'theme-modern');
       body.classList.add(selectedTheme);
       localStorage.setItem('edushare_theme', selectedTheme);
-      alert("🎨 Đã áp dụng chủ đề mới thành công!");
+      showCustomAlert(true, 'Đã áp dụng chủ đề mới thành công!');
     }
 
     function setDarkMode(isDark, showAlert = true) {
@@ -1322,45 +1622,7 @@
       if (isDark) body.classList.add('dark-mode');
       else body.classList.remove('dark-mode');
       localStorage.setItem('edushare_darkmode', isDark ? 'true' : 'false');
-      if (showAlert) alert(isDark ? "🌙 Đã chuyển sang Chế độ Tối!" : "☀️ Đã chuyển sang Chế độ Sáng!");
-    }
-
-    function checkSavedUser() {
-      const saved = localStorage.getItem('edushare_user');
-      if (saved) {
-        currentUser = JSON.parse(saved);
-      } else {
-        currentUser = {
-          id: '1', fullname: 'Nguyễn Chí Vỹ', username: 'admin', emailPhone: 'nguyenchivybt2006@gmail.com',
-          role: 'admin', avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=VyNguyen'
-        };
-        localStorage.setItem('edushare_user', JSON.stringify(currentUser));
-      }
-      updateUserUI();
-    }
-
-    function updateUserUI() {
-      if (currentUser) {
-        document.getElementById('guestNav').classList.add('hidden');
-        document.getElementById('userNav').classList.remove('hidden');
-        document.getElementById('userName').innerText = currentUser.fullname;
-        document.getElementById('headerAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
-        
-        document.getElementById('mobileUserBox').classList.remove('hidden');
-        document.getElementById('mobileUserName').innerText = currentUser.fullname;
-        document.getElementById('mobileAvatar').src = currentUser.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
-        
-        const badge = document.getElementById('userBadge');
-        const mBadge = document.getElementById('mobileUserBadge');
-        if (currentUser.role === 'admin') { badge.innerText = 'QUẢN TRỊ'; mBadge.innerText = 'QUẢN TRỊ'; }
-        else if (currentUser.role === 'teacher') { badge.innerText = 'GIẢNG VIÊN'; mBadge.innerText = 'GIẢNG VIÊN'; }
-        else { badge.innerText = 'SINH VIÊN'; mBadge.innerText = 'SINH VIÊN'; }
-      } else {
-        document.getElementById('guestNav').classList.remove('hidden');
-        document.getElementById('userNav').classList.add('hidden');
-        document.getElementById('mobileUserBox').classList.add('hidden');
-      }
-      renderDocuments();
+      if (showAlert) showCustomAlert(true, isDark ? "Đã chuyển sang Chế độ Tối!" : "Đã chuyển sang Chế độ Sáng!");
     }
 
     function filterByCategory(cat) {
@@ -1572,51 +1834,45 @@
       const confirmPass = document.getElementById('profConfirmNewPass').value;
 
       if (newPass && newPass !== confirmPass) {
-        alert("⚠️ Mật khẩu mới và Xác nhận mật khẩu mới không khớp nhau!");
+        showCustomAlert(false, 'Cập nhật thất bại. Vui lòng thử lại!', 'Mật khẩu mới không trùng khớp.');
         return;
       }
 
       currentUser.fullname = document.getElementById('profFullname').value;
       currentUser.emailPhone = document.getElementById('profEmailPhone').value;
       currentUser.avatar = document.getElementById('profAvatarUrl').value;
-      localStorage.setItem('edushare_user', JSON.stringify(currentUser));
+      
+      if (localStorage.getItem('edushare_user')) {
+        localStorage.setItem('edushare_user', JSON.stringify(currentUser));
+      } else {
+        sessionStorage.setItem('edushare_user', JSON.stringify(currentUser));
+      }
+      
       updateUserUI();
       closeProfileModal();
-      alert("✅ Đã xác nhận cập nhật thông tin cá nhân thành công!");
+      showCustomAlert(true, 'Đã cập nhật thông tin thành công!');
     }
 
     function openLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
     function closeLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
-    function openRegisterModal() { closeLoginModal(); }
+    function openRegisterModal() { closeLoginModal(); document.getElementById('registerModal').classList.remove('hidden'); }
+    function closeRegisterModal() { document.getElementById('registerModal').classList.add('hidden'); }
     function openUploadModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
     function closeUploadModal() { document.getElementById('uploadModal').classList.add('hidden'); }
+    function openCreateGroupModal() { document.getElementById('createGroupModal').classList.remove('hidden'); }
+    function closeCreateGroupModal() { document.getElementById('createGroupModal').classList.add('hidden'); }
     function goHome() { document.getElementById('searchInput').value = ''; switchMainTab('docs'); }
 
-    function handleUploadSubmit(e) {
-      e.preventDefault();
-      const title = document.getElementById('uploadTitle').value.trim();
-      const subject = document.getElementById('uploadSubject').value.trim();
-      const newDoc = {
-        id: 'd_' + Date.now(),
-        title, subject,
-        author: currentUser ? currentUser.fullname : 'Khách MTU',
-        type: 'PDF', faculty: 'Công nghệ thông tin',
-        likes: 0, dislikes: 0,
-        url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-        date: '05/11/2026', comments: []
-      };
-      documentsData.unshift(newDoc);
-      renderDocuments();
-      closeUploadModal();
-      alert("✅ Đã tải lên học liệu mới thành công!");
-    }
-
-    function loginGoogle(e) { if (e) e.preventDefault(); closeLoginModal(); }
-    function loginFacebook(e) { if (e) e.preventDefault(); closeLoginModal(); }
-    function handleLogin(e) { e.preventDefault(); closeLoginModal(); }
+    function loginGoogle(e) { if (e) e.preventDefault(); closeLoginModal(); showCustomAlert(true, 'Đã đăng nhập thành công!'); }
+    function loginFacebook(e) { if (e) e.preventDefault(); closeLoginModal(); showCustomAlert(true, 'Đã đăng nhập thành công!'); }
 
     function handleDownloadCheck(e) {
-      if (!currentUser) { e.preventDefault(); alert("🔒 Vui lòng Đăng nhập để tải tài liệu!"); openLoginModal(); return false; }
+      if (!currentUser) { 
+        e.preventDefault(); 
+        showCustomAlert(false, 'Đăng nhập thất bại. Vui lòng thử lại!', 'Vui lòng Đăng nhập để tải tài liệu!'); 
+        openLoginModal(); 
+        return false; 
+      }
       return true;
     }
 
