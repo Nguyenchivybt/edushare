@@ -217,3 +217,72 @@ body {
   .hero-container { grid-template-columns: 1fr; }
   .form-grid-2 { grid-template-columns: 1fr !important; }
 }
+
+/* ==========================================
+   FIX TOÀN BỘ MÀU CHỮ DARK MODE & CONTRAST
+   ========================================== */
+[data-theme="dark"] {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+/* 1. Header & Thanh Menu */
+[data-theme="dark"] .navbar,
+[data-theme="dark"] .nav-link,
+[data-theme="dark"] .dropdown-toggle {
+    color: #e2e8f0 !important;
+}
+[data-theme="dark"] .nav-link:hover,
+[data-theme="dark"] .dropdown-item {
+    color: #ffffff !important;
+}
+
+/* 2. Tiêu đề Card & Thẻ tài liệu */
+[data-theme="dark"] .card,
+[data-theme="dark"] .document-card,
+[data-theme="dark"] .doc-card {
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] .card-title,
+[data-theme="dark"] .card-title a,
+[data-theme="dark"] h1, 
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3, 
+[data-theme="dark"] h4, 
+[data-theme="dark"] h5, 
+[data-theme="dark"] h6 {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .text-muted,
+[data-theme="dark"] .card-text,
+[data-theme="dark"] small,
+[data-theme="dark"] span {
+    color: #cbd5e1 !important;
+}
+
+/* 3. Chữ vùng Footer */
+[data-theme="dark"] footer,
+[data-theme="dark"] footer p,
+[data-theme="dark"] footer span,
+[data-theme="dark"] footer div,
+[data-theme="dark"] footer li {
+    color: #cbd5e1 !important;
+}
+[data-theme="dark"] footer h5,
+[data-theme="dark"] footer strong {
+    color: #38bdf8 !important; /* Xanh ngọc nổi bật cho tiêu đề footer */
+}
+
+/* 4. Ô tìm kiếm & Input */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border-color: #475569 !important;
+}
+[data-theme="dark"] .form-control::placeholder {
+    color: #94a3b8 !important;
+}
