@@ -1,466 +1,649 @@
-let currentUser = JSON.parse(localStorage.getItem('edushare_user')) || null;
-let documentsData = [];
+/**
+ * EduShare - Kho Tài Liệu Tri Thức | Thư Viện Học Liệu MTU
+ * Frontend Client Application JavaScript (app.js)
+ * Tác giả phát triển: Nguyễn Chí Vỹ
+ * Đơn vị đồng hành: Trường Đại học Xây dựng Miền Tây (MTU)
+ */
 
+// ==========================================
+// 1. GLOBAL STATE & CONFIGURATION
+// ==========================================
+const CONFIG = {
+    API_BASE_URL: window.location.origin.includes('localhost') ? 'http://localhost:5000/api' : '/api',
+    ALLOWED_EMAIL_DOMAIN: '@muce.edu.vn',
+    MAX_FILE_SIZE_MB: 100,
+    OTP_COUNTDOWN_SECONDS: 60
+};
+
+const state = {
+    currentUser: {
+        id: "user-1",
+        fullName: "Nguyễn Chí Vỹ",
+        email: "vy.nguyen@muce.edu.vn",
+        role: "STUDENT",
+        school: "Trường Đại học Xây dựng Miền Tây",
+        faculty: "Khoa Kỹ thuật Phần mềm",
+        major: "Kỹ thuật Phần mềm",
+        academicYear: "K2024",
+        className: "DHKTPM24",
+        avatarUrl: "https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=4f46e5&color=fff"
+    },
+    documents: [],
+    filteredDocuments: [],
+    savedDocumentIds: new Set(),
+    groups: [],
+    filters: {
+        school: 'ALL',
+        faculty: 'ALL',
+        major: 'ALL',
+        academicYear: 'ALL',
+        className: 'ALL',
+        subject: 'ALL',
+        category: 'ALL',
+        searchQuery: ''
+    },
+    otpTimer: null,
+    otpSecondsRemaining: 0,
+    activeTab: 'feed'
+};
+
+// ==========================================
+// 2. DOM ELEMENTS SELECTION
+// ==========================================
+const DOM = {
+    // Navigation & Tabs
+    navLinks: document.querySelectorAll('.nav-link'),
+    tabContents: document.querySelectorAll('.tab-content'),
+    
+    // Document Feed & Filters
+    docContainer: document.getElementById('documentContainer'),
+    searchFileInput: document.getElementById('searchFileInput'),
+    filterSchool: document.getElementById('filterSchool'),
+    filterFaculty: document.getElementById('filterFaculty'),
+    filterMajor: document.getElementById('filterMajor'),
+    filterYear: document.getElementById('filterYear'),
+    filterClass: document.getElementById('filterClass'),
+    filterSubject: document.getElementById('filterSubject'),
+    filterCategory: document.getElementById('filterCategory'),
+    btnResetFilters: document.getElementById('btnResetFilters'),
+
+    // Modals
+    uploadModal: document.getElementById('uploadModal'),
+    btnOpenUpload: document.getElementById('btnOpenUpload'),
+    btnCloseUpload: document.getElementById('btnCloseUpload'),
+    uploadForm: document.getElementById('uploadForm'),
+
+    authModal: document.getElementById('authModal'),
+    btnLoginRegister: document.getElementById('btnLoginRegister'),
+    btnCloseAuth: document.getElementById('btnCloseAuth'),
+    loginForm: document.getElementById('loginForm'),
+    registerForm: document.getElementById('registerForm'),
+
+    forgotPasswordModal: document.getElementById('forgotPasswordModal'),
+    btnForgotPassword: document.getElementById('btnForgotPassword'),
+    forgotForm: document.getElementById('forgotForm'),
+    btnRequestOtp: document.getElementById('btnRequestOtp'),
+    otpCountdownSpan: document.getElementById('otpCountdown'),
+
+    // AI Assistant
+    aiChatModal: document.getElementById('aiChatModal'),
+    btnOpenAi: document.getElementById('btnOpenAi'),
+    aiMessageContainer: document.getElementById('aiMessageContainer'),
+    aiPromptInput: document.getElementById('aiPromptInput'),
+    aiFileInput: document.getElementById('aiFileInput'),
+    btnSendAiPrompt: document.getElementById('btnSendAiPrompt'),
+
+    // Toast Container
+    toastContainer: document.getElementById('toastContainer')
+};
+
+// ==========================================
+// 3. INITIALIZATION & EVENT LISTENERS
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  bindAuthForms();
-  updateAuthUI();
-  initFilterOptions();
-  loadDocumentsFromServer();
+    initApp();
 });
 
-/* KHỞI TẠO CÁC TÙY CHỌN BỘ LỌC */
-function initFilterOptions() {
-  const schoolSel = document.getElementById('filter-school');
-  const facultySel = document.getElementById('filter-faculty');
-  const majorSel = document.getElementById('filter-major');
-
-  if (schoolSel) {
-    schoolSel.innerHTML = `<option value="">🏛️ Tất cả Trường</option><option value="Trường Đại học Xây dựng Miền Tây">Trường Đại học Xây dựng Miền Tây</option>`;
-  }
-  if (facultySel) {
-    facultySel.innerHTML = `<option value="">🏢 Tất cả Khoa</option><option value="Công nghệ thông tin">Khoa CNTT</option><option value="Xây dựng">Khoa Xây Dựng</option><option value="Kiến trúc">Khoa Kiến Trúc</option>`;
-  }
-  if (majorSel) {
-    majorSel.innerHTML = `<option value="">💾 Tất cả Ngành</option><option value="Kỹ thuật phần mềm">Ngành Kỹ Thuật Phần Mềm</option><option value="Kỹ thuật xây dựng">Ngành Kỹ Thuật Xây Dựng</option>`;
-  }
+function initApp() {
+    console.log("EduShare Frontend Application Initialized...");
+    bindEventListeners();
+    fetchDocuments();
+    fetchGroups();
+    updateUserProfileUI();
 }
 
-/* TẢI DỮ LIỆU TỪ SERVER */
-async function loadDocumentsFromServer() {
-  try {
-    const res = await fetch('/api/documents');
-    if (res.ok) {
-      documentsData = await res.json();
-      renderAllContent(documentsData);
-    }
-  } catch (err) {
-    console.error('Lỗi tải danh sách học liệu từ máy chủ:', err);
-  }
-}
-
-/* PHÂN LOẠI VÀ RENDER NỘI DUNG */
-function renderAllContent(docs) {
-  const articles = docs.filter(d => d.isArticle || d.category === 'Bài báo tiêu biểu' || d.type === 'LINK');
-  const normalDocs = docs.filter(d => !d.isArticle && d.category !== 'Bài báo tiêu biểu' && d.type !== 'LINK');
-
-  renderArticles(articles);
-  renderDocuments(normalDocs);
-}
-
-/* HIỂN THỊ BÀI BÁO KHOA HỌC */
-function renderArticles(articles) {
-  const container = document.getElementById('articles-grid');
-  if (!container) return;
-
-  if (articles.length === 0) {
-    container.innerHTML = `<p style="font-size:12px; color:var(--text-muted); grid-column:span 3;">Chưa có bài báo khoa học nào được đăng tải.</p>`;
-    return;
-  }
-
-  container.innerHTML = articles.map(art => `
-    <div class="doc-card" style="border-left: 4px solid #ea580c;">
-      <div>
-        <span style="background:#ea580c; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;">📰 ${art.type}</span>
-        <h3 style="font-size:14px; margin:8px 0; color:var(--text-main);">${escapeHtml(art.title)}</h3>
-        <p style="font-size:12px; color:var(--text-muted); margin:4px 0;">✍️ Tác giả: <strong>${escapeHtml(art.author)}</strong></p>
-        <p style="font-size:11px; color:var(--text-muted);">🏢 ${escapeHtml(art.faculty || 'Nghiên cứu khoa học')} • 📅 ${art.date}</p>
-      </div>
-      <div class="doc-card-actions">
-        <button onclick="previewDocument('${art.id}')" class="btn-artistic btn-blue" style="font-size:11px; padding:4px 8px;">👁️ Xem</button>
-        <a href="${art.url}" target="_blank" class="btn-artistic btn-green-glow" style="font-size:11px; padding:4px 8px; text-decoration:none;">🌐 Mở Link / Tải</a>
-        ${getRoleActionButtons(art)}
-      </div>
-    </div>
-  `).join('');
-}
-
-/* HIỂN THỊ DANH SÁCH HỌC LIỆU */
-function renderDocuments(docs) {
-  const container = document.getElementById('document-list');
-  if (!container) return;
-
-  if (docs.length === 0) {
-    container.innerHTML = `<p style="font-size:12px; color:var(--text-muted); grid-column:span 3;">Không tìm thấy tài liệu phù hợp.</p>`;
-    return;
-  }
-
-  container.innerHTML = docs.map(doc => `
-    <div class="doc-card">
-      <div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="background:#2563eb; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:4px;">${doc.type}</span>
-          <span style="font-size:10px; color:var(--text-muted);">👁️ ${doc.views || 0} lượt xem</span>
-        </div>
-        <h3 style="font-size:14px; margin:8px 0; color:var(--text-main);">${escapeHtml(doc.title)}</h3>
-        <p style="font-size:12px; color:var(--accent); margin:4px 0;">📖 Môn: <strong>${escapeHtml(doc.subject)}</strong></p>
-        <p style="font-size:11px; color:var(--text-muted);">✍️ Đăng bởi: ${escapeHtml(doc.author)} • 📅 ${doc.date}</p>
-      </div>
-      <div class="doc-card-actions">
-        <button onclick="previewDocument('${doc.id}')" class="btn-artistic btn-blue" style="font-size:11px; padding:4px 8px;">👁️ Xem</button>
-        <a href="${doc.url}" target="_blank" class="btn-artistic btn-green-glow" style="font-size:11px; padding:4px 8px; text-decoration:none;">📥 Tải Về</a>
-        ${getRoleActionButtons(doc)}
-      </div>
-    </div>
-  `).join('');
-}
-
-/* KIỂM TRA PHÂN QUYỀN VÀ HIỂN THỊ NÚT SỬA/XÓA */
-function getRoleActionButtons(doc) {
-  if (!currentUser) return '';
-  const isAdmin = currentUser.role === 'admin';
-  const isOwner = currentUser.id === doc.authorId;
-
-  if (isAdmin || isOwner) {
-    return `
-      <button onclick="openEditDocumentModal('${doc.id}')" class="btn-artistic btn-secondary" style="font-size:11px; padding:4px 8px;">📝 Sửa</button>
-      <button onclick="deleteDocument('${doc.id}')" class="btn-artistic btn-warning" style="font-size:11px; padding:4px 8px;">🗑️ Xóa</button>
-    `;
-  }
-  return '';
-}
-
-/* MỞ MODAL SỬA TÀI LIỆU */
-function openEditDocumentModal(id) {
-  const doc = documentsData.find(d => d.id === id);
-  if (!doc) return alert('Không tìm thấy tài liệu!');
-
-  const editTitle = document.getElementById('edit-title');
-  const editSubject = document.getElementById('edit-subject');
-  const editDocId = document.getElementById('edit-doc-id');
-
-  if (editTitle) editTitle.value = doc.title;
-  if (editSubject) editSubject.value = doc.subject;
-  if (editDocId) editDocId.value = doc.id;
-
-  openModal('edit-document-modal');
-}
-
-/* XỬ LÝ SỰ KIỆN ĐĂNG KÝ TÀI KHOẢN */
-async function handleRegisterSubmit(e) {
-  e.preventDefault();
-  const password = document.getElementById('reg-password').value;
-  const confirmPassword = document.getElementById('reg-confirm-password').value;
-
-  if (password !== confirmPassword) {
-    return alert('❌ Mật khẩu xác nhận không trùng khớp!');
-  }
-
-  const payload = {
-    fullname: document.getElementById('reg-fullname').value,
-    emailPhone: document.getElementById('reg-email-phone').value,
-    gender: document.getElementById('reg-gender').value,
-    role: document.getElementById('reg-role').value,
-    address: document.getElementById('reg-address').value,
-    username: document.getElementById('reg-username').value,
-    password,
-    confirmPassword
-  };
-
-  try {
-    const res = await fetch('/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
-    if (res.ok && data.success) {
-      alert(data.message);
-      closeModal('register-modal');
-      document.getElementById('register-form').reset();
-      openModal('login-modal');
-    } else {
-      alert(data.message || 'Lỗi đăng ký tài khoản!');
-    }
-  } catch (err) {
-    alert('Lỗi kết nối máy chủ!');
-  }
-}
-
-/* GẮN SỰ KIỆN CHO FORM ĐĂNG NHẬP & ĐĂNG KÝ */
-function bindAuthForms() {
-  const loginForm = document.getElementById('login-form');
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('login-username').value;
-      const password = document.getElementById('login-password').value;
-
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
+function bindEventListeners() {
+    // Navigation Tabs
+    DOM.navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const tabName = link.getAttribute('data-tab');
+            switchTab(tabName);
         });
-        const data = await res.json();
-        if (res.ok) {
-          currentUser = data.user;
-          localStorage.setItem('edushare_user', JSON.stringify(currentUser));
-          alert(`Đăng nhập thành công! Xin chào ${currentUser.fullname}`);
-          closeModal('login-modal');
-          updateAuthUI();
-          loadDocumentsFromServer();
-        } else {
-          alert(data.message);
-        }
-      } catch (err) {
-        alert('Lỗi máy chủ!');
-      }
     });
-  }
 
-  const regForm = document.getElementById('register-form');
-  if (regForm) {
-    regForm.addEventListener('submit', handleRegisterSubmit);
-  }
+    // Filters Event Listeners
+    [DOM.filterSchool, DOM.filterFaculty, DOM.filterMajor, DOM.filterYear, DOM.filterClass, DOM.filterSubject, DOM.filterCategory].forEach(select => {
+        if (select) select.addEventListener('change', handleFilterChange);
+    });
+
+    if (DOM.searchFileInput) {
+        DOM.searchFileInput.addEventListener('input', debounce(handleFilterChange, 300));
+    }
+
+    if (DOM.btnResetFilters) {
+        DOM.btnResetFilters.addEventListener('click', resetFilters);
+    }
+
+    // Modal Control Events
+    if (DOM.btnOpenUpload) DOM.btnOpenUpload.addEventListener('click', () => openModal(DOM.uploadModal));
+    if (DOM.btnCloseUpload) DOM.btnCloseUpload.addEventListener('click', () => closeModal(DOM.uploadModal));
+
+    if (DOM.btnLoginRegister) DOM.btnLoginRegister.addEventListener('click', () => openModal(DOM.authModal));
+    if (DOM.btnCloseAuth) DOM.btnCloseAuth.addEventListener('click', () => closeModal(DOM.authModal));
+
+    if (DOM.btnOpenAi) DOM.btnOpenAi.addEventListener('click', () => openModal(DOM.aiChatModal));
+
+    // Form Submissions
+    if (DOM.uploadForm) DOM.uploadForm.addEventListener('submit', handleDocumentUpload);
+    if (DOM.registerForm) DOM.registerForm.addEventListener('submit', handleRegisterSubmit);
+    if (DOM.loginForm) DOM.loginForm.addEventListener('submit', handleLoginSubmit);
+    if (DOM.btnRequestOtp) DOM.btnRequestOtp.addEventListener('click', handleRequestOtp);
+    if (DOM.forgotForm) DOM.forgotForm.addEventListener('submit', handleVerifyOtpAndReset);
+    if (DOM.btnSendAiPrompt) DOM.btnSendAiPrompt.addEventListener('click', handleAiChatSubmit);
 }
 
-/* ĐĂNG TẢI MULTI-FILE VÀ LINK BÀI BÁO */
-async function handleBatchUploadSubmit(e) {
-  e.preventDefault();
-  const filesInput = document.getElementById('up-files');
-  const linkInput = document.getElementById('up-link') ? document.getElementById('up-link').value : '';
+// ==========================================
+// 4. API CALLS & DATA FETCHING
+// ==========================================
+async function fetchDocuments() {
+    try {
+        showLoadingSpinner(DOM.docContainer);
+        const queryParams = new URLSearchParams(state.filters).toString();
+        const response = await fetch(`${CONFIG.API_BASE_URL}/documents?${queryParams}`);
+        const result = await response.json();
 
-  if ((!filesInput || !filesInput.files || filesInput.files.length === 0) && !linkInput.trim()) {
-    return alert('Vui lòng chọn ít nhất 1 tệp hoặc dán 1 đường dẫn bài báo!');
-  }
-
-  const formData = new FormData();
-  formData.append('title', document.getElementById('up-title').value);
-  formData.append('category', document.getElementById('up-category').value);
-  formData.append('subject', document.getElementById('up-subject').value);
-  formData.append('articleLink', linkInput);
-  formData.append('author', currentUser ? currentUser.fullname : 'Khách MTU');
-  formData.append('authorId', currentUser ? currentUser.id : '0');
-
-  if (filesInput && filesInput.files) {
-    for (let i = 0; i < filesInput.files.length; i++) {
-      formData.append('files', filesInput.files[i]);
+        if (result.success) {
+            state.documents = result.data || [];
+            applyFiltersAndRender();
+        } else {
+            showToast('Không thể tải danh sách tài liệu!', 'error');
+        }
+    } catch (error) {
+        console.error('Lỗi kết nối Server:', error);
+        showToast('Lỗi kết nối đến máy chủ Backend', 'error');
     }
-  }
+}
 
-  try {
-    const res = await fetch('/api/documents/batch', { method: 'POST', body: formData });
-    const data = await res.json();
-    if (data.success) {
-      alert(data.message);
-      closeModal('upload-modal');
-      document.getElementById('upload-form').reset();
-      loadDocumentsFromServer();
+async function fetchGroups() {
+    try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/groups`);
+        const result = await response.json();
+        if (result.success) {
+            state.groups = result.data || [];
+            renderGroupsList();
+        }
+    } catch (error) {
+        console.warn('Lỗi lấy danh sách nhóm:', error);
+    }
+}
+
+// ==========================================
+// 5. RENDERING & UI UPDATES
+// ==========================================
+function applyFiltersAndRender() {
+    let docs = [...state.documents];
+
+    // Lọc phễu 6 cấp
+    if (state.filters.school !== 'ALL') docs = docs.filter(d => d.school === state.filters.school);
+    if (state.filters.faculty !== 'ALL') docs = docs.filter(d => d.faculty === state.filters.faculty);
+    if (state.filters.major !== 'ALL') docs = docs.filter(d => d.major === state.filters.major);
+    if (state.filters.academicYear !== 'ALL') docs = docs.filter(d => d.academicYear === state.filters.academicYear);
+    if (state.filters.className !== 'ALL') docs = docs.filter(d => d.className === state.filters.className);
+    if (state.filters.subject !== 'ALL') docs = docs.filter(d => d.subject === state.filters.subject);
+    if (state.filters.category !== 'ALL') docs = docs.filter(d => d.category === state.filters.category);
+
+    // Tìm kiếm từ khóa
+    if (state.filters.searchQuery) {
+        const query = state.filters.searchQuery.toLowerCase();
+        docs = docs.filter(d => 
+            d.title.toLowerCase().includes(query) || 
+            (d.description && d.description.toLowerCase().includes(query)) ||
+            (d.authorName && d.authorName.toLowerCase().includes(query))
+        );
+    }
+
+    state.filteredDocuments = docs;
+    renderDocumentCards(docs);
+}
+
+function renderDocumentCards(docs) {
+    if (!DOM.docContainer) return;
+
+    if (docs.length === 0) {
+        DOM.docContainer.innerHTML = `
+            <div class="empty-state text-center p-5">
+                <i class="bi bi-folder-x fs-1 text-muted"></i>
+                <p class="mt-3 text-secondary">Không tìm thấy tài liệu phù hợp với bộ lọc!</p>
+            </div>
+        `;
+        return;
+    }
+
+    DOM.docContainer.innerHTML = docs.map(doc => `
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 document-card shadow-sm border-0 rounded-3">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-primary-subtle text-primary fw-semibold">${formatCategoryLabel(doc.category)}</span>
+                        <span class="badge bg-light text-dark border">${doc.className || 'Chung'}</span>
+                    </div>
+                    <h5 class="card-title fw-bold text-dark mb-2 text-truncate-2">${escapeHtml(doc.title)}</h5>
+                    <p class="card-text text-muted small text-truncate-3 mb-3">${escapeHtml(doc.description || 'Chưa có mô tả.')}</p>
+                    
+                    <div class="mt-auto">
+                        <div class="d-flex align-items-center text-secondary small mb-3">
+                            <i class="bi bi-person-circle me-1"></i>
+                            <span class="me-3">${escapeHtml(doc.authorName || 'Tác giả')}</span>
+                            <i class="bi bi-eye me-1"></i>
+                            <span>${doc.views || 0} lượt xem</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                            <button class="btn btn-sm btn-outline-danger btn-like ${doc.likedBy && doc.likedBy.includes(state.currentUser.id) ? 'active' : ''}" onclick="toggleLikeDocument(${doc.id})">
+                                <i class="bi bi-heart-fill me-1"></i> <span id="like-count-${doc.id}">${doc.likes || 0}</span>
+                            </button>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary me-1" onclick="toggleSaveDocument(${doc.id})">
+                                    <i class="bi ${state.savedDocumentIds.has(doc.id) ? 'bi-bookmark-fill text-warning' : 'bi-bookmark'}"></i>
+                                </button>
+                                <a href="${doc.fileUrl || '#'}" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-download me-1"></i> Tải về
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderGroupsList() {
+    const groupContainer = document.getElementById('groupsContainer');
+    if (!groupContainer) return;
+
+    groupContainer.innerHTML = state.groups.map(g => `
+        <div class="list-group-item d-flex justify-content-between align-items-center p-3 mb-2 rounded border">
+            <div>
+                <h6 class="mb-1 fw-bold">${escapeHtml(g.name)}</h6>
+                <small class="text-muted"><i class="bi bi-people me-1"></i> ${g.membersCount} Thành viên</small>
+            </div>
+            <button class="btn btn-sm btn-outline-primary" onclick="joinGroup('${g.id}')">Tham gia</button>
+        </div>
+    `).join('');
+}
+
+// ==========================================
+// 6. ACTION HANDLERS (LIKE, SAVE, FILTERS)
+// ==========================================
+async function toggleLikeDocument(docId) {
+    try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/documents/${docId}/like`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: state.currentUser.id })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            const doc = state.documents.find(d => d.id === docId);
+            if (doc) {
+                doc.likes = result.likes;
+                const index = doc.likedBy.indexOf(state.currentUser.id);
+                if (result.isLiked && index === -1) doc.likedBy.push(state.currentUser.id);
+                else if (!result.isLiked && index !== -1) doc.likedBy.splice(index, 1);
+            }
+            applyFiltersAndRender();
+        }
+    } catch (error) {
+        showToast('Không thể cập nhật lượt thích!', 'error');
+    }
+}
+
+function toggleSaveDocument(docId) {
+    if (state.savedDocumentIds.has(docId)) {
+        state.savedDocumentIds.delete(docId);
+        showToast('Đã xóa khỏi danh sách đã lưu', 'info');
     } else {
-      alert('Lỗi tải lên!');
+        state.savedDocumentIds.add(docId);
+        showToast('Đã lưu tài liệu thành công!', 'success');
     }
-  } catch (err) {
-    alert('Lỗi kết nối máy chủ!');
-  }
-}
-
-/* XEM TRỰC TIẾP HỌC LIỆU HOẶC LINK */
-function previewDocument(id) {
-  const doc = documentsData.find(d => d.id === id);
-  if (!doc) return alert('Không tìm thấy tệp!');
-
-  document.getElementById('preview-title').innerText = `👁️ Xem: ${doc.title}`;
-  const body = document.getElementById('preview-body');
-
-  if (doc.type === 'PDF' || (doc.url && doc.url.endsWith('.pdf'))) {
-    body.innerHTML = `<iframe src="${doc.url}" style="width:100%; height:450px; border:none;"></iframe>`;
-  } else if (doc.type === 'HÌNH ẢNH') {
-    body.innerHTML = `<img src="${doc.url}" style="max-width:100%; max-height:450px; border-radius:8px;">`;
-  } else if (doc.type === 'LINK') {
-    body.innerHTML = `<p>🌐 Liên kết ngoài: <a href="${doc.url}" target="_blank" style="color:var(--accent); font-weight:bold;">${doc.url}</a></p>`;
-  } else {
-    body.innerHTML = `
-      <div style="padding:30px; text-center">
-        <p>📄 Tệp <strong>${doc.type}</strong> cần tải về máy để xem đầy đủ nội dung.</p>
-        <a href="${doc.url}" target="_blank" class="btn-artistic btn-green-glow" style="margin-top:10px; text-decoration:none; display:inline-block;">📥 Tải Tệp Về Máy</a>
-      </div>
-    `;
-  }
-  openModal('preview-modal');
-}
-
-/* XÓA HỌC LIỆU */
-async function deleteDocument(id) {
-  if (!confirm('Bạn có chắc chắn muốn xóa học liệu này không?')) return;
-  try {
-    const res = await fetch(`/api/documents/${id}`, { method: 'DELETE' });
-    const data = await res.json();
-    if (data.success) {
-      alert(data.message);
-      loadDocumentsFromServer();
-    } else {
-      alert(data.message);
-    }
-  } catch (err) {
-    alert('Lỗi xóa tệp!');
-  }
-}
-
-/* CẬP NHẬT GIAO DIỆN TÀI KHOẢN */
-function updateAuthUI() {
-  const authContainer = document.getElementById('auth-buttons-container');
-  if (!authContainer) return;
-
-  if (currentUser) {
-    const roleBadge = currentUser.role === 'admin' ? '🔑 Admin' : (currentUser.role === 'teacher' ? '👨‍🏫 Giảng Viên' : '🎓 Sinh Viên');
-    authContainer.innerHTML = `
-      <span style="font-size:11px; color:var(--accent); font-weight:bold; margin-right:4px;">[${roleBadge}]</span>
-      <button onclick="handleLogout()" class="btn-artistic btn-secondary"><span class="icon-lg">🚪</span> Đăng Xuất (${escapeHtml(currentUser.fullname)})</button>
-    `;
-  } else {
-    authContainer.innerHTML = `
-      <button onclick="openModal('login-modal')" class="btn-artistic btn-blue"><span class="icon-lg">🔑</span> Đăng Nhập</button>
-      <button onclick="openModal('register-modal')" class="btn-artistic btn-secondary"><span class="icon-lg">📝</span> Đăng Ký</button>
-    `;
-  }
-}
-
-function openUploadCheck() {
-  if (!currentUser) {
-    alert('Vui lòng đăng nhập trước khi tải lên học liệu!');
-    openModal('login-modal');
-    return;
-  }
-  openModal('upload-modal');
-}
-
-function handleLogout() {
-  localStorage.removeItem('edushare_user');
-  currentUser = null;
-  updateAuthUI();
-  loadDocumentsFromServer();
-}
-
-/* TÌM KIẾM VÀ BỘ LỌC HỌC LIỆU */
-function handleSearch() {
-  const kw = document.getElementById('search-input').value.toLowerCase().trim();
-  const type = document.getElementById('search-type').value;
-
-  const filtered = documentsData.filter(d => {
-    const matchKw = !kw || d.title.toLowerCase().includes(kw) || (d.subject && d.subject.toLowerCase().includes(kw)) || d.author.toLowerCase().includes(kw);
-    const matchType = type === 'all' || d.type === type;
-    return matchKw && matchType;
-  });
-
-  renderAllContent(filtered);
-}
-
-function filterByCategory(cat) {
-  const filtered = documentsData.filter(d => d.category === cat);
-  renderAllContent(filtered);
-}
-
-function filterByGroup(groupType, value) {
-  const filtered = documentsData.filter(d => d[groupType] === value);
-  renderAllContent(filtered);
+    applyFiltersAndRender();
 }
 
 function handleFilterChange() {
-  const school = document.getElementById('filter-school').value;
-  const faculty = document.getElementById('filter-faculty').value;
-  const major = document.getElementById('filter-major').value;
+    state.filters.school = DOM.filterSchool ? DOM.filterSchool.value : 'ALL';
+    state.filters.faculty = DOM.filterFaculty ? DOM.filterFaculty.value : 'ALL';
+    state.filters.major = DOM.filterMajor ? DOM.filterMajor.value : 'ALL';
+    state.filters.academicYear = DOM.filterYear ? DOM.filterYear.value : 'ALL';
+    state.filters.className = DOM.filterClass ? DOM.filterClass.value : 'ALL';
+    state.filters.subject = DOM.filterSubject ? DOM.filterSubject.value : 'ALL';
+    state.filters.category = DOM.filterCategory ? DOM.filterCategory.value : 'ALL';
+    state.filters.searchQuery = DOM.searchFileInput ? DOM.searchFileInput.value.trim() : '';
 
-  const filtered = documentsData.filter(d => {
-    return (!school || d.school === school) &&
-           (!faculty || d.faculty === faculty) &&
-           (!major || d.major === major);
-  });
-
-  renderAllContent(filtered);
+    applyFiltersAndRender();
 }
 
-function resetFilters(e) {
-  if (e) e.preventDefault();
-  document.getElementById('filter-school').value = '';
-  document.getElementById('filter-faculty').value = '';
-  document.getElementById('filter-major').value = '';
-  document.getElementById('search-input').value = '';
-  document.getElementById('search-type').value = 'all';
-  renderAllContent(documentsData);
-}
-
-/* XUẤT THỐNG KÊ RA FILE EXCEL */
-function exportStatsToExcel() {
-  if (!window.XLSX) return alert('Đang tải thư viện Excel...');
-  const dataToExport = documentsData.map(d => ({
-    'Mã Học Liệu': d.id,
-    'Tên Tài Liệu': d.title,
-    'Loại Tệp': d.type,
-    'Chuyên Mục': d.category,
-    'Môn Học': d.subject,
-    'Tác Giả': d.author,
-    'Lượt Xem': d.views,
-    'Ngày Đăng': d.date
-  }));
-
-  const ws = XLSX.utils.json_to_sheet(dataToExport);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "DanhSachHocLieu");
-  XLSX.writeFile(wb, "EduShare_MTU_HocLieu.xlsx");
-}
-
-/* NÂNG CẤP CHATBOT AI KHUNG CHÁT TRỰC TUYẾN */
-function toggleChatbot() {
-  const win = document.getElementById('ai-chatbot-window');
-  if (win) win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
-}
-
-function quickPrompt(text) {
-  document.getElementById('chatbot-input').value = text;
-  sendChatMessage();
-}
-
-async function sendChatMessage() {
-  const input = document.getElementById('chatbot-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  const msgBox = document.getElementById('chatbot-messages');
-  msgBox.innerHTML += `<div class="chat-msg user-msg">${escapeHtml(text)}</div>`;
-  input.value = '';
-
-  const typingId = 'typing-' + Date.now();
-  msgBox.innerHTML += `<div class="chat-msg bot-msg" id="${typingId}">🤖 <em>AI đang phân tích...</em></div>`;
-  msgBox.scrollTop = msgBox.scrollHeight;
-
-  try {
-    const res = await fetch('/api/chatbot', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
+function resetFilters() {
+    [DOM.filterSchool, DOM.filterFaculty, DOM.filterMajor, DOM.filterYear, DOM.filterClass, DOM.filterSubject, DOM.filterCategory].forEach(select => {
+        if (select) select.value = 'ALL';
     });
-    const data = await res.json();
-    
-    let matchedHtml = '';
-    if (data.matchedDocs && data.matchedDocs.length > 0) {
-      matchedHtml = data.matchedDocs.map(d => `<div style="font-size:11px; margin-top:4px;">📄 <strong>${escapeHtml(d.title)}</strong></div>`).join('');
+    if (DOM.searchFileInput) DOM.searchFileInput.value = '';
+
+    state.filters = {
+        school: 'ALL', faculty: 'ALL', major: 'ALL', academicYear: 'ALL',
+        className: 'ALL', subject: 'ALL', category: 'ALL', searchQuery: ''
+    };
+    applyFiltersAndRender();
+    showToast('Đã đặt lại bộ lọc', 'info');
+}
+
+// ==========================================
+// 7. FORM SUBMISSIONS (UPLOAD, AUTH, OTP)
+// ==========================================
+async function handleDocumentUpload(e) {
+    e.preventDefault();
+    const formData = new FormData(DOM.uploadForm);
+    formData.append('authorId', state.currentUser.id);
+    formData.append('authorName', state.currentUser.fullName);
+
+    try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/documents`, {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast('Tải học liệu lên thành công!', 'success');
+            closeModal(DOM.uploadModal);
+            DOM.uploadForm.reset();
+            fetchDocuments();
+        } else {
+            showToast(result.message || 'Tải học liệu thất bại!', 'error');
+        }
+    } catch (error) {
+        showToast('Lỗi khi đăng tải học liệu!', 'error');
+    }
+}
+
+async function handleRegisterSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(DOM.registerForm);
+    const data = Object.fromEntries(formData.entries());
+
+    // Validation 1: Email Trường @muce.edu.vn
+    if (!data.email || !data.email.toLowerCase().endsWith(CONFIG.ALLOWED_EMAIL_DOMAIN)) {
+        showToast(`Email đăng ký phải có đuôi trường ${CONFIG.ALLOWED_EMAIL_DOMAIN}`, 'warning');
+        return;
     }
 
-    document.getElementById(typingId).innerHTML = `${escapeHtml(data.reply)} ${matchedHtml}`;
-  } catch (err) {
-    document.getElementById(typingId).innerHTML = `🤖 EduShare AI sẵn sàng giải đáp cho bạn!`;
-  }
-  msgBox.scrollTop = msgBox.scrollHeight;
+    // Validation 2: Mật khẩu xác nhận
+    if (data.password !== data.confirmPassword) {
+        showToast('Mật khẩu xác nhận không trùng khớp!', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast('Đăng ký tài khoản thành công! Vui lòng đăng nhập.', 'success');
+            DOM.registerForm.reset();
+            closeModal(DOM.authModal);
+        } else {
+            showToast(result.message || 'Đăng ký thất bại!', 'error');
+        }
+    } catch (error) {
+        showToast('Không thể kết nối đến máy chủ xác thực!', 'error');
+    }
 }
 
-/* CÁC HÀM TIỆN ÍCH MODAL & NGUYÊN MẪU */
-function showSubmenuTab(tabId, el) {
-  document.querySelectorAll('.submenu-item').forEach(i => i.classList.remove('active'));
-  document.querySelectorAll('.submenu-panel').forEach(p => p.classList.remove('active'));
-  if (el) el.classList.add('active');
-  const panel = document.getElementById(tabId);
-  if (panel) panel.classList.add('active');
+async function handleLoginSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(DOM.loginForm);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            state.currentUser = result.user;
+            updateUserProfileUI();
+            showToast(`Chào mừng ${result.user.fullName} trở lại!`, 'success');
+            closeModal(DOM.authModal);
+        } else {
+            showToast('Đăng nhập thất bại. Vui lòng thử lại!', 'error');
+        }
+    } catch (error) {
+        showToast('Lỗi đăng nhập hệ thống!', 'error');
+    }
 }
 
-function openModal(id) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = 'flex';
+// 7.1 Luồng Quên Mật Khẩu với Đếm ngược OTP 60s
+async function handleRequestOtp() {
+    const identityInput = document.getElementById('forgotIdentity');
+    const identity = identityInput ? identityInput.value.trim() : '';
+
+    if (!identity) {
+        showToast('Sai cú pháp hoặc thông tin không tồn tại', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/auth/forgot-password/request-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identity })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast(`Mã OTP đã được gửi! (Demo OTP: ${result.otpDemo})`, 'success');
+            startOtpCountdown(CONFIG.OTP_COUNTDOWN_SECONDS);
+        } else {
+            showToast(result.message || 'Sai cú pháp hoặc thông tin không tồn tại', 'error');
+        }
+    } catch (error) {
+        showToast('Lỗi gửi mã OTP!', 'error');
+    }
 }
-function closeModal(id) {
-  const el = document.getElementById(id);
-  if (el) el.style.display = 'none';
+
+function startOtpCountdown(seconds) {
+    state.otpSecondsRemaining = seconds;
+    if (DOM.btnRequestOtp) DOM.btnRequestOtp.disabled = true;
+
+    clearInterval(state.otpTimer);
+    state.otpTimer = setInterval(() => {
+        state.otpSecondsRemaining--;
+        if (DOM.otpCountdownSpan) {
+            DOM.otpCountdownSpan.textContent = `(${state.otpSecondsRemaining}s)`;
+        }
+
+        if (state.otpSecondsRemaining <= 0) {
+            clearInterval(state.otpTimer);
+            if (DOM.btnRequestOtp) DOM.btnRequestOtp.disabled = false;
+            if (DOM.otpCountdownSpan) DOM.otpCountdownSpan.textContent = '';
+        }
+    }, 1000);
 }
-function switchModal(fromId, toId) { closeModal(fromId); openModal(toId); }
-function toggleMobileNav() { document.getElementById('main-nav-links').classList.toggle('show-mobile'); }
-function resetHomePage() { window.location.href = '/'; }
-function escapeHtml(str) { return str ? String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : ''; }
+
+async function handleVerifyOtpAndReset(e) {
+    e.preventDefault();
+    const formData = new FormData(DOM.forgotForm);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/auth/forgot-password/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            showToast('Đổi mật khẩu thành công! Vui lòng đăng nhập.', 'success');
+            closeModal(DOM.forgotPasswordModal);
+            DOM.forgotForm.reset();
+        } else {
+            showToast(result.message || 'Xác thực OTP thất bại!', 'error');
+        }
+    } catch (error) {
+        showToast('Lỗi cập nhật mật khẩu!', 'error');
+    }
+}
+
+// ==========================================
+// 8. GEMINI AI ASSISTANT CHAT
+// ==========================================
+async function handleAiChatSubmit() {
+    const prompt = DOM.aiPromptInput ? DOM.aiPromptInput.value.trim() : '';
+    const file = DOM.aiFileInput && DOM.aiFileInput.files[0] ? DOM.aiFileInput.files[0] : null;
+
+    if (!prompt && !file) return;
+
+    appendAiChatMessage('user', prompt || `[Tệp đính kèm: ${file.name}]`);
+    if (DOM.aiPromptInput) DOM.aiPromptInput.value = '';
+
+    const formData = new FormData();
+    if (prompt) formData.append('prompt', prompt);
+    if (file) formData.append('file', file);
+
+    try {
+        appendAiChatMessage('ai', '<i class="bi bi-three-dots"></i> Trợ lý AI đang suy nghĩ...');
+        const response = await fetch(`${CONFIG.API_BASE_URL}/ai/chat`, {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+
+        // Xóa message loading tạm thời
+        if (DOM.aiMessageContainer && DOM.aiMessageContainer.lastElementChild) {
+            DOM.aiMessageContainer.removeChild(DOM.aiMessageContainer.lastElementChild);
+        }
+
+        if (result.success) {
+            appendAiChatMessage('ai', result.reply);
+        } else {
+            appendAiChatMessage('ai', 'Hệ thống AI xử lý thất bại, vui lòng thử lại sau!');
+        }
+    } catch (error) {
+        appendAiChatMessage('ai', 'Lỗi kết nối máy chủ AI!');
+    }
+}
+
+function appendAiChatMessage(sender, text) {
+    if (!DOM.aiMessageContainer) return;
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `d-flex mb-3 ${sender === 'user' ? 'justify-content-end' : 'justify-content-start'}`;
+
+    messageDiv.innerHTML = `
+        <div class="p-3 rounded-3 ${sender === 'user' ? 'bg-primary text-white' : 'bg-light text-dark border'}" style="max-width: 80%;">
+            <small class="fw-bold d-block mb-1">${sender === 'user' ? 'Bạn' : 'EduShare AI'}</small>
+            <div>${text}</div>
+        </div>
+    `;
+
+    DOM.aiMessageContainer.appendChild(messageDiv);
+    DOM.aiMessageContainer.scrollTop = DOM.aiMessageContainer.scrollHeight;
+}
+
+// ==========================================
+// 9. HELPER FUNCTIONS & UI UTILITIES
+// ==========================================
+function switchTab(tabName) {
+    state.activeTab = tabName;
+    DOM.navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('data-tab') === tabName));
+    DOM.tabContents.forEach(c => c.classList.toggle('d-none', c.id !== `tab-${tabName}`));
+
+    if (tabName === 'saved') {
+        const savedDocs = state.documents.filter(d => state.savedDocumentIds.has(d.id));
+        renderDocumentCards(savedDocs);
+    } else if (tabName === 'feed') {
+        applyFiltersAndRender();
+    }
+}
+
+function updateUserProfileUI() {
+    const userNameEl = document.getElementById('userProfileName');
+    const userAvatarEl = document.getElementById('userProfileAvatar');
+
+    if (userNameEl) userNameEl.textContent = state.currentUser.fullName;
+    if (userAvatarEl) userAvatarEl.src = state.currentUser.avatarUrl;
+}
+
+function formatCategoryLabel(category) {
+    const map = {
+        'ACADEMIC': 'Giáo trình / Bài giảng',
+        'EXERCISE': 'Bài tập / Đồ án',
+        'EXAM': 'Đề thi / Đáp án',
+        'THESIS': 'Luận văn / NCKH'
+    };
+    return map[category] || 'Tài liệu học tập';
+}
+
+function openModal(modalEl) {
+    if (modalEl) modalEl.classList.add('show', 'd-block');
+}
+
+function closeModal(modalEl) {
+    if (modalEl) modalEl.classList.remove('show', 'd-block');
+}
+
+function showToast(message, type = 'info') {
+    if (!DOM.toastContainer) return;
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show shadow-sm mb-2`;
+    toast.role = 'alert';
+    toast.innerHTML = `
+        <span>${escapeHtml(message)}</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    DOM.toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+}
+
+function showLoadingSpinner(container) {
+    if (container) {
+        container.innerHTML = `
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Đang tải...</span>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function escapeHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
