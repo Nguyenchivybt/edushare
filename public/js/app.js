@@ -540,9 +540,9 @@ function renderDocumentCards(docs) {
                 <div class="card-body d-flex flex-column p-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="badge bg-primary-subtle text-primary fw-semibold">${formatCategoryLabel(doc.category)}</span>
-                        <span class="badge bg-light text-dark border">${escapeHtml(doc.className || 'MTU')}</span>
+                        <span class="badge bg-secondary-subtle text-body border">${escapeHtml(doc.className || 'MTU')}</span>
                     </div>
-                    <h5 class="card-title fw-bold text-dark mb-2">${escapeHtml(doc.title)}</h5>
+                    <h5 class="card-title fw-bold mb-2">${escapeHtml(doc.title)}</h5>
                     <p class="card-text text-muted small mb-3 flex-grow-1">${escapeHtml(doc.description || 'Tài liệu học tập tri thức thuộc Trường ĐH Xây dựng Miền Tây.')}</p>
                     
                     <div class="mt-auto pt-3 border-top">
@@ -585,7 +585,7 @@ function renderGroupsList() {
     container.innerHTML = state.groups.map(g => `
         <div class="list-group-item d-flex justify-content-between align-items-center p-3 mb-3 rounded-3 border bg-white shadow-sm">
             <div>
-                <h6 class="mb-1 fw-bold text-dark">${escapeHtml(g.name)}</h6>
+                <h6 class="mb-1 fw-bold">${escapeHtml(g.name)}</h6>
                 <p class="mb-1 small text-muted">${escapeHtml(g.desc || 'Nhóm học thuật thảo luận bài tập & đề thi MTU.')}</p>
                 <small class="text-primary fw-semibold"><i class="bi bi-people me-1"></i> ${g.membersCount} Thành viên</small>
             </div>
