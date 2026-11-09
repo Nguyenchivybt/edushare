@@ -1,7 +1,7 @@
 {
   "name": "edushare",
   "version": "1.0.0",
-  "description": "Thư viện học liệu số giáo dục EduShare",
+  "description": "Thư viện học liệu số giáo dục EduShare - Trường ĐH Xây dựng Miền Tây (MTU)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

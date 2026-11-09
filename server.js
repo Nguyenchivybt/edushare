@@ -63,17 +63,17 @@ const db = {
             id: "user-1",
             fullName: "Nguyễn Chí Vỹ",
             gender: "Nam",
-            email: "nguyenchivybt2006@gmail.com",
+            email: "nguyenchivy@mtu.edu.vn",
             phone: "0862204069",
             school: "Trường Đại học Xây dựng Miền Tây",
             faculty: "Khoa Kỹ thuật Phần mềm",
-            academicYear: "2024",
+            academicYear: "K2024",
             major: "Kỹ thuật Phần mềm",
             className: "DHKTPM24",
-            role: "STUDENT", // STUDENT | LECTURER | ADMIN
+            role: "STUDENT", // STUDENT | TEACHER | ADMIN
             avatarUrl: "https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=4f46e5&color=fff",
             status: "online",
-            createdAt: new Date()
+            createdAt: new Date().toISOString()
         }
     ],
     documents: [
@@ -92,7 +92,7 @@ const db = {
             fileType: "pdf",
             authorId: "user-1",
             authorName: "Nguyễn Chí Vỹ",
-            authorRole: "Sinh viên",
+            authorRole: "STUDENT",
             likes: 42,
             likedBy: [],
             favorites: [],
@@ -114,7 +114,7 @@ const db = {
             fileType: "docx",
             authorId: "user-1",
             authorName: "Nguyễn Chí Vỹ",
-            authorRole: "Sinh viên",
+            authorRole: "STUDENT",
             likes: 89,
             likedBy: [],
             favorites: ["user-1"],
@@ -167,9 +167,9 @@ function authorizeRole(allowedRoles = []) {
     };
 }
 
-// Validation Email Trường @muce.edu.vn
-function validateMuceEmail(email) {
-    return email && email.trim().toLowerCase().endsWith('@muce.edu.vn');
+// Validation Email Trường @mtu.edu.vn
+function validateMtuEmail(email) {
+    return email && email.trim().toLowerCase().endsWith('@mtu.edu.vn');
 }
 
 // ==========================================
@@ -181,11 +181,11 @@ app.post('/api/auth/register', (req, res) => {
     try {
         const { fullName, gender, dob, email, phone, school, faculty, academicYear, major, className, password, confirmPassword, role } = req.body;
 
-        // Ràng buộc 1: Validation Email trường @muce.edu.vn
-        if (!validateMuceEmail(email)) {
+        // Ràng buộc 1: Validation Email trường @mtu.edu.vn
+        if (!validateMtuEmail(email)) {
             return res.status(400).json({
                 success: false,
-                message: "Email đăng ký phải có đuôi trường @muce.edu.vn"
+                message: "Email đăng ký phải có đuôi trường @mtu.edu.vn"
             });
         }
 
@@ -216,7 +216,7 @@ app.post('/api/auth/register', (req, res) => {
             phone,
             school: school || "Trường Đại học Xây dựng Miền Tây",
             faculty: faculty || "Khoa Kỹ thuật Phần mềm",
-            academicYear: academicYear || "2024",
+            academicYear: academicYear || "K2024",
             major: major || "Kỹ thuật Phần mềm",
             className: className || "DHKTPM24",
             role: role || "STUDENT",
@@ -239,7 +239,7 @@ app.post('/api/auth/register', (req, res) => {
 
 // 6.2 API Đăng nhập
 app.post('/api/auth/login', (req, res) => {
-    const { identity, password, rememberMe } = req.body;
+    const { identity, password } = req.body;
 
     const user = db.users.find(u => u.email === identity || u.phone === identity || u.fullName === identity);
     if (!user) {
@@ -266,7 +266,7 @@ app.post('/api/auth/social-login', (req, res) => {
         user = {
             id: `user-social-${Date.now()}`,
             fullName: name || `${provider} User`,
-            email: email || `user_${socialId}@${provider.toLowerCase()}.com`,
+            email: email || `user_${socialId}@mtu.edu.vn`,
             role: "STUDENT",
             avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=0d9488&color=fff`,
             status: "online",
@@ -390,7 +390,7 @@ app.post('/api/documents', upload.array('files', 10), (req, res) => {
             externalLink: externalLink || "",
             authorId: authorId || "user-1",
             authorName: authorName || "Nguyễn Chí Vỹ",
-            authorRole: authorRole || "Sinh viên",
+            authorRole: authorRole || "STUDENT",
             likes: 0,
             likedBy: [],
             favorites: [],
@@ -434,7 +434,7 @@ app.post('/api/documents/:id/like', (req, res) => {
 });
 
 // 7.4 Xóa Tài liệu (Kiểm tra Phân quyền RBAC)
-app.delete('/api/documents/:id', authorizeRole(['STUDENT', 'LECTURER', 'ADMIN']), (req, res) => {
+app.delete('/api/documents/:id', authorizeRole(['STUDENT', 'TEACHER', 'ADMIN']), (req, res) => {
     const docId = parseInt(req.params.id);
     const index = db.documents.findIndex(d => d.id === docId);
 
@@ -492,7 +492,6 @@ app.post('/api/ai/chat', upload.single('file'), async (req, res) => {
         let aiResponseText = "";
 
         if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
-            // Phản hồi mô phỏng nếu chưa cấu hình API Key chính thức
             aiResponseText = `[Trợ Lý AI EduShare] Phân tích cho yêu cầu: "${prompt || 'Phân tích tài liệu'}". Hệ thống đã ghi nhận tệp học liệu ${uploadedFile ? uploadedFile.originalname : ''}.`;
         } else {
             const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -521,7 +520,7 @@ app.post('/api/ai/chat', upload.single('file'), async (req, res) => {
 
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
-    res.send("User-agent: *\nAllow: /\nSitemap: https://edushare.muce.edu.vn/sitemap.xml");
+    res.send("User-agent: *\nAllow: /\nSitemap: https://edushare.mtu.edu.vn/sitemap.xml");
 });
 
 app.get('/sitemap.xml', (req, res) => {
@@ -529,8 +528,8 @@ app.get('/sitemap.xml', (req, res) => {
     res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://edushare.muce.edu.vn/</loc>
-    <lastmod>2026-11-07</lastmod>
+    <loc>https://edushare.mtu.edu.vn/</loc>
+    <lastmod>2026-11-09</lastmod>
     <priority>1.0</priority>
   </url>
 </urlset>`);

@@ -7,7 +7,7 @@
 
 const CONFIG = {
     API_BASE_URL: window.location.origin.includes('localhost') ? 'http://localhost:5000/api' : '/api',
-    ALLOWED_EMAIL_DOMAIN: '@muce.edu.vn',
+    ALLOWED_EMAIL_DOMAIN: '@mtu.edu.vn',
     OTP_COUNTDOWN_SECONDS: 60,
     STORAGE_KEY_USER: 'edushare_user_session',
     STORAGE_KEY_THEME: 'edushare_theme_mode',
@@ -244,7 +244,7 @@ function bindAllEvents() {
             const googleUser = {
                 id: 'gg-101',
                 fullName: 'Nguyễn Chí Vỹ (Google)',
-                email: 'nguyenchivybt2006@gmail.com',
+                email: 'nguyenchivy@mtu.edu.vn',
                 role: 'STUDENT',
                 school: 'ĐH Xây dựng Miền Tây (MTU)',
                 avatar: 'https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=ea4335&color=fff'
@@ -260,7 +260,7 @@ function bindAllEvents() {
             const fbUser = {
                 id: 'fb-202',
                 fullName: 'Nguyễn Chí Vỹ (Facebook)',
-                email: 'vy.nguyen@muce.edu.vn',
+                email: 'vy.nguyen@mtu.edu.vn',
                 role: 'STUDENT',
                 school: 'ĐH Xây dựng Miền Tây (MTU)',
                 avatar: 'https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=1877f2&color=fff'
@@ -398,7 +398,7 @@ function openProfileSettingsModal() {
     const statusSelect = document.getElementById('statusSelect');
 
     if (nameEl) nameEl.textContent = state.currentUser.fullName || 'Nguyễn Chí Vỹ';
-    if (detailEl) detailEl.textContent = `Email: ${state.currentUser.email || 'nguyenchivy@muce.edu.vn'} | SĐT: ${state.currentUser.phone || '0862204069'}`;
+    if (detailEl) detailEl.textContent = `Email: ${state.currentUser.email || 'nguyenchivy@mtu.edu.vn'} | SĐT: ${state.currentUser.phone || '0862204069'}`;
     if (badgeEl) badgeEl.textContent = formatRoleLabel(state.currentUser.role);
     if (avatarImg && state.currentUser.avatar) avatarImg.src = state.currentUser.avatar;
     if (statusSelect) statusSelect.value = state.userStatus;
@@ -640,11 +640,10 @@ async function handleLoginSubmit(e) {
         return;
     }
 
-    // Demo/API Login Handler
     const user = {
         id: 'user-001',
         fullName: 'Nguyễn Chí Vỹ',
-        email: data.identity.includes('@') ? data.identity : 'nguyenchivybt2006@gmail.com',
+        email: data.identity.includes('@') ? data.identity : 'nguyenchivy@mtu.edu.vn',
         phone: '0862204069',
         role: 'STUDENT',
         school: 'ĐH Xây dựng Miền Tây (MTU)',

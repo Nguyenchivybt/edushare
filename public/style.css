@@ -218,15 +218,12 @@ body {
   .form-grid-2 { grid-template-columns: 1fr !important; }
 }
 
-/* ==========================================
-   FIX TOÀN BỘ MÀU CHỮ DARK MODE & CONTRAST
-   ========================================== */
+/* FIX TOÀN BỘ MÀU CHỮ DARK MODE & CONTRAST */
 [data-theme="dark"] {
     background-color: #0f172a !important;
     color: #f8fafc !important;
 }
 
-/* 1. Header & Thanh Menu */
 [data-theme="dark"] .navbar,
 [data-theme="dark"] .nav-link,
 [data-theme="dark"] .dropdown-toggle {
@@ -237,7 +234,6 @@ body {
     color: #ffffff !important;
 }
 
-/* 2. Tiêu đề Card & Thẻ tài liệu */
 [data-theme="dark"] .card,
 [data-theme="dark"] .document-card,
 [data-theme="dark"] .doc-card {
@@ -263,7 +259,6 @@ body {
     color: #cbd5e1 !important;
 }
 
-/* 3. Chữ vùng Footer */
 [data-theme="dark"] footer,
 [data-theme="dark"] footer p,
 [data-theme="dark"] footer span,
@@ -273,10 +268,9 @@ body {
 }
 [data-theme="dark"] footer h5,
 [data-theme="dark"] footer strong {
-    color: #38bdf8 !important; /* Xanh ngọc nổi bật cho tiêu đề footer */
+    color: #38bdf8 !important;
 }
 
-/* 4. Ô tìm kiếm & Input */
 [data-theme="dark"] .form-control,
 [data-theme="dark"] .form-select {
     background-color: #1e293b !important;
