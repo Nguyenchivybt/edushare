@@ -1,6 +1,6 @@
 /**
  * EduShare Frontend Logic - public/js/app.js
- * Tác giả: Nguyễn Chí Vỹ | Trường ĐH Xây dựng Miền Tây (MTU)
+ * Tác giả: Nguyễn Chí Vỹ | MTU
  */
 
 const CONFIG = {
@@ -11,15 +11,15 @@ const CONFIG = {
 };
 
 const state = {
-    currentUser: null, // Null = Khách
+    currentUser: null,
     documents: [],
     groups: [],
+    likedDocIds: new Set(),
     savedDocumentIds: new Set(),
-    activeGroupId: "group-1",
+    activeGroupId: "group-global",
     otpTimer: null
 };
 
-// Loại bỏ dấu tiếng Việt để phục vụ tìm kiếm thông minh Fuzzy
 function removeVietnameseTones(str) {
     if (!str) return '';
     str = str.toLowerCase();
@@ -33,7 +33,6 @@ function removeVietnameseTones(str) {
     return str.trim();
 }
 
-// Hệ thống Thông báo Toast Popup chuẩn Icon Tích Xanh & Dấu X Đỏ
 function showToast(message, type = 'success') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
@@ -82,7 +81,6 @@ function loadUserSession() {
 }
 
 function bindEvents() {
-    // 1. Nhấp Logo EduShare -> Quay về Trang Chủ
     document.getElementById('brandLogoLink')?.addEventListener('click', (e) => {
         e.preventDefault();
         switchTab('feed');
@@ -94,10 +92,15 @@ function bindEvents() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    document.getElementById('navLinkDocs')?.addEventListener('click', (e) => { e.preventDefault(); switchTab('feed'); });
-    document.getElementById('navLinkCommunity')?.addEventListener('click', (e) => { e.preventDefault(); switchTab('groups'); });
+    document.getElementById('dropdownNavFavorites')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab('saved');
+    });
 
-    // Modals Handling
+    document.getElementById('btnTabSavedFast')?.addEventListener('click', () => switchTab('saved'));
+    document.getElementById('btnTabFeedAll')?.addEventListener('click', () => switchTab('feed'));
+
+    // Modals
     const authModal = document.getElementById('authModal');
     document.getElementById('btnHeaderLogin')?.addEventListener('click', () => openModal(authModal));
     document.getElementById('btnHeaderRegister')?.addEventListener('click', () => openModal(authModal));
@@ -120,7 +123,6 @@ function bindEvents() {
     document.getElementById('btnFloatingAi')?.addEventListener('click', () => openModal(document.getElementById('aiChatModal')));
     document.getElementById('btnCloseAi')?.addEventListener('click', () => closeModal(document.getElementById('aiChatModal')));
 
-    // Đăng xuất: Ngăn tự động đăng nhập khi F5
     document.getElementById('btnLogout')?.addEventListener('click', () => {
         state.currentUser = null;
         localStorage.removeItem(CONFIG.STORAGE_KEY_USER);
@@ -128,12 +130,10 @@ function bindEvents() {
         showToast('Đã đăng xuất tài khoản!', 'success');
     });
 
-    // Form Đăng ký: Giữ nguyên phân quyền chính xác
+    // Form Đăng ký
     document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
-        const role = formData.get('role');
-
         const payload = Object.fromEntries(formData.entries());
         try {
             const res = await fetch(`${CONFIG.API_BASE_URL}/auth/register`, {
@@ -173,9 +173,7 @@ function bindEvents() {
             const result = await res.json();
             if (result.success) {
                 state.currentUser = result.user;
-                if (remember) {
-                    localStorage.setItem(CONFIG.STORAGE_KEY_USER, JSON.stringify(result.user));
-                }
+                if (remember) localStorage.setItem(CONFIG.STORAGE_KEY_USER, JSON.stringify(result.user));
                 updateUserUI();
                 closeModal(authModal);
                 showToast('Đã đăng nhập thành công!', 'success');
@@ -187,7 +185,6 @@ function bindEvents() {
         }
     });
 
-    // Đăng nhập nhanh Google / Facebook
     document.getElementById('btnSocialGoogle')?.addEventListener('click', () => handleSocialLogin('google'));
     document.getElementById('btnSocialFacebook')?.addEventListener('click', () => handleSocialLogin('facebook'));
 
@@ -243,7 +240,7 @@ function bindEvents() {
         }
     });
 
-    // Lưu thiết lập Giao diện Cá nhân
+    // Theme Settings
     document.getElementById('btnSaveProfileSettings')?.addEventListener('click', () => {
         const isDark = document.getElementById('darkModeSwitch')?.checked;
         const styleVal = document.getElementById('settingStyleSelect')?.value || 'academic';
@@ -259,7 +256,7 @@ function bindEvents() {
         showToast('Đã lưu thiết lập giao diện!', 'success');
     });
 
-    // Upload Form
+    // Form Upload Document
     document.getElementById('uploadForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -287,7 +284,52 @@ function bindEvents() {
         }
     });
 
-    // Chatbot AI Prompt
+    // Form Chat Send với Đính kèm Đa Tệp
+    document.getElementById('chatSendForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const textInput = document.getElementById('chatInputText');
+        const fileInput = document.getElementById('chatFileInput');
+        
+        const text = textInput ? textInput.value.trim() : '';
+        const files = fileInput ? fileInput.files : [];
+        
+        if (!text && files.length === 0) return;
+
+        const formData = new FormData();
+        formData.append('sender', state.currentUser ? state.currentUser.fullName : "Sinh viên");
+        formData.append('role', state.currentUser ? state.currentUser.role : "STUDENT");
+        formData.append('text', text);
+        for (let i = 0; i < files.length; i++) {
+            formData.append('attachments', files[i]);
+        }
+
+        try {
+            const res = await fetch(`${CONFIG.API_BASE_URL}/groups/${state.activeGroupId}/messages`, {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.json();
+            if (result.success) {
+                appendChatMessage(result.data.sender, result.data.text, result.data.files);
+                if (textInput) textInput.value = '';
+                if (fileInput) fileInput.value = '';
+                document.getElementById('chatFilePreviewContainer').innerHTML = '';
+            }
+        } catch (err) {
+            showToast('Gửi tin nhắn thất bại!', 'error');
+        }
+    });
+
+    document.getElementById('chatFileInput')?.addEventListener('change', (e) => {
+        const preview = document.getElementById('chatFilePreviewContainer');
+        if (!preview) return;
+        preview.innerHTML = '';
+        Array.from(e.target.files).forEach(f => {
+            preview.innerHTML += `<span class="badge bg-secondary-subtle text-dark border"><i class="bi bi-paperclip me-1"></i>${f.name}</span>`;
+        });
+    });
+
+    // Chatbot AI
     document.getElementById('btnSendAiPrompt')?.addEventListener('click', async () => {
         const input = document.getElementById('aiPromptInput');
         const prompt = input?.value.trim();
@@ -316,21 +358,9 @@ function bindEvents() {
         }
     });
 
-    // Fuzzy Search Events
     document.getElementById('headerSearchInput')?.addEventListener('input', (e) => filterDocuments(e.target.value));
-    document.getElementById('searchFileInput')?.addEventListener('input', (e) => filterDocuments(e.target.value));
 
-    // Form Chat Send
-    document.getElementById('chatSendForm')?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const input = document.getElementById('chatInputText');
-        const text = input ? input.value.trim() : '';
-        if (!text) return;
-        appendChatMessage(state.currentUser ? state.currentUser.fullName : "Sinh viên", text);
-        input.value = '';
-    });
-
-    // Chống copy với Khách chưa đăng nhập
+    // Chống copy đối với Khách
     document.addEventListener('copy', (e) => {
         if (!state.currentUser) {
             e.preventDefault();
@@ -386,6 +416,12 @@ async function fetchDocuments() {
     }
 }
 
+function filterByNav(key, val) {
+    switchTab('feed');
+    const filtered = state.documents.filter(d => d[key] === val);
+    renderDocuments(filtered.length ? filtered : state.documents);
+}
+
 function filterDocuments(query) {
     if (!query) {
         renderDocuments(state.documents);
@@ -403,13 +439,22 @@ function renderDocuments(docs) {
     const container = document.getElementById('documentContainer');
     if (!container) return;
 
-    container.innerHTML = docs.map(doc => `
+    container.innerHTML = docs.map(doc => {
+        const isLiked = state.likedDocIds.has(doc.id);
+        const isSaved = state.savedDocumentIds.has(doc.id);
+
+        return `
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100 shadow-sm border-0 rounded-4" style="background-color: var(--card-bg);">
                 <div class="card-body d-flex flex-column p-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="badge bg-primary-subtle text-primary fw-bold">${doc.category}</span>
-                        <span class="badge bg-secondary-subtle text-dark border fw-semibold">${doc.className || 'MTU'}</span>
+                        <div class="d-flex align-items-center gap-1">
+                            <button class="btn btn-sm btn-link text-warning p-0" onclick="toggleSaveDocument(${doc.id})">
+                                <i class="bi ${isSaved ? 'bi-star-fill' : 'bi-star'} fs-5"></i>
+                            </button>
+                            <span class="badge bg-secondary-subtle text-dark border fw-semibold">${doc.className || 'MTU'}</span>
+                        </div>
                     </div>
                     <h5 class="card-title fw-bold mb-2 text-main fs-6">${doc.title}</h5>
                     <p class="card-text text-muted small mb-3 flex-grow-1 fw-medium">${doc.description}</p>
@@ -420,10 +465,12 @@ function renderDocuments(docs) {
                             <span class="badge bg-light text-dark border">${formatRoleLabel(doc.authorRole)}</span>
                         </div>
                         <div class="d-flex flex-wrap gap-1 justify-content-between align-items-center">
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-danger" onclick="handleLikeDocument(${doc.id})"><i class="bi bi-hand-thumbs-up-fill"></i> ${doc.likes}</button>
-                                <button class="btn btn-outline-secondary" onclick="handleDislikeDocument(${doc.id})"><i class="bi bi-hand-thumbs-down-fill"></i> ${doc.dislikes}</button>
-                            </div>
+                            
+                            <!-- LOGIC NÚT THÍCH TOGGLE (BẤM 1 LẦN THÍCH, BẤM THÊM 1 LẦN THU HỒI) -->
+                            <button class="btn btn-sm ${isLiked ? 'btn-danger' : 'btn-outline-danger'} fw-bold" onclick="toggleLikeDocument(${doc.id})">
+                                <i class="bi bi-heart-fill me-1"></i> ${doc.likes}
+                            </button>
+
                             <div class="d-flex gap-1">
                                 <button class="btn btn-sm btn-outline-primary fw-bold" onclick="handleViewDocument(${doc.id})"><i class="bi bi-eye"></i> Xem</button>
                                 <button class="btn btn-sm btn-primary fw-bold" onclick="handleDownloadDocument(${doc.id}, '${doc.category}')"><i class="bi bi-download"></i> Tải về</button>
@@ -434,7 +481,59 @@ function renderDocuments(docs) {
                 </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
+}
+
+// XỬ LÝ NÚT THÍCH TOGGLE BẤM 1 LẦN THÍCH, BẤM 2 LẦN THU HỒI
+async function toggleLikeDocument(docId) {
+    const isLiked = state.likedDocIds.has(docId);
+    const action = isLiked ? 'unlike' : 'like';
+
+    try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/documents/${docId}/like`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action })
+        });
+        const result = await res.json();
+        if (result.success) {
+            if (isLiked) {
+                state.likedDocIds.delete(docId);
+                showToast('Đã thu hồi lượt thích!', 'info');
+            } else {
+                state.likedDocIds.add(docId);
+                showToast('Đã thích tài liệu thành công!', 'success');
+            }
+            const doc = state.documents.find(d => d.id === docId);
+            if (doc) doc.likes = result.likes;
+            renderDocuments(state.documents);
+        }
+    } catch (e) {
+        showToast('Lỗi tương tác nút Thích!', 'error');
+    }
+}
+
+function toggleSaveDocument(docId) {
+    if (state.savedDocumentIds.has(docId)) {
+        state.savedDocumentIds.delete(docId);
+        showToast('Đã bỏ khỏi mục Yêu thích cá nhân!', 'info');
+    } else {
+        state.savedDocumentIds.add(docId);
+        showToast('Đã thêm vào mục Yêu thích cá nhân!', 'success');
+    }
+    renderDocuments(state.documents);
+    renderSavedDocuments();
+}
+
+function renderSavedDocuments() {
+    const container = document.getElementById('savedDocumentContainer');
+    if (!container) return;
+    const savedDocs = state.documents.filter(d => state.savedDocumentIds.has(d.id));
+    if (savedDocs.length === 0) {
+        container.innerHTML = `<div class="col-12 text-muted fw-semibold py-4">Chưa có tài liệu nào trong mục Yêu thích cá nhân.</div>`;
+        return;
+    }
+    renderDocuments(savedDocs);
 }
 
 function handleViewDocument(docId) {
@@ -484,16 +583,6 @@ function handleDeleteDocument(docId, docAuthorId) {
     showToast('Đã xóa Tệp tin!', 'success');
 }
 
-function handleLikeDocument(docId) {
-    const d = state.documents.find(x => x.id === docId);
-    if (d) { d.likes++; renderDocuments(state.documents); }
-}
-
-function handleDislikeDocument(docId) {
-    const d = state.documents.find(x => x.id === docId);
-    if (d) { d.dislikes++; renderDocuments(state.documents); }
-}
-
 async function fetchGroups() {
     try {
         const res = await fetch(`${CONFIG.API_BASE_URL}/groups`);
@@ -505,8 +594,6 @@ async function fetchGroups() {
 
 function renderGroupLists() {
     const joined = state.groups.filter(g => g.status === 'JOINED');
-    const pending = state.groups.filter(g => g.status === 'PENDING');
-    const suggested = state.groups.filter(g => g.status === 'SUGGESTED');
 
     document.getElementById('joinedGroupsList').innerHTML = joined.map(g => `
         <div class="list-group-item d-flex justify-content-between align-items-center p-2 cursor-pointer bg-transparent text-main" onclick="openGroupChat('${g.id}', '${g.name}', ${g.membersCount})">
@@ -514,28 +601,6 @@ function renderGroupLists() {
             <button class="btn btn-sm btn-primary fw-bold">Trò chuyện</button>
         </div>
     `).join('');
-
-    document.getElementById('pendingGroupsList').innerHTML = pending.map(g => `
-        <div class="list-group-item d-flex justify-content-between align-items-center p-2 bg-transparent text-main">
-            <div><strong>${g.name}</strong><br><small class="text-warning fw-bold">Đang chờ duyệt</small></div>
-        </div>
-    `).join('');
-
-    document.getElementById('suggestedGroupsList').innerHTML = suggested.map(g => `
-        <div class="list-group-item d-flex justify-content-between align-items-center p-2 bg-transparent text-main">
-            <div><strong>${g.name}</strong><br><small class="text-secondary">${g.membersCount} thành viên</small></div>
-            <button class="btn btn-sm btn-outline-primary fw-bold" onclick="handleJoinGroup('${g.id}', '${g.name}')">Tham gia</button>
-        </div>
-    `).join('');
-}
-
-// THAM GIA HOẶC TẠO NHÓM -> TỰ ĐỘNG CHUYỂN NGAY SANG TAB CHAT
-function handleJoinGroup(groupId, groupName) {
-    const g = state.groups.find(x => x.id === groupId);
-    if (g) g.status = 'JOINED';
-    renderGroupLists();
-    showToast(`Đã tạo/tham gia nhóm ${groupName} thành công!`, 'success');
-    openGroupChat(groupId, groupName, g ? g.membersCount : 50);
 }
 
 function openGroupChat(groupId, groupName, membersCount) {
@@ -544,21 +609,30 @@ function openGroupChat(groupId, groupName, membersCount) {
     document.getElementById('chatGroupName').textContent = groupName;
     document.getElementById('chatGroupMembers').textContent = `${membersCount} Thành viên`;
 
-    const chatBox = document.getElementById('chatMessagesBox');
-    if (chatBox) {
-        chatBox.innerHTML = `
-            <div class="text-center text-secondary small my-2 fw-semibold">-- Bạn đã tham gia phòng trò chuyện nhóm ${groupName} --</div>
-            <div class="mb-2 text-dark"><strong>Thầy Điền Việt Đức (Giảng viên):</strong> Chào các em, chúc các em học tập tốt!</div>
-        `;
-    }
+    fetch(`${CONFIG.API_BASE_URL}/groups/${groupId}/messages`).then(r => r.json()).then(res => {
+        const chatBox = document.getElementById('chatMessagesBox');
+        if (chatBox && res.success) {
+            chatBox.innerHTML = `<div class="text-center text-secondary small my-2 fw-semibold">-- Đã tham gia phòng trò chuyện nhóm ${groupName} --</div>`;
+            res.data.forEach(m => appendChatMessage(m.sender, m.text, m.files));
+        }
+    });
 }
 
-function appendChatMessage(sender, text) {
+function appendChatMessage(sender, text, files = []) {
     const chatBox = document.getElementById('chatMessagesBox');
     if (!chatBox) return;
+
+    let filesHtml = '';
+    if (files && files.length > 0) {
+        filesHtml = '<div class="mt-1 flex-wrap d-flex gap-2">' + files.map(f => 
+            `<a href="${f.url}" target="_blank" class="btn btn-sm btn-light border text-primary fw-bold"><i class="bi bi-file-earmark-arrow-down me-1"></i>${f.name}</a>`
+        ).join('') + '</div>';
+    }
+
     const div = document.createElement('div');
-    div.className = 'mb-2 text-dark';
-    div.innerHTML = `<strong>${sender}:</strong> ${text}`;
+    div.className = 'mb-3 text-dark bg-white p-2 rounded-3 shadow-sm border';
+    div.innerHTML = `<div><strong class="text-primary">${sender}:</strong> ${text}</div>${filesHtml}`;
+    
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
