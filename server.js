@@ -1,8 +1,7 @@
 /**
  * EduShare - Kho Tài Liệu Tri Thức | Thư Viện Học Liệu Số MTU
- * Backend Server Application (Node.js + Express)
- * Tác giả phát triển: Nguyễn Chí Vỹ
- * Đơn vị đồng hành: Trường Đại học Xây dựng Miền Tây (MTU)
+ * Backend Server (Node.js + Express)
+ * Tác giả: Nguyễn Chí Vỹ | Trường ĐH Xây dựng Miền Tây (MTU)
  */
 
 const express = require('express');
@@ -19,15 +18,15 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Phục vụ tệp tĩnh
+// Phục vụ tĩnh thư mục public
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadDir));
 
-// Cấu hình Multer lưu tệp tải lên
+// Cấu hình Multer tải tệp
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadDir),
     filename: (req, file, cb) => {
@@ -35,16 +34,11 @@ const storage = multer.diskStorage({
         cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname)}`);
     }
 });
-
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 100 * 1024 * 1024 }
-});
+const upload = multer({ storage: storage, limits: { fileSize: 100 * 1024 * 1024 } });
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "YOUR_GEMINI_API_KEY_HERE";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-// Hàm hỗ trợ tìm kiếm gần đúng không dấu (Fuzzy Search)
 function removeVietnameseTones(str) {
     if (!str) return '';
     str = str.toLowerCase();
@@ -58,7 +52,6 @@ function removeVietnameseTones(str) {
     return str.trim();
 }
 
-// Cơ sở dữ liệu lưu tạm trong bộ nhớ (In-memory Database)
 const db = {
     users: [
         {
@@ -88,15 +81,14 @@ const db = {
             major: "SE",
             academicYear: "K2024",
             className: "DHKTPM24",
-            description: "Tài liệu giảng dạy chuyên ngành KTPM. Bao gồm lý thuyết tiến trình, quản lý bộ nhớ RAM và thực hành Bash Shell.",
-            fileUrl: "/uploads/sample-linux-course.pdf",
-            fileType: "pdf",
+            description: "Tài liệu giảng dạy chuyên ngành KTPM. Bao gồm lý thuyết tiến trình, bộ nhớ RAM và Bash Shell.",
+            fileUrl: "/uploads/sample-linux.pdf",
             authorId: "user-1",
             authorName: "Nguyễn Chí Vỹ",
             authorRole: "STUDENT",
             likes: 42,
-            likedBy: [],
-            views: 1420
+            views: 1420,
+            createdAt: new Date().toISOString()
         },
         {
             id: 2,
@@ -109,14 +101,13 @@ const db = {
             academicYear: "K2024",
             className: "DHKTPM24",
             description: "Tổng hợp Use Case, Sequence Diagram và Class Diagram dự án Quản lý Thư viện Học liệu số.",
-            fileUrl: "/uploads/sample-uml-exercise.docx",
-            fileType: "docx",
+            fileUrl: "/uploads/sample-uml.docx",
             authorId: "user-1",
             authorName: "Nguyễn Chí Vỹ",
             authorRole: "STUDENT",
             likes: 89,
-            likedBy: [],
-            views: 856
+            views: 856,
+            createdAt: new Date().toISOString()
         },
         {
             id: 3,
@@ -130,13 +121,12 @@ const db = {
             className: "DHKTPM24",
             description: "Công trình nghiên cứu ứng dụng AI phân tích hình ảnh giao thông tại vùng ĐBSCL.",
             fileUrl: "/uploads/sample-article.pdf",
-            fileType: "pdf",
             authorId: "user-2",
             authorName: "Giảng viên MTU",
             authorRole: "TEACHER",
             likes: 62,
-            likedBy: [],
-            views: 1120
+            views: 1120,
+            createdAt: new Date().toISOString()
         }
     ],
     groups: [
@@ -154,21 +144,23 @@ const db = {
 
 const otpStore = new Map();
 
-// API Đăng ký - Đã sửa chính xác vai trò (STUDENT | TEACHER | ADMIN)
+// API Auth Register (Fix triệt để giữ nguyên vai trò TEACHER / ADMIN)
 app.post('/api/auth/register', (req, res) => {
     try {
         const { fullName, gender, dob, email, phone, school, faculty, academicYear, major, className, password, confirmPassword, role } = req.body;
 
-        if (!email || !email.trim().toLowerCase().endsWith('@mtu.edu.vn')) {
-            return res.status(400).json({ success: false, message: "Email đăng ký phải có đuôi trường @mtu.edu.vn" });
+        const isDomainValid = email && (email.toLowerCase().endsWith('@mtu.edu.vn') || email.toLowerCase().endsWith('@muce.edu.vn'));
+        if (!isDomainValid) {
+            return res.status(400).json({ success: false, message: "Email đăng ký phải có đuôi trường @mtu.edu.vn hoặc @muce.edu.vn" });
         }
+
         if (password !== confirmPassword) {
             return res.status(400).json({ success: false, message: "Mật khẩu xác nhận không trùng khớp!" });
         }
 
-        const existedUser = db.users.find(u => u.email === email || u.phone === phone);
-        if (existedUser) {
-            return res.status(400).json({ success: false, message: "Email hoặc Số điện thoại này đã được đăng ký!" });
+        const existed = db.users.find(u => u.email === email || u.phone === phone);
+        if (existed) {
+            return res.status(400).json({ success: false, message: "Email hoặc Số điện thoại đã tồn tại trong hệ thống!" });
         }
 
         const assignedRole = (role && ['STUDENT', 'TEACHER', 'ADMIN'].includes(role)) ? role : 'STUDENT';
@@ -192,12 +184,12 @@ app.post('/api/auth/register', (req, res) => {
 
         db.users.push(newUser);
         return res.status(201).json({ success: true, message: "Đã đăng ký thành công!", user: newUser });
-    } catch (error) {
+    } catch (e) {
         return res.status(500).json({ success: false, message: "Đăng ký thất bại. Vui lòng thử lại!" });
     }
 });
 
-// API Đăng nhập
+// API Auth Login
 app.post('/api/auth/login', (req, res) => {
     const { identity } = req.body;
     const user = db.users.find(u => u.email === identity || u.phone === identity || u.fullName === identity);
@@ -207,7 +199,7 @@ app.post('/api/auth/login', (req, res) => {
     return res.json({ success: true, message: "Đã đăng nhập thành công!", user });
 });
 
-// API Quên mật khẩu - Gửi OTP 60 giây
+// API Forgot Password OTP
 app.post('/api/auth/forgot-password/request-otp', (req, res) => {
     const { identity } = req.body;
     if (!identity) {
@@ -217,14 +209,12 @@ app.post('/api/auth/forgot-password/request-otp', (req, res) => {
     if (!user) {
         return res.status(404).json({ success: false, message: "Sai cú pháp hoặc thông tin không tồn tại" });
     }
-
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     otpStore.set(identity, { code: otpCode, expiresAt: Date.now() + 60000 });
-
     return res.json({ success: true, message: "Mã OTP đã được gửi thành công!", otpDemo: otpCode, expiresSec: 60 });
 });
 
-// API Lấy danh sách tài liệu + Tìm kiếm thông minh không dấu
+// API Documents Search (Fuzzy search không dấu)
 app.get('/api/documents', (req, res) => {
     let { q, category, school, faculty, major, academicYear, className, subject } = req.query;
     let list = [...db.documents];
@@ -253,10 +243,10 @@ app.get('/api/documents', (req, res) => {
     return res.json({ success: true, count: list.length, data: list });
 });
 
-// API Đăng tài liệu mới
+// API Upload Document
 app.post('/api/documents', upload.array('files', 10), (req, res) => {
     try {
-        const { title, category, subject, description, externalLink, school, faculty, major, academicYear, className, authorId, authorName, authorRole } = req.body;
+        const { title, category, subject, description, school, faculty, major, academicYear, className, authorId, authorName, authorRole } = req.body;
         const uploadedFiles = req.files || [];
         const fileUrls = uploadedFiles.map(f => `/uploads/${f.filename}`);
 
@@ -271,36 +261,32 @@ app.post('/api/documents', upload.array('files', 10), (req, res) => {
             academicYear: academicYear || "K2024",
             className: className || "DHKTPM24",
             description: description || "",
-            fileUrl: fileUrls[0] || externalLink || "",
+            fileUrl: fileUrls[0] || "",
             authorId: authorId || "user-1",
             authorName: authorName || "Nguyễn Chí Vỹ",
             authorRole: authorRole || "STUDENT",
             likes: 0,
-            likedBy: [],
-            views: 0
+            views: 1,
+            createdAt: new Date().toISOString()
         };
 
         db.documents.unshift(newDoc);
         return res.status(201).json({ success: true, message: "Tải tệp thành công!", data: newDoc });
-    } catch (error) {
+    } catch (e) {
         return res.status(500).json({ success: false, message: "Tải tệp thất bại. Vui lòng thử lại sau!" });
     }
 });
 
-// API Xóa tài liệu
+// API Delete Document
 app.delete('/api/documents/:id', (req, res) => {
     const docId = parseInt(req.params.id);
     const index = db.documents.findIndex(d => d.id === docId);
-
-    if (index === -1) {
-        return res.status(404).json({ success: false, message: "Tài liệu không tồn tại!" });
-    }
-
+    if (index === -1) return res.status(404).json({ success: false, message: "Tài liệu không tồn tại!" });
     db.documents.splice(index, 1);
     return res.json({ success: true, message: "Đã xóa Tệp tin!" });
 });
 
-// API Chatbot AI Trợ lý truy vấn
+// API AI Gemini Engine
 app.post('/api/ai/chat', async (req, res) => {
     try {
         const { prompt } = req.body;
@@ -314,89 +300,48 @@ app.post('/api/ai/chat', async (req, res) => {
 
         let aiReply = "";
         if (matchedDocs.length > 0) {
-            aiReply = `[EduShare AI Engine] Đã tìm thấy ${matchedDocs.length} tài liệu học thuật phù hợp với yêu cầu "${prompt}":\n` + 
+            aiReply = `[EduShare AI Engine] Tìm thấy ${matchedDocs.length} tài liệu phù hợp:\n` +
                 matchedDocs.map(d => `- **${d.title}** (Môn: ${d.subject} | Tác giả: ${d.authorName})`).join('\n');
         } else {
             if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
-                aiReply = `[EduShare AI Engine] Xin chào! Tôi đã ghi nhận yêu cầu: "${prompt}". Bạn có thể tra cứu bộ ngân hàng đề thi môn Hệ Điều Hành và Kiến Trúc Máy Tính MTU.`;
+                aiReply = `[EduShare AI Engine] Xin chào! Tôi ghi nhận câu hỏi: "${prompt}". Bạn có thể tra cứu thêm các giáo trình Kiến trúc máy tính & Hệ điều hành Linux MTU.`;
             } else {
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const result = await model.generateContent(prompt);
-                const response = await result.response;
-                aiReply = response.text();
+                aiReply = result.response.text();
             }
         }
-
         return res.json({ success: true, reply: aiReply });
-    } catch (error) {
-        return res.status(500).json({ success: false, message: "Hệ thống AI xử lý thất bại!", error: error.message });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: "AI Engine gặp sự cố!", error: e.message });
     }
 });
 
-// API Nhóm & Trò chuyện
+// API Group Chat
 app.get('/api/groups', (req, res) => res.json({ success: true, data: db.groups }));
 
 app.post('/api/groups', (req, res) => {
     const { name, desc } = req.body;
     if (!name) return res.status(400).json({ success: false, message: "Tạo nhóm thất bại, vui lòng thử lại!" });
-
-    const newGroup = {
-        id: `group-${Date.now()}`,
-        name,
-        membersCount: 1,
-        status: "JOINED",
-        desc: desc || "Nhóm học thuật mới tạo."
-    };
-
+    const newGroup = { id: `group-${Date.now()}`, name, membersCount: 1, status: "JOINED", desc: desc || "Nhóm mới tạo." };
     db.groups.unshift(newGroup);
-    db.groupMessages[newGroup.id] = [
-        { sender: "Hệ thống", text: `Đã tạo nhóm học thuật ${name} thành công.`, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }
-    ];
-
+    db.groupMessages[newGroup.id] = [{ sender: "Hệ thống", text: `Nhóm ${name} đã được khởi tạo.`, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
     return res.status(201).json({ success: true, message: "Đã tạo nhóm thành công!", data: newGroup });
 });
 
 app.get('/api/groups/:id/messages', (req, res) => {
-    const groupId = req.params.id;
-    const msgs = db.groupMessages[groupId] || [];
+    const msgs = db.groupMessages[req.params.id] || [];
     return res.json({ success: true, data: msgs });
 });
 
 app.post('/api/groups/:id/messages', (req, res) => {
-    const groupId = req.params.id;
     const { sender, text } = req.body;
-    if (!db.groupMessages[groupId]) db.groupMessages[groupId] = [];
-
-    const newMsg = {
-        sender: sender || "Sinh viên MTU",
-        text,
-        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-    };
-    db.groupMessages[groupId].push(newMsg);
+    if (!db.groupMessages[req.params.id]) db.groupMessages[req.params.id] = [];
+    const newMsg = { sender: sender || "Sinh viên", text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+    db.groupMessages[req.params.id].push(newMsg);
     return res.json({ success: true, data: newMsg });
 });
 
-// SEO & Sitemap
-app.get('/robots.txt', (req, res) => {
-    res.type('text/plain');
-    res.send("User-agent: *\nAllow: /\nSitemap: https://edushare.mtu.edu.vn/sitemap.xml");
-});
-
-app.get('/sitemap.xml', (req, res) => {
-    res.type('application/xml');
-    res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://edushare.mtu.edu.vn/</loc>
-    <lastmod>2026-11-09</lastmod>
-    <priority>1.0</priority>
-  </url>
-</urlset>`);
-});
-
 app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(`EduShare Backend Server running on port ${PORT}`);
-    console.log(`Tác giả: Nguyễn Chí Vỹ - Trường ĐH Xây dựng Miền Tây (MTU)`);
-    console.log(`==================================================`);
+    console.log(`EduShare Server running on port ${PORT}`);
 });

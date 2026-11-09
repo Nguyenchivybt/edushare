@@ -1,4 +1,38 @@
-Name User: nguyenchivybt2006_db_user
-Pass: kvLyvRWdLjapFFfs
-mongodb+srv://<db_username>:<db_password>@edushare.novhmdl.mongodb.net/
-Tên đăng nhập: admin   Mật khẩu: adminpassword123
+-- CƠ SỞ DỮ LIỆU MYSQL CHO DỰ ÁN EDUSHARE MTU
+CREATE DATABASE IF NOT EXISTS edushare_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE edushare_db;
+
+CREATE TABLE users (
+    id VARCHAR(50) PRIMARY KEY,
+    full_name VARCHAR(100) NOT NULL,
+    gender VARCHAR(10),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    school VARCHAR(150) DEFAULT 'Trường Đại học Xây dựng Miền Tây',
+    faculty VARCHAR(100),
+    major VARCHAR(100),
+    academic_year VARCHAR(20),
+    class_name VARCHAR(50),
+    role ENUM('STUDENT', 'TEACHER', 'ADMIN') DEFAULT 'STUDENT',
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE documents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    category ENUM('EXERCISE', 'EXAM', 'ACADEMIC', 'ARTICLE') DEFAULT 'ACADEMIC',
+    subject VARCHAR(100) NOT NULL,
+    school VARCHAR(100) DEFAULT 'MTU',
+    faculty VARCHAR(100),
+    major VARCHAR(100),
+    academic_year VARCHAR(20),
+    class_name VARCHAR(50),
+    description TEXT,
+    file_url VARCHAR(255) NOT NULL,
+    author_id VARCHAR(50),
+    likes_count INT DEFAULT 0,
+    views_count INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
+);
