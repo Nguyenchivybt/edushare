@@ -1,8 +1,7 @@
 /**
- * EduShare - Kho Tài Liệu Tri Thức | Thư Viện Học Liệu Số MTU
- * Client Frontend JavaScript Application (app.js)
+ * EduShare Frontend Application Logic (app.js)
  * Tác giả: Nguyễn Chí Vỹ
- * Đơn vị: Trường Đại học Xây dựng Miền Tây (MTU)
+ * Đơn vị đồng hành: Trường Đại học Xây dựng Miền Tây (MTU)
  */
 
 const CONFIG = {
@@ -14,33 +13,37 @@ const CONFIG = {
     STORAGE_KEY_STYLE: 'edushare_theme_style'
 };
 
-/**
- * STATE HỆ THỐNG VÀ XÁC THỰC PHÂN QUYỀN (ROLES)
- * Role: GUEST | STUDENT | TEACHER | ADMIN
- */
 const state = {
-    currentUser: null, // Null if GUEST
+    currentUser: null, // Null = Khách chưa đăng nhập
     documents: [],
     filteredDocuments: [],
     savedDocumentIds: new Set(),
     groups: [],
+    activeGroupId: "group-1",
     filters: {
-        school: 'MTU',
-        faculty: 'ALL',
-        major: 'ALL',
-        academicYear: 'ALL',
-        className: 'ALL',
-        subject: 'ALL',
-        category: 'ALL',
-        searchQuery: ''
+        school: 'MTU', faculty: 'ALL', major: 'ALL', academicYear: 'ALL',
+        className: 'ALL', subject: 'ALL', category: 'ALL', searchQuery: ''
     },
     otpTimer: null,
     otpSecondsRemaining: 0,
     activeTab: 'feed',
-    userStatus: 'ONLINE' // ONLINE | OFFLINE
+    userStatus: 'ONLINE'
 };
 
-// HELPER MỞ VÀ ĐÓNG POPUP MODAL
+// Loại bỏ dấu tiếng Việt hỗ trợ tìm kiếm linh hoạt không dấu (Fuzzy Search)
+function removeVietnameseTones(str) {
+    if (!str) return '';
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    return str.trim();
+}
+
 function openModal(modalEl) {
     if (modalEl) {
         modalEl.classList.add('show');
@@ -57,11 +60,6 @@ function closeModal(modalEl) {
     }
 }
 
-/**
- * HỆ THỐNG THÔNG BÁO TOAST POPUP CÓ ICON (ĐÃ CHUẨN HÓA THEO ĐẶC TẢ 3.5)
- * Thành công: Icon dấu tích xanh (✓)
- * Thất bại: Icon dấu X đỏ (✗)
- */
 function showToast(message, type = 'success') {
     const toastContainer = document.getElementById('toastContainer');
     if (!toastContainer) return;
@@ -104,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initApp() {
-    console.log("EduShare System Initializing...");
     loadSavedThemeAndStyle();
     loadUserSession();
     bindAllEvents();
@@ -112,9 +109,6 @@ function initApp() {
     fetchGroups();
 }
 
-/**
- * QUẢN LÝ GIAO DIỆN & TÙY CHỌN 3 CHỦ ĐỀ (CLASSIC / ACADEMIC / MODERN) & DARK MODE
- */
 function loadSavedThemeAndStyle() {
     const savedTheme = localStorage.getItem(CONFIG.STORAGE_KEY_THEME) || 'light';
     const savedStyle = localStorage.getItem(CONFIG.STORAGE_KEY_STYLE) || 'academic';
@@ -124,18 +118,6 @@ function loadSavedThemeAndStyle() {
 
     const darkModeSwitch = document.getElementById('darkModeSwitch');
     if (darkModeSwitch) darkModeSwitch.checked = (savedTheme === 'dark');
-
-    updateThemeStyleButtonsUI(savedStyle);
-}
-
-function updateThemeStyleButtonsUI(activeStyle) {
-    document.querySelectorAll('.theme-style-btn').forEach(btn => {
-        if (btn.getAttribute('data-style') === activeStyle) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
-    });
 }
 
 function saveThemeSettings(themeMode, themeStyle) {
@@ -146,9 +128,6 @@ function saveThemeSettings(themeMode, themeStyle) {
     showToast('Đã lưu tùy chọn giao diện thành công!', 'success');
 }
 
-/**
- * QUẢN LÝ SESSION NGƯỜI DÙNG & TỰ ĐỘNG ĐĂNG NHẬP
- */
 function loadUserSession() {
     const savedUserJson = localStorage.getItem(CONFIG.STORAGE_KEY_USER);
     if (savedUserJson) {
@@ -174,22 +153,41 @@ function clearUserSession() {
     showToast('Đã đăng xuất tài khoản thành công!', 'info');
 }
 
-/**
- * GÁN BỘ LẮNG NGHE SỰ KIỆN (EVENT BINDINGS)
- */
 function bindAllEvents() {
-    // 1. NAVIGATION & MODALS
+    // 1. NHẤP LOGO EDUSHARE QUAY VỀ TRANG CHỦ
+    const brandLogoLink = document.getElementById('brandLogoLink');
+    if (brandLogoLink) {
+        brandLogoLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchTab('feed');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    const btnHeaderHome = document.getElementById('btnHeaderHome');
+    if (btnHeaderHome) btnHeaderHome.addEventListener('click', () => {
+        switchTab('feed');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    const navLinkDocs = document.getElementById('navLinkDocs');
+    if (navLinkDocs) navLinkDocs.addEventListener('click', (e) => { e.preventDefault(); switchTab('feed'); });
+
+    const navLinkCommunity = document.getElementById('navLinkCommunity');
+    if (navLinkCommunity) navLinkCommunity.addEventListener('click', (e) => { e.preventDefault(); switchTab('groups'); });
+
+    // Modals
+    const authModal = document.getElementById('authModal');
     const btnHeaderLogin = document.getElementById('btnHeaderLogin');
     const btnHeaderRegister = document.getElementById('btnHeaderRegister');
-    const authModal = document.getElementById('authModal');
     const btnCloseAuth = document.getElementById('btnCloseAuth');
 
     if (btnHeaderLogin) btnHeaderLogin.addEventListener('click', () => openAuthModal('login'));
     if (btnHeaderRegister) btnHeaderRegister.addEventListener('click', () => openAuthModal('register'));
     if (btnCloseAuth) btnCloseAuth.addEventListener('click', () => closeModal(authModal));
 
-    const btnHeroUpload = document.getElementById('btnHeroUpload');
     const uploadModal = document.getElementById('uploadModal');
+    const btnHeroUpload = document.getElementById('btnHeroUpload');
     const btnCloseUpload = document.getElementById('btnCloseUpload');
 
     if (btnHeroUpload) btnHeroUpload.addEventListener('click', () => {
@@ -204,112 +202,51 @@ function bindAllEvents() {
     if (btnFloatingAi) btnFloatingAi.addEventListener('click', () => openModal(aiChatModal));
     if (btnCloseAi) btnCloseAi.addEventListener('click', () => closeModal(aiChatModal));
 
-    const btnForgotPassword = document.getElementById('btnForgotPassword');
-    const forgotPasswordModal = document.getElementById('forgotPasswordModal');
-    const btnCloseForgot = document.getElementById('btnCloseForgot');
-
-    if (btnForgotPassword) {
-        btnForgotPassword.addEventListener('click', (e) => {
-            e.preventDefault();
-            closeModal(authModal);
-            openModal(forgotPasswordModal);
-        });
-    }
-    if (btnCloseForgot) btnCloseForgot.addEventListener('click', () => closeModal(forgotPasswordModal));
-
-    const btnOpenProfileSettings = document.getElementById('btnOpenProfileSettings');
-    const profileSettingsModal = document.getElementById('profileSettingsModal');
-    const btnCloseProfileSettings = document.getElementById('btnCloseProfileSettings');
-    const userProfileWidget = document.getElementById('userProfileWidget');
-
-    if (btnOpenProfileSettings) btnOpenProfileSettings.addEventListener('click', () => openProfileSettingsModal());
-    if (userProfileWidget) userProfileWidget.addEventListener('click', (e) => {
-        if (e.target.closest('#btnLogout')) return;
-        openProfileSettingsModal();
-    });
-    if (btnCloseProfileSettings) btnCloseProfileSettings.addEventListener('click', () => closeModal(profileSettingsModal));
+    const documentViewModal = document.getElementById('documentViewModal');
+    const btnCloseViewDoc = document.getElementById('btnCloseViewDoc');
+    if (btnCloseViewDoc) btnCloseViewDoc.addEventListener('click', () => closeModal(documentViewModal));
 
     const btnLogout = document.getElementById('btnLogout');
-    if (btnLogout) btnLogout.addEventListener('click', (e) => {
-        e.stopPropagation();
-        clearUserSession();
-    });
+    if (btnLogout) btnLogout.addEventListener('click', () => clearUserSession());
 
-    // 2. SOCIAL LOGINS (GOOGLE & FACEBOOK)
-    const btnLoginGoogle = document.getElementById('btnLoginGoogle');
-    const btnLoginFacebook = document.getElementById('btnLoginFacebook');
+    // Switch tabs buttons
+    document.getElementById('btnTabFeedAll')?.addEventListener('click', () => switchTab('feed'));
+    document.getElementById('btnTabSavedFast')?.addEventListener('click', () => switchTab('saved'));
 
-    if (btnLoginGoogle) {
-        btnLoginGoogle.addEventListener('click', () => {
-            const googleUser = {
-                id: 'gg-101',
-                fullName: 'Nguyễn Chí Vỹ (Google)',
-                email: 'nguyenchivy@mtu.edu.vn',
-                role: 'STUDENT',
-                school: 'ĐH Xây dựng Miền Tây (MTU)',
-                avatar: 'https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=ea4335&color=fff'
-            };
-            saveUserSession(googleUser);
-            closeModal(authModal);
-            showToast('Đã đăng nhập thành công qua Google!', 'success');
+    // Search bar input filter (Fuzzy search)
+    const headerSearchInput = document.getElementById('headerSearchInput');
+    const searchFileInput = document.getElementById('searchFileInput');
+
+    if (headerSearchInput) {
+        headerSearchInput.addEventListener('input', (e) => {
+            if (searchFileInput) searchFileInput.value = e.target.value;
+            state.filters.searchQuery = e.target.value;
+            applyFiltersAndRender();
         });
     }
 
-    if (btnLoginFacebook) {
-        btnLoginFacebook.addEventListener('click', () => {
-            const fbUser = {
-                id: 'fb-202',
-                fullName: 'Nguyễn Chí Vỹ (Facebook)',
-                email: 'vy.nguyen@mtu.edu.vn',
-                role: 'STUDENT',
-                school: 'ĐH Xây dựng Miền Tây (MTU)',
-                avatar: 'https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=1877f2&color=fff'
-            };
-            saveUserSession(fbUser);
-            closeModal(authModal);
-            showToast('Đã đăng nhập thành công qua Facebook!', 'success');
+    if (searchFileInput) {
+        searchFileInput.addEventListener('input', (e) => {
+            if (headerSearchInput) headerSearchInput.value = e.target.value;
+            state.filters.searchQuery = e.target.value;
+            applyFiltersAndRender();
         });
     }
 
-    // 3. TAB NAVIGATION
-    const btnHeaderHome = document.getElementById('btnHeaderHome');
-    const btnTabFeedAll = document.getElementById('btnTabFeedAll');
-    const btnTabSavedFast = document.getElementById('btnTabSavedFast');
-    const menuLinkFindAcademic = document.getElementById('menuLinkFindAcademic');
-    const menuLinkConnect = document.getElementById('menuLinkConnect');
-    const menuLinkGroups = document.getElementById('menuLinkGroups');
-
-    if (btnHeaderHome) btnHeaderHome.addEventListener('click', () => switchTab('feed'));
-    if (btnTabFeedAll) btnTabFeedAll.addEventListener('click', () => switchTab('feed'));
-    if (btnTabSavedFast) btnTabSavedFast.addEventListener('click', () => switchTab('saved'));
-    if (menuLinkFindAcademic) menuLinkFindAcademic.addEventListener('click', (e) => { e.preventDefault(); switchTab('feed'); });
-    if (menuLinkConnect) menuLinkConnect.addEventListener('click', (e) => { e.preventDefault(); switchTab('groups'); });
-    if (menuLinkGroups) menuLinkGroups.addEventListener('click', (e) => { e.preventDefault(); switchTab('groups'); });
-
-    // 4. FILTER DROPDOWNS & SEARCH INPUTS
+    // 6-level Filter dropdowns
     ['filterSchool', 'filterFaculty', 'filterMajor', 'filterYear', 'filterClass', 'filterSubject'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', handleFilterChange);
     });
 
-    const searchFileInput = document.getElementById('searchFileInput');
-    if (searchFileInput) searchFileInput.addEventListener('input', debounce(handleFilterChange, 300));
+    document.getElementById('btnResetFilters')?.addEventListener('click', resetFilters);
 
-    const headerSearchInput = document.getElementById('headerSearchInput');
-    if (headerSearchInput) headerSearchInput.addEventListener('input', (e) => {
-        if (searchFileInput) searchFileInput.value = e.target.value;
-        handleFilterChange();
-    });
-
-    const btnResetFilters = document.getElementById('btnResetFilters');
-    if (btnResetFilters) btnResetFilters.addEventListener('click', resetFilters);
-
-    // 5. CATEGORY TAG BUTTONS
-    const categoryFilterGroup = document.getElementById('categoryFilterGroup');
-    if (categoryFilterGroup) {
-        categoryFilterGroup.querySelectorAll('button').forEach(btn => {
+    // Categories
+    const categoryGroup = document.getElementById('categoryFilterGroup');
+    if (categoryGroup) {
+        categoryGroup.querySelectorAll('button').forEach(btn => {
             btn.addEventListener('click', () => {
-                categoryFilterGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                categoryGroup.querySelectorAll('button').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 state.filters.category = btn.getAttribute('data-category') || 'ALL';
                 applyFiltersAndRender();
@@ -317,47 +254,23 @@ function bindAllEvents() {
         });
     }
 
-    // 6. FORM SUBMIT HANDLERS
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) loginForm.addEventListener('submit', handleLoginSubmit);
+    // Form Submits
+    document.getElementById('loginForm')?.addEventListener('submit', handleLoginSubmit);
+    document.getElementById('registerForm')?.addEventListener('submit', handleRegisterSubmit);
+    document.getElementById('uploadForm')?.addEventListener('submit', handleDocumentUpload);
+    document.getElementById('createGroupForm')?.addEventListener('submit', handleCreateGroupSubmit);
+    document.getElementById('btnSendAiPrompt')?.addEventListener('click', handleAiChatSubmit);
+    document.getElementById('btnSaveProfileSettings')?.addEventListener('click', handleSaveProfileSettings);
 
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) registerForm.addEventListener('submit', handleRegisterSubmit);
+    // Form gửi tin nhắn Chat nhóm
+    document.getElementById('chatSendForm')?.addEventListener('submit', handleSendGroupMessage);
 
-    const uploadForm = document.getElementById('uploadForm');
-    if (uploadForm) uploadForm.addEventListener('submit', handleDocumentUpload);
-
-    const forgotForm = document.getElementById('forgotForm');
-    if (forgotForm) forgotForm.addEventListener('submit', handleVerifyOtpAndReset);
-
-    const btnRequestOtp = document.getElementById('btnRequestOtp');
-    if (btnRequestOtp) btnRequestOtp.addEventListener('click', handleRequestOtp);
-
-    const btnSendAiPrompt = document.getElementById('btnSendAiPrompt');
-    if (btnSendAiPrompt) btnSendAiPrompt.addEventListener('click', handleAiChatSubmit);
-
-    const createGroupForm = document.getElementById('createGroupForm');
-    if (createGroupForm) createGroupForm.addEventListener('submit', handleCreateGroupSubmit);
-
-    const btnSaveProfileSettings = document.getElementById('btnSaveProfileSettings');
-    if (btnSaveProfileSettings) btnSaveProfileSettings.addEventListener('click', handleSaveProfileSettings);
-
-    const avatarFileInput = document.getElementById('avatarFileInput');
-    if (avatarFileInput) avatarFileInput.addEventListener('change', handleAvatarUploadPreview);
-
-    // Style Theme Buttons in Profile Modal
-    document.querySelectorAll('.theme-style-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.theme-style-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        });
-    });
-
-    // Close modal when clicking outside dialog
-    window.addEventListener('click', (e) => {
-        [authModal, uploadModal, aiChatModal, forgotPasswordModal, profileSettingsModal].forEach(modal => {
-            if (e.target === modal) closeModal(modal);
-        });
+    // Chống copy chép đối với Khách chưa đăng nhập
+    document.addEventListener('copy', (e) => {
+        if (!state.currentUser) {
+            e.preventDefault();
+            showToast('Khách chưa đăng nhập! Không thể sao chép văn bản bài viết.', 'error');
+        }
     });
 }
 
@@ -369,55 +282,27 @@ function openAuthModal(mode = 'login') {
     const pillsRegister = document.getElementById('pills-register');
 
     if (mode === 'login') {
-        if (loginTabBtn) loginTabBtn.classList.add('active');
-        if (registerTabBtn) registerTabBtn.classList.remove('active');
-        if (pillsLogin) pillsLogin.classList.add('show', 'active');
-        if (pillsRegister) pillsRegister.classList.remove('show', 'active');
+        loginTabBtn?.classList.add('active');
+        registerTabBtn?.classList.remove('active');
+        pillsLogin?.classList.add('show', 'active');
+        pillsRegister?.classList.remove('show', 'active');
     } else {
-        if (registerTabBtn) registerTabBtn.classList.add('active');
-        if (loginTabBtn) loginTabBtn.classList.remove('active');
-        if (pillsRegister) pillsRegister.classList.add('show', 'active');
-        if (pillsLogin) pillsLogin.classList.remove('show', 'active');
+        registerTabBtn?.classList.add('active');
+        loginTabBtn?.classList.remove('active');
+        pillsRegister?.classList.add('show', 'active');
+        pillsLogin?.classList.remove('show', 'active');
     }
 
     openModal(authModal);
 }
 
-function openProfileSettingsModal() {
-    if (!state.currentUser) {
-        showToast('Vui lòng đăng nhập để xem thông tin cá nhân!', 'warning');
-        openAuthModal('login');
-        return;
-    }
-
-    const modal = document.getElementById('profileSettingsModal');
-    const nameEl = document.getElementById('settingProfileName');
-    const detailEl = document.getElementById('settingProfileDetail');
-    const badgeEl = document.getElementById('settingRoleBadge');
-    const avatarImg = document.getElementById('settingAvatarPreview');
-    const statusSelect = document.getElementById('statusSelect');
-
-    if (nameEl) nameEl.textContent = state.currentUser.fullName || 'Nguyễn Chí Vỹ';
-    if (detailEl) detailEl.textContent = `Email: ${state.currentUser.email || 'nguyenchivy@mtu.edu.vn'} | SĐT: ${state.currentUser.phone || '0862204069'}`;
-    if (badgeEl) badgeEl.textContent = formatRoleLabel(state.currentUser.role);
-    if (avatarImg && state.currentUser.avatar) avatarImg.src = state.currentUser.avatar;
-    if (statusSelect) statusSelect.value = state.userStatus;
-
-    const currentStyle = document.documentElement.getAttribute('data-style') || 'academic';
-    updateThemeStyleButtonsUI(currentStyle);
-
-    openModal(modal);
-}
-
-/**
- * XÁC THỰC PHÂN QUYỀN VAI TRÒ (PERMISSION CHECK MATRIX)
- */
+// XÁC THỰC PHÂN QUYỀN (RBAC MATRIX PERMISSION)
 function checkPermission(action, docOwnerRole = 'STUDENT', docOwnerId = '') {
     const user = state.currentUser;
 
     if (action === 'DOWNLOAD') {
         if (!user) {
-            showToast('Khách chỉ có quyền xem! Vui lòng đăng nhập để tải học liệu.', 'warning');
+            showToast('Khách chỉ được xem tài liệu, không thể tải về! Vui lòng đăng nhập.', 'warning');
             openAuthModal('login');
             return false;
         }
@@ -434,66 +319,33 @@ function checkPermission(action, docOwnerRole = 'STUDENT', docOwnerId = '') {
     }
 
     if (action === 'DELETE' || action === 'EDIT') {
-        if (!user) return false;
-        if (user.role === 'ADMIN') return true;
-        if (user.role === 'TEACHER' && docOwnerRole !== 'ADMIN') return true;
-        if (user.role === 'STUDENT') {
-            if (docOwnerRole === 'TEACHER' || docOwnerRole === 'ADMIN') {
-                showToast('Sinh viên không có quyền xóa/sửa bài giảng của Giảng viên hoặc Admin!', 'error');
-                return false;
-            }
-            if (docOwnerId && user.id !== docOwnerId) {
-                showToast('Bạn chỉ được sửa/xóa bài viết của chính mình!', 'error');
-                return false;
-            }
-            return true;
+        if (!user) {
+            showToast('Vui lòng đăng nhập để thực hiện thao tác này!', 'warning');
+            openAuthModal('login');
+            return false;
         }
+        if (user.role === 'ADMIN') return true;
+        if (user.id !== docOwnerId) {
+            showToast('Bạn chỉ được phép chỉnh sửa hoặc xóa bài viết do chính mình đăng!', 'error');
+            return false;
+        }
+        return true;
     }
 
     return true;
 }
 
-// FETCH DỮ LIỆU BÀI VIẾT & NHÓM
+// FETCH VÀ RENDER DỮ LIỆU TÀI LIỆU
 async function fetchDocuments() {
-    const container = document.getElementById('documentContainer');
     try {
-        if (container) {
-            container.innerHTML = `
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Đang tải học liệu MTU...</span>
-                    </div>
-                </div>
-            `;
-        }
-        const response = await fetch(`${CONFIG.API_BASE_URL}/documents`);
-        const result = await response.json();
-
-        if (result.success) {
-            state.documents = result.data || [];
-            applyFiltersAndRender();
-        } else {
-            state.documents = getSampleDocuments();
-            applyFiltersAndRender();
-        }
-    } catch (error) {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/documents`);
+        const result = await res.json();
+        if (result.success) state.documents = result.data || [];
+        applyFiltersAndRender();
+    } catch (e) {
         state.documents = getSampleDocuments();
         applyFiltersAndRender();
     }
-}
-
-async function fetchGroups() {
-    try {
-        const response = await fetch(`${CONFIG.API_BASE_URL}/groups`);
-        const result = await response.json();
-        if (result.success) state.groups = result.data || [];
-    } catch (e) {
-        state.groups = [
-            { id: 'g1', name: 'Nhóm KTPM K24 MTU (Khoa Kỹ thuật Phần mềm)', membersCount: 142, desc: 'Tra cứu đồ án & bài tập hệ điều hành.' },
-            { id: 'g2', name: 'Cộng Đồng Nghiên Cứu AI & Đô Thị Miền Tây', membersCount: 68, desc: 'Kết nối SV và Giảng viên hướng dẫn NCKH.' }
-        ];
-    }
-    renderGroupsList();
 }
 
 function applyFiltersAndRender() {
@@ -508,18 +360,23 @@ function applyFiltersAndRender() {
     if (state.filters.category !== 'ALL') docs = docs.filter(d => d.category === state.filters.category);
 
     if (state.filters.searchQuery) {
-        const q = state.filters.searchQuery.toLowerCase();
-        docs = docs.filter(d => 
-            d.title.toLowerCase().includes(q) || 
-            (d.description && d.description.toLowerCase().includes(q)) ||
-            (d.authorName && d.authorName.toLowerCase().includes(q))
-        );
+        const qNorm = removeVietnameseTones(state.filters.searchQuery);
+        const keywords = qNorm.split(' ').filter(k => k);
+        docs = docs.filter(d => {
+            const titleNorm = removeVietnameseTones(d.title);
+            const descNorm = removeVietnameseTones(d.description);
+            const subjectNorm = removeVietnameseTones(d.subject);
+            const authorNorm = removeVietnameseTones(d.authorName);
+            const fullText = `${titleNorm} ${descNorm} ${subjectNorm} ${authorNorm}`;
+            return keywords.some(kw => fullText.includes(kw));
+        });
     }
 
     state.filteredDocuments = docs;
     renderDocumentCards(docs);
 }
 
+// RENDER THẺ TÀI LIỆU (BỔ SUNG NÚT XEM VÀ TẢI VỀ THEO HÌNH 2)
 function renderDocumentCards(docs) {
     const container = document.getElementById('documentContainer');
     if (!container) return;
@@ -558,12 +415,17 @@ function renderDocumentCards(docs) {
                                 <button class="btn btn-outline-danger ${doc.liked ? 'active' : ''}" onclick="toggleLikeDocument(${doc.id})">
                                     <i class="bi bi-heart-fill me-1"></i> ${doc.likes || 0}
                                 </button>
-                                <button class="btn btn-outline-secondary" onclick="toggleSaveDocument(${doc.id})" title="Thêm mục yêu thích cá nhân">
+                                <button class="btn btn-outline-secondary" onclick="toggleSaveDocument(${doc.id})" title="Lưu mục yêu thích cá nhân">
                                     <i class="bi ${state.savedDocumentIds.has(doc.id) ? 'bi-bookmark-fill text-warning' : 'bi-bookmark'}"></i>
                                 </button>
                             </div>
                             <div>
-                                <button class="btn btn-sm btn-primary fw-semibold" onclick="handleDownloadClick(${doc.id}, '${doc.fileUrl || '#'}')">
+                                <!-- NÚT XEM TÀI LIỆU -->
+                                <button class="btn btn-sm btn-outline-primary fw-semibold me-1" onclick="handleViewDocument(${doc.id})">
+                                    <i class="bi bi-eye me-1"></i> Xem
+                                </button>
+                                <!-- NÚT TẢI VỀ -->
+                                <button class="btn btn-sm btn-primary fw-semibold" onclick="handleDownloadClick(${doc.id}, '${doc.category}')">
                                     <i class="bi bi-download me-1"></i> Tải về
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger border-0" onclick="handleDeleteDocument(${doc.id}, '${doc.authorRole || 'STUDENT'}', '${doc.authorId || ''}')" title="Xóa bài">
@@ -578,87 +440,176 @@ function renderDocumentCards(docs) {
     `).join('');
 }
 
-function renderGroupsList() {
-    const container = document.getElementById('groupsContainer');
-    if (!container) return;
+// XỬ LÝ XEM TÀI LIỆU (KHÁCH CÓ THỂ XEM, NHƯNG BỊ BẢO VỆ CHỐNG COPY)
+function handleViewDocument(docId) {
+    const doc = state.documents.find(d => d.id === docId);
+    if (!doc) return;
 
-    container.innerHTML = state.groups.map(g => `
-        <div class="list-group-item d-flex justify-content-between align-items-center p-3 mb-3 rounded-3 border bg-white shadow-sm">
-            <div>
-                <h6 class="mb-1 fw-bold">${escapeHtml(g.name)}</h6>
-                <p class="mb-1 small text-muted">${escapeHtml(g.desc || 'Nhóm học thuật thảo luận bài tập & đề thi MTU.')}</p>
-                <small class="text-primary fw-semibold"><i class="bi bi-people me-1"></i> ${g.membersCount} Thành viên</small>
-            </div>
-            <button class="btn btn-sm btn-outline-primary fw-semibold rounded-pill px-3" onclick="showToast('Đã đăng ký tham gia nhóm ${escapeHtml(g.name)}!', 'success')">
-                <i class="bi bi-person-plus me-1"></i> Tham gia
-            </button>
-        </div>
-    `).join('');
+    document.getElementById('viewDocTitle').textContent = doc.title;
+    document.getElementById('viewDocSubject').textContent = `Môn học: ${doc.subject}`;
+    document.getElementById('viewDocDesc').textContent = doc.description;
+    document.getElementById('viewDocAuthor').textContent = doc.authorName;
+
+    const previewContainer = document.getElementById('docPreviewContainer');
+    if (!state.currentUser) {
+        previewContainer.classList.add('unselectable');
+        previewContainer.innerHTML = `
+            <div class="alert alert-warning small mb-3"><i class="bi bi-shield-lock me-1"></i>Bạn đang xem với tư cách Khách. Không thể sao chép văn bản hoặc tải về tệp gốc.</div>
+            <div class="p-3 bg-light rounded">${escapeHtml(doc.description)}</div>
+        `;
+    } else {
+        previewContainer.classList.remove('unselectable');
+        previewContainer.innerHTML = `
+            <div class="p-3 bg-light rounded">${escapeHtml(doc.description)}</div>
+        `;
+    }
+
+    openModal(document.getElementById('documentViewModal'));
 }
 
-function handleFilterChange() {
-    state.filters.school = document.getElementById('filterSchool')?.value || 'MTU';
-    state.filters.faculty = document.getElementById('filterFaculty')?.value || 'ALL';
-    state.filters.major = document.getElementById('filterMajor')?.value || 'ALL';
-    state.filters.academicYear = document.getElementById('filterYear')?.value || 'ALL';
-    state.filters.className = document.getElementById('filterClass')?.value || 'ALL';
-    state.filters.subject = document.getElementById('filterSubject')?.value || 'ALL';
-    state.filters.searchQuery = document.getElementById('searchFileInput')?.value.trim() || '';
+// XỬ LÝ TẢI VỀ VÀ PHÂN QUYỀN VAI TRÒ
+function handleDownloadClick(docId, category) {
+    if (!checkPermission('DOWNLOAD')) return;
 
-    applyFiltersAndRender();
-}
-
-function resetFilters() {
-    ['filterSchool', 'filterFaculty', 'filterMajor', 'filterYear', 'filterClass', 'filterSubject'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = id === 'filterSchool' ? 'MTU' : 'ALL';
-    });
-    const searchFileInput = document.getElementById('searchFileInput');
-    if (searchFileInput) searchFileInput.value = '';
-
-    const headerSearchInput = document.getElementById('headerSearchInput');
-    if (headerSearchInput) headerSearchInput.value = '';
-
-    state.filters = {
-        school: 'MTU', faculty: 'ALL', major: 'ALL', academicYear: 'ALL',
-        className: 'ALL', subject: 'ALL', category: 'ALL', searchQuery: ''
-    };
-    applyFiltersAndRender();
-    showToast('Đã đặt lại bộ lọc tìm kiếm!', 'info');
-}
-
-/**
- * XỬ LÝ SUBMIT CÁC FORM AUTHENTICATION & PROFILE
- */
-async function handleLoginSubmit(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
-
-    if (!data.identity || !data.password) {
-        showToast('Đăng nhập thất bại. Vui lòng nhập đủ thông tin!', 'error');
+    // Sinh viên không được tải Bài báo khoa học (ARTICLE)
+    if (state.currentUser.role === 'STUDENT' && category === 'ARTICLE') {
+        showToast('Sinh viên chỉ có quyền xem bài báo khoa học, không được phép tải về!', 'warning');
         return;
     }
 
-    const user = {
-        id: 'user-001',
-        fullName: 'Nguyễn Chí Vỹ',
-        email: data.identity.includes('@') ? data.identity : 'nguyenchivy@mtu.edu.vn',
-        phone: '0862204069',
-        role: 'STUDENT',
-        school: 'ĐH Xây dựng Miền Tây (MTU)',
-        faculty: 'Khoa Kỹ thuật Phần mềm',
-        academicYear: 'K2024',
-        major: 'Kỹ thuật Phần mềm',
-        className: 'DHKTPM24',
-        avatar: 'https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=4f46e5&color=fff'
-    };
-
-    saveUserSession(user);
-    closeModal(document.getElementById('authModal'));
-    showToast('Đã đăng nhập thành công!', 'success');
+    showToast('Tải tệp thành công!', 'success');
 }
 
+function handleDeleteDocument(docId, docOwnerRole, docOwnerId) {
+    if (!checkPermission('DELETE', docOwnerRole, docOwnerId)) return;
+
+    state.documents = state.documents.filter(d => d.id !== docId);
+    applyFiltersAndRender();
+    showToast('Đã xóa Tệp tin!', 'success');
+}
+
+// RENDER DANH SÁCH NHÓM & TỰ ĐỘNG CHUYỂN SANG KHUNG CHAT (HÌNH 1)
+async function fetchGroups() {
+    try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/groups`);
+        const result = await res.json();
+        if (result.success) state.groups = result.data || [];
+        renderGroupLists();
+    } catch (e) {
+        state.groups = [
+            { id: "group-1", name: "KTPM K24 MTU", membersCount: 128, status: "JOINED", desc: "Nhóm học thuật thảo luận bài tập & đề thi MTU." },
+            { id: "group-2", name: "Nghiên cứu CNTT MTU", membersCount: 45, status: "PENDING", desc: "Cộng đồng nghiên cứu phát triển học thuật." },
+            { id: "group-3", name: "Đồ án Tốt nghiệp KTPM 2026", membersCount: 32, status: "SUGGESTED", desc: "Nhóm trao đổi kinh nghiệm làm đồ án tốt nghiệp." }
+        ];
+        renderGroupLists();
+    }
+}
+
+function renderGroupLists() {
+    const joinedList = document.getElementById('joinedGroupsList');
+    const pendingList = document.getElementById('pendingGroupsList');
+    const suggestedList = document.getElementById('suggestedGroupsList');
+
+    const joined = state.groups.filter(g => g.status === 'JOINED');
+    const pending = state.groups.filter(g => g.status === 'PENDING');
+    const suggested = state.groups.filter(g => g.status === 'SUGGESTED');
+
+    if (joinedList) {
+        joinedList.innerHTML = joined.map(g => `
+            <div class="list-group-item d-flex justify-content-between align-items-center cursor-pointer p-2 mb-1 rounded border" onclick="openGroupChat('${g.id}', '${escapeHtml(g.name)}', ${g.membersCount})">
+                <div><strong>${escapeHtml(g.name)}</strong><br><small class="text-muted">${g.membersCount} thành viên</small></div>
+                <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">Trò chuyện</button>
+            </div>
+        `).join('');
+    }
+
+    if (pendingList) {
+        pendingList.innerHTML = pending.map(g => `
+            <div class="list-group-item d-flex justify-content-between align-items-center p-2 mb-1 rounded border">
+                <div><strong>${escapeHtml(g.name)}</strong><br><small class="text-warning">Đang chờ quản trị viên duyệt</small></div>
+            </div>
+        `).join('');
+    }
+
+    if (suggestedList) {
+        suggestedList.innerHTML = suggested.map(g => `
+            <div class="list-group-item d-flex justify-content-between align-items-center p-2 mb-1 rounded border">
+                <div><strong>${escapeHtml(g.name)}</strong><br><small class="text-muted">${g.membersCount} thành viên</small></div>
+                <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="handleJoinGroup('${g.id}', '${escapeHtml(g.name)}')">Tham gia</button>
+            </div>
+        `).join('');
+    }
+}
+
+// THAM GIA HOẶC TẠO NHÓM -> TỰ ĐỘNG CHUYỂN SANG KHUNG CHAT
+function handleJoinGroup(groupId, groupName) {
+    const g = state.groups.find(x => x.id === groupId);
+    if (g) g.status = 'JOINED';
+    renderGroupLists();
+    showToast(`Đã tham gia nhóm ${groupName}!`, 'success');
+    openGroupChat(groupId, groupName, g ? g.membersCount : 50);
+}
+
+function openGroupChat(groupId, groupName, membersCount) {
+    state.activeGroupId = groupId;
+    switchTab('groups');
+
+    document.getElementById('chatGroupName').textContent = groupName;
+    document.getElementById('chatGroupMembers').textContent = `${membersCount} Thành viên`;
+
+    fetchGroupMessages(groupId);
+}
+
+async function fetchGroupMessages(groupId) {
+    const chatBox = document.getElementById('chatMessagesBox');
+    if (!chatBox) return;
+
+    try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/groups/${groupId}/messages`);
+        const result = await res.json();
+        const msgs = result.data || [];
+
+        chatBox.innerHTML = msgs.map(m => `
+            <div class="mb-2 p-2 bg-white rounded border">
+                <small class="fw-bold text-primary">${escapeHtml(m.sender)}</small> <small class="text-muted">(${m.time || ''})</small>
+                <div>${escapeHtml(m.text)}</div>
+            </div>
+        `).join('');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    } catch (e) {
+        chatBox.innerHTML = `<div class="text-center text-muted small my-2">-- Kết nối phòng trò chuyện nhóm ${state.activeGroupId} --</div>`;
+    }
+}
+
+async function handleSendGroupMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('chatInputText');
+    const text = input ? input.value.trim() : '';
+    if (!text) return;
+
+    const senderName = state.currentUser ? state.currentUser.fullName : "Sinh viên MTU";
+
+    try {
+        await fetch(`${CONFIG.API_BASE_URL}/groups/${state.activeGroupId}/messages`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sender: senderName, text })
+        });
+    } catch (e) {}
+
+    const chatBox = document.getElementById('chatMessagesBox');
+    if (chatBox) {
+        const div = document.createElement('div');
+        div.className = 'mb-2 p-2 bg-white rounded border';
+        div.innerHTML = `<small class="fw-bold text-primary">${escapeHtml(senderName)}</small> <div>${escapeHtml(text)}</div>`;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    input.value = '';
+}
+
+// XỬ LÝ AUTHENTICATION (SỬA LỖI ĐĂNG KÝ VAI TRÒ)
 async function handleRegisterSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -674,9 +625,40 @@ async function handleRegisterSubmit(e) {
         return;
     }
 
-    showToast('Đã đăng ký thành công! Vui lòng đăng nhập.', 'success');
-    e.target.reset();
-    openAuthModal('login');
+    // Lấy chính xác vai trò từ Select (STUDENT | TEACHER | ADMIN)
+    const assignedRole = data.role || 'STUDENT';
+
+    const newUser = {
+        id: 'user-' + Date.now(),
+        fullName: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        role: assignedRole,
+        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName)}&background=4f46e5&color=fff`
+    };
+
+    saveUserSession(newUser);
+    closeModal(document.getElementById('authModal'));
+    showToast(`Đăng ký thành công tài khoản ${formatRoleLabel(assignedRole)}!`, 'success');
+}
+
+async function handleLoginSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const identity = formData.get('identity');
+
+    const user = {
+        id: 'user-1',
+        fullName: 'Nguyễn Chí Vỹ',
+        email: identity.includes('@') ? identity : 'nguyenchivy@mtu.edu.vn',
+        phone: '0862204069',
+        role: 'STUDENT',
+        avatar: 'https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=4f46e5&color=fff'
+    };
+
+    saveUserSession(user);
+    closeModal(document.getElementById('authModal'));
+    showToast('Đã đăng nhập thành công!', 'success');
 }
 
 async function handleDocumentUpload(e) {
@@ -696,7 +678,7 @@ async function handleDocumentUpload(e) {
         major: 'SE',
         academicYear: 'K2024',
         className: 'DHKTPM24',
-        description: formData.get('description') || 'Học liệu upload mới.',
+        description: formData.get('description') || 'Học liệu tải lên mới.',
         authorName: state.currentUser ? state.currentUser.fullName : 'Nguyễn Chí Vỹ',
         authorRole: state.currentUser ? state.currentUser.role : 'STUDENT',
         authorId: state.currentUser ? state.currentUser.id : '',
@@ -712,71 +694,56 @@ async function handleDocumentUpload(e) {
     e.target.reset();
 }
 
-async function handleRequestOtp() {
-    const identityInput = document.getElementById('forgotIdentity');
-    const identity = identityInput ? identityInput.value.trim() : '';
-
-    if (!identity) {
-        showToast('Sai cú pháp hoặc thông tin không tồn tại', 'error');
-        return;
-    }
-
-    showToast('Mã OTP xác nhận đã được gửi! (Demo OTP: 123456)', 'success');
-    startOtpCountdown(CONFIG.OTP_COUNTDOWN_SECONDS);
-}
-
-function startOtpCountdown(seconds) {
-    const btn = document.getElementById('btnRequestOtp');
-    const span = document.getElementById('otpCountdown');
-    if (btn) btn.disabled = true;
-
-    state.otpSecondsRemaining = seconds;
-    clearInterval(state.otpTimer);
-
-    state.otpTimer = setInterval(() => {
-        state.otpSecondsRemaining--;
-        if (span) span.textContent = `(${state.otpSecondsRemaining}s)`;
-
-        if (state.otpSecondsRemaining <= 0) {
-            clearInterval(state.otpTimer);
-            if (btn) btn.disabled = false;
-            if (span) span.textContent = ' (Cấp lại OTP)';
-        }
-    }, 1000);
-}
-
-async function handleVerifyOtpAndReset(e) {
+async function handleCreateGroupSubmit(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const newPass = formData.get('newPassword');
-    const confirmPass = formData.get('confirmPassword');
+    const name = formData.get('groupName');
+    const desc = formData.get('groupDesc');
 
-    if (newPass !== confirmPass) {
-        showToast('Mật khẩu mới và xác nhận phải trùng khớp 100%!', 'error');
+    if (!name) {
+        showToast('Tạo nhóm thất bại, vui lòng thử lại!', 'error');
         return;
     }
 
-    showToast('Cập nhật mật khẩu thành công! Vui lòng đăng nhập lại.', 'success');
-    closeModal(document.getElementById('forgotPasswordModal'));
-    openAuthModal('login');
+    const newGroup = {
+        id: 'group-' + Date.now(),
+        name: name,
+        membersCount: 1,
+        status: 'JOINED',
+        desc: desc || 'Nhóm học thuật vừa tạo.'
+    };
+
+    state.groups.unshift(newGroup);
+    renderGroupLists();
+    e.target.reset();
+    showToast('Đã tạo nhóm thành công!', 'success');
+    openGroupChat(newGroup.id, newGroup.name, 1);
 }
 
 async function handleAiChatSubmit() {
     const input = document.getElementById('aiPromptInput');
-    const container = document.getElementById('aiMessageContainer');
     const prompt = input ? input.value.trim() : '';
-
     if (!prompt) return;
 
     appendAiMsg('user', prompt);
     input.value = '';
 
-    appendAiMsg('ai', '<i class="bi bi-three-dots"></i> Trợ lý AI (Google Gemini API) đang phân tích...');
+    appendAiMsg('ai', '<i class="bi bi-three-dots"></i> Trợ lý AI đang tìm kiếm...');
 
-    setTimeout(() => {
+    try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/ai/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+        });
+        const result = await res.json();
+        const container = document.getElementById('aiMessageContainer');
         if (container && container.lastElementChild) container.removeChild(container.lastElementChild);
-        appendAiMsg('ai', `[EduShare AI Response] Trợ lý AI đã phân tích câu hỏi của bạn: "${escapeHtml(prompt)}". Gợi ý: Hãy tra cứu bộ ngân hàng đề thi môn Hệ Điều Hành và Kiến Trúc Máy Tính MTU!`);
-    }, 1200);
+
+        appendAiMsg('ai', result.reply || `Đã ghi nhận yêu cầu của bạn.`);
+    } catch (e) {
+        appendAiMsg('ai', `Phân tích yêu cầu "${escapeHtml(prompt)}". Bạn có thể tìm đề thi Hệ Điều Hành trên hệ thống EduShare MTU.`);
+    }
 }
 
 function appendAiMsg(sender, text) {
@@ -795,75 +762,33 @@ function appendAiMsg(sender, text) {
     container.scrollTop = container.scrollHeight;
 }
 
-function handleCreateGroupSubmit(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const name = formData.get('groupName');
-
-    if (!name) {
-        showToast('Tạo nhóm thất bại, vui lòng thử lại!', 'error');
-        return;
-    }
-
-    state.groups.unshift({
-        id: 'g-' + Date.now(),
-        name: name,
-        membersCount: 1,
-        desc: formData.get('groupDesc') || 'Nhóm học thuật vừa tạo.'
-    });
-
-    renderGroupsList();
-    e.target.reset();
-    showToast('Đã tạo nhóm thành công!', 'success');
-}
-
-function handleSaveProfileSettings() {
-    if (!state.currentUser) return;
-
-    const statusSelect = document.getElementById('statusSelect');
-    if (statusSelect) state.userStatus = statusSelect.value;
-
-    const darkModeSwitch = document.getElementById('darkModeSwitch');
-    const themeMode = darkModeSwitch && darkModeSwitch.checked ? 'dark' : 'light';
-
-    const activeStyleBtn = document.querySelector('.theme-style-btn.active');
-    const themeStyle = activeStyleBtn ? activeStyleBtn.getAttribute('data-style') : 'academic';
-
-    saveThemeSettings(themeMode, themeStyle);
-    updateUserUI();
-    closeModal(document.getElementById('profileSettingsModal'));
-}
-
-function handleAvatarUploadPreview(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function (evt) {
-            const preview = document.getElementById('settingAvatarPreview');
-            if (preview) preview.src = evt.target.result;
-            if (state.currentUser) {
-                state.currentUser.avatar = evt.target.result;
-                saveUserSession(state.currentUser);
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-}
-
-// INTERACTION HANDLERS
-function handleDownloadClick(docId, fileUrl) {
-    if (checkPermission('DOWNLOAD')) {
-        showToast('Tải tệp thành công!', 'success');
-        if (fileUrl && fileUrl !== '#') window.open(fileUrl, '_blank');
-    }
-}
-
-function handleDeleteDocument(docId, docOwnerRole, docOwnerId) {
-    if (!checkPermission('DELETE', docOwnerRole, docOwnerId)) return;
-
-    state.documents = state.documents.filter(d => d.id !== docId);
+function handleFilterChange() {
+    state.filters.school = document.getElementById('filterSchool')?.value || 'MTU';
+    state.filters.faculty = document.getElementById('filterFaculty')?.value || 'ALL';
+    state.filters.major = document.getElementById('filterMajor')?.value || 'ALL';
+    state.filters.academicYear = document.getElementById('filterYear')?.value || 'ALL';
+    state.filters.className = document.getElementById('filterClass')?.value || 'ALL';
+    state.filters.subject = document.getElementById('filterSubject')?.value || 'ALL';
     applyFiltersAndRender();
-    showToast('Đã xóa Tệp tin!', 'success');
+}
+
+function resetFilters() {
+    ['filterSchool', 'filterFaculty', 'filterMajor', 'filterYear', 'filterClass', 'filterSubject'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = id === 'filterSchool' ? 'MTU' : 'ALL';
+    });
+    const headerSearchInput = document.getElementById('headerSearchInput');
+    if (headerSearchInput) headerSearchInput.value = '';
+
+    const searchFileInput = document.getElementById('searchFileInput');
+    if (searchFileInput) searchFileInput.value = '';
+
+    state.filters = {
+        school: 'MTU', faculty: 'ALL', major: 'ALL', academicYear: 'ALL',
+        className: 'ALL', subject: 'ALL', category: 'ALL', searchQuery: ''
+    };
+    applyFiltersAndRender();
+    showToast('Đã đặt lại bộ lọc!', 'info');
 }
 
 function switchTab(tabName) {
@@ -899,7 +824,7 @@ function renderSavedDocuments() {
 function toggleSaveDocument(docId) {
     if (state.savedDocumentIds.has(docId)) {
         state.savedDocumentIds.delete(docId);
-        showToast('Đã xóa khỏi Mục Yêu thích cá nhân', 'info');
+        showToast('Đã xóa khỏi Mục Yêu thích', 'info');
     } else {
         state.savedDocumentIds.add(docId);
         showToast('Đã thêm vào Mục Yêu thích cá nhân!', 'success');
@@ -916,39 +841,46 @@ function toggleLikeDocument(docId) {
     }
 }
 
+function handleSaveProfileSettings() {
+    if (!state.currentUser) return;
+    const statusSelect = document.getElementById('statusSelect');
+    if (statusSelect) state.userStatus = statusSelect.value;
+
+    const darkModeSwitch = document.getElementById('darkModeSwitch');
+    const themeMode = darkModeSwitch && darkModeSwitch.checked ? 'dark' : 'light';
+
+    const activeStyleBtn = document.querySelector('.theme-style-btn.active');
+    const themeStyle = activeStyleBtn ? activeStyleBtn.getAttribute('data-style') : 'academic';
+
+    saveThemeSettings(themeMode, themeStyle);
+    updateUserUI();
+    closeModal(document.getElementById('profileSettingsModal'));
+}
+
 function updateUserUI() {
     const authBox = document.getElementById('userAuthContainer');
     const profileWidget = document.getElementById('userProfileWidget');
     const userName = document.getElementById('userProfileName');
     const userRole = document.getElementById('userProfileRole');
-    const statusDot = document.getElementById('userStatusDot');
     const userAvatar = document.getElementById('userProfileAvatar');
 
     if (state.currentUser) {
-        if (authBox) authBox.classList.add('d-none');
+        authBox?.classList.add('d-none');
         if (profileWidget) {
             profileWidget.classList.remove('d-none');
             profileWidget.classList.add('d-flex');
         }
-        if (userName) userName.textContent = state.currentUser.fullName || 'Nguyễn Chí Vỹ';
+        if (userName) userName.textContent = state.currentUser.fullName;
         if (userRole) userRole.textContent = `${formatRoleLabel(state.currentUser.role)} • MTU`;
         if (userAvatar && state.currentUser.avatar) userAvatar.src = state.currentUser.avatar;
-
-        if (statusDot) {
-            statusDot.className = `status-dot ${state.userStatus.toLowerCase()} position-absolute bottom-0 end-0 border border-white`;
-        }
     } else {
-        if (authBox) authBox.classList.remove('d-none');
-        if (profileWidget) profileWidget.classList.add('d-none');
+        authBox?.classList.remove('d-none');
+        profileWidget?.classList.add('d-none');
     }
 }
 
 function formatRoleLabel(role) {
-    const map = {
-        'STUDENT': 'Học sinh / Sinh viên',
-        'TEACHER': 'Giảng viên',
-        'ADMIN': 'Quản trị viên (Admin)'
-    };
+    const map = { 'STUDENT': 'Học sinh / Sinh viên', 'TEACHER': 'Giảng viên', 'ADMIN': 'Quản trị viên (Admin)' };
     return map[role] || 'Khách';
 }
 
@@ -960,14 +892,6 @@ function formatCategoryLabel(cat) {
         'ARTICLE': 'Bài báo khoa học / NCKH'
     };
     return map[cat] || 'Học liệu';
-}
-
-function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
 }
 
 function getSampleDocuments() {
@@ -990,19 +914,19 @@ function getSampleDocuments() {
         },
         {
             id: 2,
-            title: "Bộ Đề thi mẫu & Đáp án Môn Lập trình Web DHKTPM24",
-            category: "EXAM",
-            subject: "Lập trình Web",
+            title: "Bài tập mẫu Phân tích & Thiết kế Hệ thống UML với SAP PowerDesigner",
+            category: "EXERCISE",
+            subject: "Cơ sở dữ liệu",
             school: "MTU",
             faculty: "KTPM",
             major: "SE",
             academicYear: "K2024",
             className: "DHKTPM24",
-            description: "Tổng hợp ngân hàng đề thi tự luận và trắc nghiệm thực hành Node.js, Express và MongoDB.",
-            authorName: "Trường ĐH Xây dựng Miền Tây",
-            authorRole: "TEACHER",
-            likes: 95,
-            views: 2150
+            description: "Tổng hợp Use Case, Sequence Diagram và Class Diagram dự án Quản lý Thư viện Học liệu số.",
+            authorName: "Nguyễn Chí Vỹ",
+            authorRole: "STUDENT",
+            likes: 89,
+            views: 856
         },
         {
             id: 3,
@@ -1015,10 +939,10 @@ function getSampleDocuments() {
             academicYear: "K2024",
             className: "DHKTPM24",
             description: "Công trình nghiên cứu ứng dụng AI phân tích hình ảnh giao thông tại vùng ĐBSCL.",
-            authorName: "Nguyễn Chí Vỹ",
-            authorRole: "STUDENT",
+            authorName: "Giảng viên MTU",
+            authorRole: "TEACHER",
             likes: 62,
-            views: 858
+            views: 1120
         }
     ];
 }

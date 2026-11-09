@@ -13,341 +13,16 @@
     <!-- Bootstrap 5 CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --primary-color: #4f46e5;
-            --primary-dark: #3730a3;
-            --secondary-color: #0284c7;
-            --bg-body: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --hero-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e293b 100%);
-            --status-online: #22c55e;
-            --status-offline: #94a3b8;
-        }
-
-        /* Dark Mode Theme Overrides */
-        [data-theme="dark"] {
-            --bg-body: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --hero-bg: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e1b4b 100%);
-        }
-
-        /* 3 Theme Style Presets */
-        [data-style="classic"] {
-            font-family: 'Times New Roman', serif;
-            --primary-color: #1e3a8a;
-            --secondary-color: #0369a1;
-        }
-        [data-style="academic"] {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            --primary-color: #4f46e5;
-            --secondary-color: #0284c7;
-        }
-        [data-style="modern"] {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            --primary-color: #0d9488;
-            --secondary-color: #6366f1;
-        }
-
-        body {
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        /* Header Logo & Brand */
-        .brand-logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: #ffffff;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
-        }
-
-        .header-search-bar {
-            max-width: 380px;
-            width: 100%;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-        .status-dot.online { background-color: var(--status-online); }
-        .status-dot.offline { background-color: var(--status-offline); }
-
-        /* Hero Banner */
-        .hero-section {
-            background: var(--hero-bg);
-            color: #ffffff;
-            border-radius: 20px;
-            padding: 3rem 2.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.3);
-        }
-
-        .hero-badge {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(8px);
-            color: #cbd5e1;
-            font-size: 0.85rem;
-            padding: 0.4rem 1rem;
-            border-radius: 50rem;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .hero-title {
-            font-size: 2.6rem;
-            font-weight: 800;
-            line-height: 1.25;
-            letter-spacing: -0.02em;
-        }
-
-        .hero-title-highlight {
-            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .featured-card {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
-            border-radius: 16px;
-            padding: 1.5rem;
-        }
-
-        /* Filter Panel */
-        .filter-panel {
-            background: var(--card-bg);
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .filter-label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 0.4rem;
-        }
-
-        /* Floating AI Button */
-        .btn-floating-ai {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.6rem;
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5);
-            border: 2px solid #ffffff;
-            z-index: 1040;
-            cursor: pointer;
-            transition: all 0.25s ease;
-        }
-        .btn-floating-ai:hover {
-            transform: scale(1.1);
-            color: #ffffff;
-        }
-
-        /* Custom Modals */
-        .custom-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(5px);
-            z-index: 1060;
-            overflow-y: auto;
-        }
-        .custom-modal.show {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-        .custom-modal-dialog {
-            width: 100%;
-            max-width: 620px;
-            margin: 1.5rem;
-            background: var(--card-bg);
-            color: var(--text-main);
-            border-radius: 20px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes modalSlideUp {
-            from { opacity: 0; transform: translateY(20px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .custom-modal-header {
-            padding: 1.25rem 1.75rem;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .custom-modal-body {
-            padding: 1.75rem;
-            max-height: 78vh;
-            overflow-y: auto;
-        }
-
-        /* Cards */
-        .document-card {
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            transition: all 0.25s ease;
-        }
-        .document-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.12);
-        }
-
-        /* AI Chat Box */
-        .ai-chat-box {
-            height: 360px;
-            background: var(--bg-body);
-            border-radius: 14px;
-            padding: 1.2rem;
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-        }
-
-        /* Toast Container */
-        #toastContainer {
-            z-index: 1090;
-        }
-
-        /* Social Icons */
-        .social-link {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-        .social-link:hover {
-            background: var(--primary-color);
-            color: #ffffff;
-        }
-
-        /* DARK MODE OVERRIDES */
-        [data-theme="dark"] {
-            --bg-body: #0f172a !important;
-            --card-bg: #1e293b !important;
-            --text-main: #f8fafc !important;
-            --text-muted: #cbd5e1 !important;
-            --border-color: #334155 !important;
-            background-color: #0f172a !important;
-            color: #f8fafc !important;
-        }
-
-        [data-theme="dark"] .card,
-        [data-theme="dark"] .document-card,
-        [data-theme="dark"] .bg-white,
-        [data-theme="dark"] .bg-body {
-            background-color: #1e293b !important;
-            color: #f8fafc !important;
-            border-color: #334155 !important;
-        }
-
-        [data-theme="dark"] .text-dark,
-        [data-theme="dark"] .card-title,
-        [data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3, 
-        [data-theme="dark"] h4, [data-theme="dark"] h5, [data-theme="dark"] h6,
-        [data-theme="dark"] .navbar-brand,
-        [data-theme="dark"] strong {
-            color: #ffffff !important;
-        }
-
-        [data-theme="dark"] .text-muted,
-        [data-theme="dark"] .text-secondary,
-        [data-theme="dark"] p,
-        [data-theme="dark"] span,
-        [data-theme="dark"] small,
-        [data-theme="dark"] div {
-            color: #cbd5e1 !important;
-        }
-
-        [data-theme="dark"] footer,
-        [data-theme="dark"] footer p,
-        [data-theme="dark"] footer div,
-        [data-theme="dark"] footer span,
-        [data-theme="dark"] footer small,
-        [data-theme="dark"] footer li,
-        [data-theme="dark"] footer a {
-            color: #cbd5e1 !important;
-        }
-
-        [data-theme="dark"] footer h5,
-        [data-theme="dark"] footer h6,
-        [data-theme="dark"] footer strong {
-            color: #38bdf8 !important;
-        }
-
-        [data-theme="dark"] .form-control,
-        [data-theme="dark"] .form-select {
-            background-color: #0f172a !important;
-            color: #ffffff !important;
-            border-color: #475569 !important;
-        }
-
-        [data-theme="dark"] .badge.bg-light {
-            background-color: #334155 !important;
-            color: #38bdf8 !important;
-            border-color: #475569 !important;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- 1. HEADER (THANH ĐIỀU HƯỚNG CHÍNH) -->
+    <!-- 1. HEADER LOGO & BRANDING (NHẤP LOGO EDUSHARE QUAY VỀ TRANG CHỦ) -->
     <nav class="navbar navbar-expand-lg border-bottom sticky-top shadow-sm py-2" style="background-color: var(--card-bg);">
         <div class="container-fluid px-4">
             
-            <!-- BÊN TRÁI: LOGO MŨ TỐT NGHIỆP + CHỒNG SÁCH + SLOGAN -->
-            <a class="navbar-brand d-flex align-items-center gap-2" href="#" id="brandLogoLink">
+            <a class="navbar-brand d-flex align-items-center gap-2 cursor-pointer" href="#" id="brandLogoLink" title="Quay về Trang chủ EduShare">
                 <div class="brand-logo-icon">
                     <i class="bi bi-mortarboard-fill"></i>
                 </div>
@@ -357,68 +32,33 @@
                 </div>
             </a>
 
-            <!-- Ở GIỮA: NÚT TRANG CHỦ & THANH TÌM KIẾM THÔNG MINH (CÙNG HÀNG) -->
+            <!-- NÚT TRANG CHỦ VÀ THANH TÌM KIẾM THÔNG MINH CÙNG HÀNG -->
             <div class="d-none d-lg-flex align-items-center gap-2 mx-auto header-search-bar">
                 <button class="btn btn-primary btn-sm rounded-pill px-3 fw-semibold text-nowrap" id="btnHeaderHome">
                     <i class="bi bi-house-door me-1"></i> Trang chủ
                 </button>
                 <div class="input-group input-group-sm w-100">
                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" id="headerSearchInput" class="form-control border-start-0 bg-light" placeholder="Tìm kiếm đề thi, giáo trình, tác giả...">
+                    <input type="text" id="headerSearchInput" class="form-control border-start-0 bg-light" placeholder="Tìm kiếm thông minh (gõ từ bất kỳ hoặc gần đúng)...">
                 </div>
             </div>
 
-            <!-- MENU CHÍNH: ĐƠN VỊ ĐÀO TẠO, TÀI LIỆU, CỘNG ĐỒNG -->
+            <!-- MENU CHÍNH -->
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse flex-grow-0" id="navbarContent">
                 <ul class="navbar-nav me-3 mb-2 mb-lg-0 gap-1">
-                    
-                    <!-- 1. ĐƠN VỊ ĐÀO TẠO -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-diagram-3 me-1"></i> Đơn vị đào tạo
-                        </a>
-                        <ul class="dropdown-menu shadow-sm">
-                            <li><h6 class="dropdown-header text-uppercase">Trường ĐH Xây dựng Miền Tây (MTU)</h6></li>
-                            <li><a class="dropdown-item" href="#" data-filter-faculty="KTPM"><i class="bi bi-code-square me-2"></i>Khoa Kỹ thuật Phần mềm</a></li>
-                            <li><a class="dropdown-item" href="#" data-filter-faculty="CNTT"><i class="bi bi-laptop me-2"></i>Khoa CNTT</a></li>
-                            <li><a class="dropdown-item" href="#" data-filter-faculty="XD"><i class="bi bi-building me-2"></i>Khoa Xây dựng</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><span class="dropdown-item text-muted small">Phân cấp: Trường &rarr; Khoa &rarr; Ngành &rarr; Khóa &rarr; Lớp</span></li>
-                        </ul>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold" href="#" id="navLinkDocs"><i class="bi bi-journal-bookmark me-1"></i> Tài liệu</a>
                     </li>
-
-                    <!-- 2. TÀI LIỆU -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-journal-bookmark me-1"></i> Tài liệu
-                        </a>
-                        <ul class="dropdown-menu shadow-sm">
-                            <li><a class="dropdown-item" href="#" data-filter-cat="ACADEMIC"><i class="bi bi-book me-2"></i>Giáo trình & Bài giảng học thuật</a></li>
-                            <li><a class="dropdown-item" href="#" data-filter-cat="EXERCISE"><i class="bi bi-file-earmark-code me-2"></i>Bài tập mẫu & Đồ án</a></li>
-                            <li><a class="dropdown-item" href="#" data-filter-cat="EXAM"><i class="bi bi-file-earmark-check me-2"></i>Đề thi mẫu & Đáp án các năm</a></li>
-                            <li><a class="dropdown-item" href="#" data-filter-cat="ARTICLE"><i class="bi bi-journal-text me-2"></i>Bài báo khoa học & Đề tài NCKH</a></li>
-                        </ul>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold" href="#" id="navLinkCommunity"><i class="bi bi-people me-1"></i> Cộng đồng & Nhóm Chat</a>
                     </li>
-
-                    <!-- 3. CỘNG ĐỒNG -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-semibold" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-people me-1"></i> Cộng đồng
-                        </a>
-                        <ul class="dropdown-menu shadow-sm">
-                            <li><a class="dropdown-item" href="#" id="menuLinkFindAcademic"><i class="bi bi-search-heart me-2"></i>Liên hệ tìm kiếm học thuật</a></li>
-                            <li><a class="dropdown-item" href="#" id="menuLinkConnect"><i class="bi bi-person-lines-fill me-2"></i>Kết nối học thuật (SV-SV, GV-GV, GV-SV)</a></li>
-                            <li><a class="dropdown-item" href="#" id="menuLinkGroups"><i class="bi bi-people-fill me-2"></i>Nhóm học thuật & Thảo luận</a></li>
-                        </ul>
-                    </li>
-
                 </ul>
 
-                <!-- BÊN PHẢI: KHÁCH (ĐĂNG NHẬP/ĐĂNG KÝ) HOẶC USER PROFILE (AVATAR + TÊN + VAI TRÒ + TRẠNG THÁI) -->
+                <!-- KHU VỰC AUTH HOẶC USER PROFILE -->
                 <div class="d-flex align-items-center gap-2" id="userAuthContainer">
                     <button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" id="btnHeaderLogin">
                         <i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập
@@ -428,7 +68,6 @@
                     </button>
                 </div>
 
-                <!-- KHUNG THÔNG TIN USER KHI ĐÃ ĐĂNG NHẬP -->
                 <div class="d-none align-items-center gap-2 border-start ps-3 ms-2 cursor-pointer" id="userProfileWidget" title="Mở Thiết lập cá nhân">
                     <div class="position-relative">
                         <img id="userProfileAvatar" src="https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=4f46e5&color=fff" class="rounded-circle border" width="38" height="38" alt="Avatar">
@@ -441,20 +80,19 @@
                     <button class="btn btn-sm btn-light border ms-1 rounded-circle" id="btnOpenProfileSettings" title="Trang thông tin & Cấu hình"><i class="bi bi-gear-fill text-secondary"></i></button>
                     <button class="btn btn-sm btn-outline-danger ms-1" id="btnLogout" title="Đăng xuất"><i class="bi bi-box-arrow-right"></i></button>
                 </div>
-
             </div>
         </div>
     </nav>
 
 
-    <!-- 2. MAIN CONTENT (HERO BANNER, FILTER PANEL, FEED) -->
+    <!-- 2. MAIN CONTENT (FEED & GROUPS) -->
     <main class="container-fluid px-4 py-4">
 
-        <!-- TAB CONTENT 1: FEED & TRANG CHỦ -->
+        <!-- TAB FEED: HỌC LIỆU -->
         <div class="tab-content" id="tab-feed">
             
-            <!-- HERO BANNER (ĐẠI HỌC XÂY DỰNG MIỀN TÂY - MTU) -->
-            <div class="hero-section">
+            <!-- HERO BANNER -->
+            <div class="hero-section mb-4">
                 <div class="row align-items-center g-4">
                     <div class="col-lg-7">
                         <div class="hero-badge mb-3">
@@ -465,7 +103,7 @@
                             <span class="hero-title-highlight">Thư Viện Học Liệu Số MTU</span>
                         </h1>
                         <p class="text-white-50 lead fs-6 mb-4" style="max-width: 620px;">
-                            Hệ thống lưu trữ và chia sẻ học liệu số dành cho Sinh viên và Giảng viên. Tra cứu đề thi, giáo trình, bài tập mẫu và bài báo khoa học cùng Trợ lý AI phân tích thông minh.
+                            Hệ thống lưu trữ học liệu dành cho Sinh viên và Giảng viên. Tra cứu đề thi, giáo trình, bài tập mẫu và bài báo khoa học cùng Trợ lý AI phân tích thông minh.
                         </p>
                         <div class="d-flex flex-wrap gap-3">
                             <a href="#filterPanel" class="btn btn-primary btn-lg rounded-pill fw-bold px-4 shadow">
@@ -476,15 +114,12 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- HERO RIGHT CARD: BÀI BÁO KHOA HỌC & ĐỀ TÀI NỔI BẬT -->
                     <div class="col-lg-5">
                         <div class="featured-card">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="fw-bold mb-0 text-white"><i class="bi bi-fire text-warning me-2"></i>Bài Báo & Tài Liệu Nổi Bật</h6>
                                 <span class="badge bg-white bg-opacity-10 text-white-50 fw-normal">Cập nhật mới</span>
                             </div>
-
                             <div class="bg-white bg-opacity-10 p-3 rounded-3 mb-3 border border-white border-opacity-10">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <span class="badge bg-info text-dark fw-semibold" style="font-size: 0.7rem;">Bài báo khoa học</span>
@@ -492,7 +127,6 @@
                                 </div>
                                 <div class="fw-semibold text-white small">Ứng dụng Trí tuệ nhân tạo và xử lý ảnh trong giám sát đô thị tại ĐBSCL</div>
                             </div>
-
                             <div class="bg-white bg-opacity-10 p-3 rounded-3 border border-white border-opacity-10">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <span class="badge bg-warning text-dark fw-semibold" style="font-size: 0.7rem;">Đề tài NCKH MTU</span>
@@ -505,8 +139,8 @@
                 </div>
             </div>
 
-            <!-- BỘ LỌC TÌM KIẾM PHỄU 6 CẤP: TRƯỜNG -> KHOA -> NGÀNH -> KHÓA -> LỚP -> MÔN HỌC -->
-            <div class="filter-panel shadow-sm" id="filterPanel">
+            <!-- BỘ LỌC PHỄU 6 CẤP -->
+            <div class="filter-panel shadow-sm mb-4" id="filterPanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="fw-bold mb-0 text-dark">
                         <i class="bi bi-funnel-fill text-primary me-2"></i>Bộ Lọc Tài Liệu Theo Phân Cấp Đào Tạo (6 Cấp)
@@ -577,7 +211,7 @@
                 </div>
             </div>
 
-            <!-- DANH MỤC LOẠI TÀI LIỆU -->
+            <!-- KHU VỰC DANH MỤC THẺ -->
             <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
                     <button class="btn btn-primary rounded-pill btn-sm fw-semibold px-3" id="btnTabFeedAll">
@@ -587,7 +221,7 @@
                         <i class="bi bi-bookmark-star me-1"></i> Mục Yêu Thích Cá Nhân
                     </button>
                 </div>
-                <div class="btn-group btn-group-sm" role="group" id="categoryFilterGroup">
+                <div class="btn-group btn-group-sm" id="categoryFilterGroup">
                     <button type="button" class="btn btn-outline-primary active" data-category="ALL">Tất cả</button>
                     <button type="button" class="btn btn-outline-primary" data-category="EXERCISE">Bài tập mẫu</button>
                     <button type="button" class="btn btn-outline-primary" data-category="EXAM">Tài liệu bài thi</button>
@@ -596,30 +230,45 @@
                 </div>
             </div>
 
-            <!-- DOCUMENT CARDS CONTAINER GRID -->
-            <div class="row" id="documentContainer">
-                <!-- Rendered dynamically by app.js -->
-            </div>
+            <!-- CONTAINER CHỨA THẺ TÀI LIỆU -->
+            <div class="row" id="documentContainer"></div>
         </div>
 
-        <!-- TAB CONTENT 2: TÀI LIỆU ĐÃ LƯU (MỤC YÊU THÍCH CÁ NHÂN) -->
+        <!-- TAB SAVED: MỤC YÊU THÍCH -->
         <div class="tab-content d-none" id="tab-saved">
             <h4 class="fw-bold mb-3"><i class="bi bi-bookmark-star-fill text-warning me-2"></i>Mục Yêu Thích Cá Nhân</h4>
-            <p class="text-muted mb-4">Danh sách bài giảng, bài tập và đề thi bạn đã lưu để xem lại nhanh.</p>
-            <div class="row" id="savedDocumentContainer">
-                <!-- Rendered dynamically -->
-            </div>
+            <p class="text-muted mb-4">Danh sách tài liệu và đề thi bạn đã lưu để truy cập nhanh.</p>
+            <div class="row" id="savedDocumentContainer"></div>
         </div>
 
-        <!-- TAB CONTENT 3: CỘNG ĐỒNG & NHÓM HỌC THUẬT -->
+        <!-- TAB GROUPS & CHAT (NHÓM HỌC THUẬT & TRÒ CHUYỆN) -->
         <div class="tab-content d-none" id="tab-groups">
             <h4 class="fw-bold mb-3"><i class="bi bi-people-fill text-primary me-2"></i>Cộng Đồng & Nhóm Học Thuật MTU</h4>
             <p class="text-muted mb-4">Tham gia các nhóm trao đổi tài liệu, kết nối học thuật giữa Sinh viên và Giảng viên.</p>
-            <div class="row">
-                <div class="col-lg-8" id="groupsContainer">
-                    <!-- Rendered dynamically -->
-                </div>
-                <div class="col-lg-4">
+
+            <div class="row g-4">
+                <!-- CỘT TRÁI: DANH SÁCH NHÓM THEO 3 PHÂN LOẠI -->
+                <div class="col-lg-5">
+                    
+                    <!-- 1. Nhóm đã tham gia -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-3 p-3 bg-white">
+                        <h6 class="fw-bold text-success mb-2"><i class="bi bi-check-circle-fill me-2"></i>Nhóm Đã Tham Gia</h6>
+                        <div class="list-group list-group-flush" id="joinedGroupsList"></div>
+                    </div>
+
+                    <!-- 2. Nhóm đang chờ duyệt -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-3 p-3 bg-white">
+                        <h6 class="fw-bold text-warning mb-2"><i class="bi bi-clock-history me-2"></i>Nhóm Đang Chờ Duyệt</h6>
+                        <div class="list-group list-group-flush" id="pendingGroupsList"></div>
+                    </div>
+
+                    <!-- 3. Nhóm gợi ý -->
+                    <div class="card border-0 shadow-sm rounded-4 mb-3 p-3 bg-white">
+                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-compass me-2"></i>Nhóm Gợi Ý Tham Gia</h6>
+                        <div class="list-group list-group-flush" id="suggestedGroupsList"></div>
+                    </div>
+
+                    <!-- FORM TẠO NHÓM MỚI -->
                     <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
                         <h6 class="fw-bold text-dark mb-3"><i class="bi bi-plus-circle text-success me-2"></i>Tạo Nhóm Học Thuật Mới</h6>
                         <form id="createGroupForm">
@@ -635,22 +284,64 @@
                         </form>
                     </div>
                 </div>
+
+                <!-- CỘT PHẢI: KHUNG TRÒ CHUYỆN CHAT NHÓM -->
+                <div class="col-lg-7">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 h-100 d-flex flex-column bg-white" id="chatWindowCard">
+                        <div class="border-bottom pb-2 mb-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="fw-bold mb-0 text-primary" id="chatGroupName">KTPM K24 MTU</h6>
+                                <small class="text-muted" id="chatGroupMembers">128 Thành viên</small>
+                            </div>
+                            <span class="badge bg-success">Đang hoạt động</span>
+                        </div>
+                        
+                        <!-- Box chứa tin nhắn -->
+                        <div class="chat-messages-box flex-grow-1 mb-3 p-3 bg-light rounded-3 overflow-y-auto" id="chatMessagesBox" style="min-height: 320px; max-height: 440px;"></div>
+
+                        <!-- Ô gửi tin nhắn -->
+                        <form id="chatSendForm" class="d-flex gap-2">
+                            <input type="text" id="chatInputText" class="form-control" placeholder="Nhập tin nhắn trao đổi nhóm..." required>
+                            <button type="submit" class="btn btn-primary fw-bold px-3"><i class="bi bi-send-fill"></i></button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- NÚT AI TRỢ LÝ TRUY VẤN (ROUND FLOATING BUTTON) -->
+    <!-- FLOATING AI BUTTON -->
     <button class="btn-floating-ai" id="btnFloatingAi" title="Trợ Lý AI EduShare (Gemini API)">
         <i class="bi bi-robot"></i>
     </button>
 
 
-    <!-- ======================================================= -->
-    <!-- 3. HỆ THỐNG MODAL (AUTHENTICATION, PROFILE, UPLOAD, AI)  -->
-    <!-- ======================================================= -->
+    <!-- ========================================== -->
+    <!-- 3. HỆ THỐNG MODAL POPUP                     -->
+    <!-- ========================================== -->
 
-    <!-- 3.1 AUTHENTICATION MODAL (LOGIN / REGISTER WITH ROLE) -->
+    <!-- MODAL XEM TÀI LIỆU (CÓ NÚT XEM TRÊN THẺ) -->
+    <div class="custom-modal" id="documentViewModal">
+        <div class="custom-modal-dialog modal-lg">
+            <div class="custom-modal-header">
+                <h5 class="fw-bold mb-0 text-dark" id="viewDocTitle">Xem Tài Liệu</h5>
+                <button type="button" class="btn-close" id="btnCloseViewDoc"></button>
+            </div>
+            <div class="custom-modal-body">
+                <div class="p-3 bg-light rounded-3 mb-3 border">
+                    <h6 class="fw-bold text-primary mb-1" id="viewDocSubject">Môn học: Hệ điều hành</h6>
+                    <p class="text-muted small mb-2" id="viewDocDesc">Nội dung tóm tắt...</p>
+                    <small class="text-secondary">Tác giả đăng: <strong id="viewDocAuthor">Nguyễn Chí Vỹ</strong></small>
+                </div>
+
+                <!-- Khung xem trước bảo mật (Chống copy đối với Khách) -->
+                <div class="document-preview-frame p-4 bg-white border rounded-3 shadow-sm" id="docPreviewContainer" style="min-height: 250px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AUTHENTICATION (SỬA LỖI ĐĂNG KÝ VAI TRÒ) -->
     <div class="custom-modal" id="authModal">
         <div class="custom-modal-dialog">
             <div class="custom-modal-header">
@@ -662,7 +353,7 @@
                         <button class="nav-link fw-bold px-4" id="register-tab" data-bs-toggle="pill" data-bs-target="#pills-register" type="button">Đăng Ký (@mtu.edu.vn)</button>
                     </li>
                 </ul>
-                <button type="button" class="btn-close" id="btnCloseAuth" aria-label="Close"></button>
+                <button type="button" class="btn-close" id="btnCloseAuth"></button>
             </div>
             <div class="custom-modal-body">
                 <div class="tab-content" id="authTabContent">
@@ -671,8 +362,8 @@
                     <div class="tab-pane fade show active" id="pills-login" role="tabpanel">
                         <form id="loginForm">
                             <div class="mb-3">
-                                <label class="form-label fw-semibold small">Email trường / Tên người dùng / SĐT</label>
-                                <input type="text" name="identity" class="form-control form-control-lg" placeholder="nguyenchivy@mtu.edu.vn hoặc 0862204069" required>
+                                <label class="form-label fw-semibold small">Email trường / SĐT / Tên đăng nhập</label>
+                                <input type="text" name="identity" class="form-control form-control-lg" placeholder="nguyenchivy@mtu.edu.vn" required>
                             </div>
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -681,28 +372,11 @@
                                 </div>
                                 <input type="password" name="password" class="form-control form-control-lg mt-1" placeholder="••••••••" required>
                             </div>
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" checked>
-                                <label class="form-check-label text-muted small" for="rememberMe">Ghi nhớ mật khẩu & duy trì đăng nhập lần sau</label>
-                            </div>
                             <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm mb-3">Đăng Nhập Ngay</button>
-                            
-                            <!-- ĐĂNG NHẬP MẠNG XÃ HỘI GOOGLE & FACEBOOK -->
-                            <div class="text-center">
-                                <small class="text-muted d-block mb-2">Hoặc đăng nhập nhanh qua</small>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3" id="btnLoginGoogle">
-                                        <i class="bi bi-google me-1"></i> Google
-                                    </button>
-                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" id="btnLoginFacebook">
-                                        <i class="bi bi-facebook me-1"></i> Facebook
-                                    </button>
-                                </div>
-                            </div>
                         </form>
                     </div>
 
-                    <!-- FORM ĐĂNG KÝ (ĐẦY ĐỦ CÁC TRƯỜNG THEO BẢN ĐẶC TẢ) -->
+                    <!-- FORM ĐĂNG KÝ (ĐÃ SỬA CHÍNH XÁC VAI TRÒ) -->
                     <div class="tab-pane fade" id="pills-register" role="tabpanel">
                         <form id="registerForm">
                             <div class="row g-2 mb-2">
@@ -732,32 +406,8 @@
                                 <label class="form-label small fw-semibold">Email Trường (@mtu.edu.vn)</label>
                                 <input type="email" name="email" class="form-control form-control-sm" placeholder="nguyenchivy@mtu.edu.vn" required>
                             </div>
-                            <div class="row g-2 mb-2">
-                                <div class="col-6">
-                                    <label class="form-label small fw-semibold">Trường</label>
-                                    <input type="text" name="school" class="form-control form-control-sm" value="ĐH Xây dựng Miền Tây (MTU)" readonly>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label small fw-semibold">Khoa</label>
-                                    <input type="text" name="faculty" class="form-control form-control-sm" value="Khoa Kỹ thuật Phần mềm">
-                                </div>
-                            </div>
-                            <div class="row g-2 mb-2">
-                                <div class="col-4">
-                                    <label class="form-label small fw-semibold">Khóa</label>
-                                    <input type="text" name="academicYear" class="form-control form-control-sm" value="K2024">
-                                </div>
-                                <div class="col-4">
-                                    <label class="form-label small fw-semibold">Ngành</label>
-                                    <input type="text" name="major" class="form-control form-control-sm" value="Kỹ thuật Phần mềm">
-                                </div>
-                                <div class="col-4">
-                                    <label class="form-label small fw-semibold">Lớp</label>
-                                    <input type="text" name="className" class="form-control form-control-sm" value="DHKTPM24">
-                                </div>
-                            </div>
                             <div class="mb-2">
-                                <label class="form-label small fw-semibold">Chọn Vai trò</label>
+                                <label class="form-label small fw-semibold">Chọn Vai trò (Phân quyền hệ thống)</label>
                                 <select name="role" class="form-select form-select-sm" required>
                                     <option value="STUDENT" selected>Học sinh / Sinh viên</option>
                                     <option value="TEACHER">Giáo viên / Giảng viên</option>
@@ -783,8 +433,7 @@
         </div>
     </div>
 
-
-    <!-- 3.2 FORGOT PASSWORD MODAL (VỚI ĐẾM NGƯỢC OTP 60S) -->
+    <!-- MODAL QUÊN MẬT KHẨU (OTP 60 SECONDS) -->
     <div class="custom-modal" id="forgotPasswordModal">
         <div class="custom-modal-dialog">
             <div class="custom-modal-header">
@@ -796,7 +445,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Nhập Tên người dùng / Email / SĐT</label>
                         <div class="input-group">
-                            <input type="text" id="forgotIdentity" name="identity" class="form-control" placeholder="Email hoặc SĐT đã đăng ký..." required>
+                            <input type="text" id="forgotIdentity" name="identity" class="form-control" placeholder="Email hoặc SĐT..." required>
                             <button class="btn btn-outline-primary fw-semibold" type="button" id="btnRequestOtp">
                                 Gửi OTP <span id="otpCountdown"></span>
                             </button>
@@ -811,7 +460,7 @@
                         <input type="password" name="newPassword" class="form-control" placeholder="••••••••" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Xác Nhận Mật Khẩu Mới (Trùng khớp 100%)</label>
+                        <label class="form-label fw-semibold small">Xác Nhận Mật Khẩu Mới</label>
                         <input type="password" name="confirmPassword" class="form-control" placeholder="••••••••" required>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">Đổi Mật Khẩu Thành Công</button>
@@ -820,8 +469,7 @@
         </div>
     </div>
 
-
-    <!-- 3.3 TRANG THÔNG TIN CÁ NHÂN & THIẾT LẬP (PROFILE & SETTINGS) -->
+    <!-- MODAL THIẾT LẬP CÁ NHÂN & CHỦ ĐỀ GIAO DIỆN -->
     <div class="custom-modal" id="profileSettingsModal">
         <div class="custom-modal-dialog">
             <div class="custom-modal-header">
@@ -829,11 +477,10 @@
                 <button type="button" class="btn-close" id="btnCloseProfileSettings"></button>
             </div>
             <div class="custom-modal-body">
-                <!-- THÔNG TIN CHI TIẾT USER -->
                 <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3 bg-light border">
                     <div class="position-relative">
                         <img id="settingAvatarPreview" src="https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=4f46e5&color=fff" class="rounded-circle border" width="64" height="64" alt="Avatar">
-                        <label for="avatarFileInput" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 p-1" style="width:26px; height:26px; font-size:0.7rem;" title="Tải ảnh mới">
+                        <label for="avatarFileInput" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 p-1" style="width:26px; height:26px; font-size:0.7rem;">
                             <i class="bi bi-camera-fill"></i>
                         </label>
                         <input type="file" id="avatarFileInput" accept="image/*" class="d-none">
@@ -845,7 +492,6 @@
                     </div>
                 </div>
 
-                <!-- CHUYỂN ĐỔI TRẠNG THÁI ONLINE / OFFLINE -->
                 <div class="mb-4">
                     <label class="form-label fw-semibold small">Trạng Thái Hoạt Động</label>
                     <select id="statusSelect" class="form-select form-select-sm">
@@ -854,45 +500,25 @@
                     </select>
                 </div>
 
-                <!-- TÙY CHỌN 3 CHỦ ĐỀ GIAO DIỆN & SÁNG/TỐI -->
                 <div class="mb-4 border-top pt-3">
                     <h6 class="fw-bold small mb-2"><i class="bi bi-palette me-1"></i>Tùy Chọn Giao Diện</h6>
                     <div class="row g-2 mb-3">
                         <div class="col-4">
-                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 theme-style-btn" data-style="classic">
-                                Cổ điển
-                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm w-100 theme-style-btn" data-style="classic">Cổ điển</button>
                         </div>
                         <div class="col-4">
-                            <button type="button" class="btn btn-outline-primary btn-sm w-100 theme-style-btn active" data-style="academic">
-                                Học thuật
-                            </button>
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 theme-style-btn active" data-style="academic">Học thuật</button>
                         </div>
                         <div class="col-4">
-                            <button type="button" class="btn btn-outline-teal btn-sm w-100 theme-style-btn" data-style="modern">
-                                Hiện đại
-                            </button>
+                            <button type="button" class="btn btn-outline-teal btn-sm w-100 theme-style-btn" data-style="modern">Hiện đại</button>
                         </div>
                     </div>
-                    
                     <div class="form-check form-switch mb-3">
                         <input class="form-check-input" type="checkbox" id="darkModeSwitch">
                         <label class="form-check-label fw-semibold small" for="darkModeSwitch">Bật Chế Độ Tối (Dark Mode)</label>
                     </div>
                 </div>
 
-                <!-- FORM ĐỔI MẬT KHẨU TRỰC TIẾP -->
-                <div class="border-top pt-3 mb-3">
-                    <h6 class="fw-bold small mb-2"><i class="bi bi-key me-1"></i>Đổi Mật Khẩu</h6>
-                    <div class="mb-2">
-                        <input type="password" id="changeOldPass" class="form-control form-control-sm" placeholder="Mật khẩu hiện tại">
-                    </div>
-                    <div class="mb-2">
-                        <input type="password" id="changeNewPass" class="form-control form-control-sm" placeholder="Mật khẩu mới">
-                    </div>
-                </div>
-
-                <!-- NÚT ÁP DỤNG / LƯU THAY ĐỔI -->
                 <button type="button" class="btn btn-primary w-100 fw-bold" id="btnSaveProfileSettings">
                     <i class="bi bi-check-circle me-1"></i> Áp Dụng / Lưu Thay Đổi
                 </button>
@@ -900,8 +526,7 @@
         </div>
     </div>
 
-
-    <!-- 3.4 UPLOAD DOCUMENT MODAL (HỖ TRỢ ĐA TỆP & ĐA PHƯƠNG TIỆN) -->
+    <!-- MODAL ĐĂNG TẢI HỌC LIỆU MỚI -->
     <div class="custom-modal" id="uploadModal">
         <div class="custom-modal-dialog" style="max-width: 650px;">
             <div class="custom-modal-header">
@@ -912,7 +537,7 @@
                 <form id="uploadForm" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Tên Tài Liệu / Giáo Trình / Bài Báo</label>
-                        <input type="text" name="title" class="form-control" placeholder="Ví dụ: Đề thi & Đáp án Môn Lập trình Web DHKTPM24" required>
+                        <input type="text" name="title" class="form-control" placeholder="Ví dụ: Giáo trình Hệ điều hành Linux MTU" required>
                     </div>
                     <div class="row g-2 mb-3">
                         <div class="col-md-6">
@@ -930,16 +555,12 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Chọn Tệp Đính Kèm (Hỗ trợ PDF, Word, Slide, Text, Ảnh, Audio, Video - Tải tệp hàng loạt)</label>
+                        <label class="form-label fw-semibold small">Chọn Tệp Đính Kèm (Hỗ trợ PDF, Word, Slide, Text, Ảnh, Audio, Video)</label>
                         <input type="file" name="files" class="form-control" multiple required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold small">Đường Liên Kết Ngoài (Link bài báo, link tin tức đa kênh)</label>
-                        <input type="url" name="externalLink" class="form-control" placeholder="https://...">
-                    </div>
-                    <div class="mb-3">
                         <label class="form-label fw-semibold small">Mô Tả Tóm Tắt Nội Dung</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Nhập mô tả tóm tắt học liệu..."></textarea>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Nhập mô tả tóm tắt..."></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm">Tải Lên Kho Học Liệu MTU</button>
                 </form>
@@ -947,8 +568,7 @@
         </div>
     </div>
 
-
-    <!-- 3.5 GEMINI AI CHAT ASSISTANT MODAL -->
+    <!-- MODAL GEMINI AI CHAT ASSISTANT -->
     <div class="custom-modal" id="aiChatModal">
         <div class="custom-modal-dialog" style="max-width: 640px;">
             <div class="custom-modal-header bg-primary text-white">
@@ -960,48 +580,38 @@
                     <div class="d-flex mb-3 justify-content-start">
                         <div class="p-3 rounded-3 bg-light text-dark border" style="max-width: 85%;">
                             <small class="fw-bold d-block mb-1 text-primary">EduShare AI Engine</small>
-                            <div>Xin chào! Tôi có thể hỗ trợ bạn tóm tắt giáo trình, giải thích đáp án bài thi, trích xuất dữ liệu đa phương tiện và gợi ý tài liệu học tập MTU.</div>
+                            <div>Xin chào! Tôi có thể giúp bạn tìm kiếm thông minh không dấu, giải thích đáp án và tóm tắt giáo trình MTU.</div>
                         </div>
                     </div>
                 </div>
-                <div class="mb-2">
-                    <input type="file" id="aiFileInput" class="form-control form-control-sm" title="Tải tệp Ảnh, PDF, Audio, Video để AI phân tích">
-                </div>
                 <div class="input-group">
-                    <input type="text" id="aiPromptInput" class="form-control" placeholder="Hỏi AI bất kỳ thắc mắc học thuật nào...">
+                    <input type="text" id="aiPromptInput" class="form-control" placeholder="Hỏi AI hoặc gõ từ khóa tìm kiếm gần đúng...">
                     <button class="btn btn-primary fw-bold" id="btnSendAiPrompt"><i class="bi bi-send-fill"></i></button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 2000;"></div>
 
-    <!-- 3.6 TOAST NOTIFICATION CONTAINER (POPUP CÓ ICON XANH / ĐỎ) -->
-    <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3"></div>
-
-
-    <!-- 4. FOOTER (THÔNG TIN BẢN QUYỀN & TÁC GIẢ NGUYỄN CHÍ VỸ & TRƯỜNG MTU) -->
+    <!-- FOOTER -->
     <footer class="bg-dark text-white pt-5 pb-4 mt-5 border-top border-secondary">
         <div class="container-fluid px-4">
             <div class="row g-4 mb-4">
-                
-                <!-- CỘT 1: THƯƠNG HIỆU DỰ ÁN -->
                 <div class="col-lg-4">
                     <div class="d-flex align-items-center gap-2 mb-3">
-                        <div class="brand-logo-icon">
-                            <i class="bi bi-mortarboard-fill"></i>
-                        </div>
+                        <div class="brand-logo-icon"><i class="bi bi-mortarboard-fill"></i></div>
                         <div>
                             <h5 class="fw-bold mb-0 text-white">EduShare</h5>
                             <small class="text-white-50">Kho tài liệu tri thức - Thư viện học liệu</small>
                         </div>
                     </div>
                     <p class="text-white-50 small mb-3">
-                        Hệ thống kho tài liệu tri thức và thư viện học liệu số trực tuyến được phát triển phục vụ công tác giảng dạy, học tập và nghiên cứu khoa học cho sinh viên và giảng viên Trường Đại học Xây dựng Miền Tây (MTU).
+                        Hệ thống kho tài liệu tri thức và thư viện học liệu số phục vụ giảng dạy và học tập cho Sinh viên và Giảng viên Trường ĐH Xây dựng Miền Tây (MTU).
                     </p>
                 </div>
 
-                <!-- CỘT 2: THÔNG TIN TÁC GIẢ NGUYỄN CHÍ VỸ -->
                 <div class="col-lg-4">
                     <h6 class="fw-bold text-warning text-uppercase mb-3"><i class="bi bi-person-badge me-2"></i>Tác Giả Phát Triển</h6>
                     <ul class="list-unstyled small text-white-50 mb-3" style="line-height: 1.8;">
@@ -1010,20 +620,8 @@
                         <li><strong class="text-white">Địa chỉ:</strong> Số 427, ấp Phú Hữu, xã Hương Mỹ, tỉnh Vĩnh Long</li>
                         <li><strong class="text-white">Email:</strong> nguyenchivybt2006@gmail.com</li>
                     </ul>
-                    <div class="d-flex gap-2">
-                        <a href="https://www.facebook.com/profile.php?id=61578961204573" target="_blank" class="social-link" title="Facebook Nguyễn Chí Vỹ">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                        <a href="https://www.tiktok.com/@nguyenchivybentre" target="_blank" class="social-link" title="TikTok Nguyễn Chí Vỹ">
-                            <i class="bi bi-tiktok"></i>
-                        </a>
-                        <a href="mailto:nguyenchivybt2006@gmail.com" class="social-link" title="Email Nguyễn Chí Vỹ">
-                            <i class="bi bi-envelope-fill"></i>
-                        </a>
-                    </div>
                 </div>
 
-                <!-- CỘT 3: ĐƠN VỊ ĐỒNG HÀNH (TRƯỜNG ĐH XÂY DỰNG MIỀN TÂY - MTU) -->
                 <div class="col-lg-4">
                     <h6 class="fw-bold text-info text-uppercase mb-3"><i class="bi bi-building me-2"></i>Đơn Vị Thuộc Trường</h6>
                     <ul class="list-unstyled small text-white-50 mb-3" style="line-height: 1.8;">
@@ -1032,41 +630,19 @@
                         <li><strong class="text-white">Số điện thoại:</strong> (0270) 3 825 903</li>
                         <li><strong class="text-white">Email:</strong> dhxdmt@mtu.edu.vn</li>
                     </ul>
-                    <div class="d-flex gap-2">
-                        <a href="https://www.facebook.com/mtu.edu.vn" target="_blank" class="social-link" title="Facebook MTU">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                        <a href="https://www.tiktok.com/@dhxaydungmientay" target="_blank" class="social-link" title="TikTok MTU">
-                            <i class="bi bi-tiktok"></i>
-                        </a>
-                        <a href="http://mtu.edu.vn" target="_blank" class="social-link" title="Website MTU">
-                            <i class="bi bi-globe"></i>
-                        </a>
-                    </div>
                 </div>
-
             </div>
 
             <hr class="border-secondary my-3">
-
-            <!-- BOTTOM COPYRIGHT -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-white-50">
-                <div>
-                    &copy; 2026 EduShare. Bản quyền thuộc về <strong>Nguyễn Chí Vỹ</strong> & Trường ĐH Xây dựng Miền Tây (MTU).
-                </div>
-                <div class="mt-2 mt-md-0">
-                    Slogan: <em>Kho tài liệu tri thức - Thư viện học liệu.</em>
-                </div>
+                <div>&copy; 2026 EduShare. Bản quyền thuộc về <strong>Nguyễn Chí Vỹ</strong> & Trường ĐH Xây dựng Miền Tây (MTU).</div>
+                <div class="mt-2 mt-md-0">Slogan: <em>Kho tài liệu tri thức - Thư viện học liệu.</em></div>
             </div>
         </div>
     </footer>
 
-
-    <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Custom Client Application JS -->
-    <script src="js/app.js"></script>
+    <script src="app.js"></script>
 
 </body>
 </html>
