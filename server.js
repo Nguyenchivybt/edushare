@@ -18,7 +18,6 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Phục vụ tĩnh thư mục public
 const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -26,7 +25,6 @@ if (!fs.existsSync(uploadDir)) {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(uploadDir));
 
-// Cấu hình Multer tải tệp
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadDir),
     filename: (req, file, cb) => {
@@ -58,6 +56,7 @@ const db = {
             id: "user-1",
             fullName: "Nguyễn Chí Vỹ",
             gender: "Nam",
+            dob: "2006-01-06",
             email: "nguyenchivy@mtu.edu.vn",
             phone: "0862204069",
             school: "Trường Đại học Xây dựng Miền Tây",
@@ -67,6 +66,22 @@ const db = {
             className: "DHKTPM24",
             role: "STUDENT",
             avatarUrl: "https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=4f46e5&color=fff",
+            status: "online"
+        },
+        {
+            id: "user-teacher",
+            fullName: "Thầy Điền Việt Đức",
+            gender: "Nam",
+            dob: "1988-11-20",
+            email: "dienvietduc@mtu.edu.vn",
+            phone: "0912345678",
+            school: "Trường Đại học Xây dựng Miền Tây",
+            faculty: "Khoa Kỹ thuật Phần mềm",
+            academicYear: "K2024",
+            major: "Kỹ thuật Phần mềm",
+            className: "DHKTPM24",
+            role: "TEACHER",
+            avatarUrl: "https://ui-avatars.com/api/?name=Dien+Viet+Duc&background=0284c7&color=fff",
             status: "online"
         }
     ],
@@ -81,13 +96,17 @@ const db = {
             major: "SE",
             academicYear: "K2024",
             className: "DHKTPM24",
-            description: "Tài liệu giảng dạy chuyên ngành KTPM. Bao gồm lý thuyết tiến trình, bộ nhớ RAM và Bash Shell.",
+            description: "Tài liệu giảng dạy chính thức dành cho Sinh viên KTPM MTU. Bao gồm lý thuyết Tiến trình, Quản lý bộ nhớ và Bash Shell.",
             fileUrl: "/uploads/sample-linux.pdf",
-            authorId: "user-1",
-            authorName: "Nguyễn Chí Vỹ",
-            authorRole: "STUDENT",
-            likes: 42,
+            authorId: "user-teacher",
+            authorName: "Thầy Điền Việt Đức",
+            authorRole: "TEACHER",
+            likes: 124,
+            dislikes: 2,
             views: 1420,
+            comments: [
+                { author: "Nguyễn Chí Vỹ", text: "Tài liệu rất chi tiết và dễ hiểu thưa thầy!", time: "10:15" }
+            ],
             createdAt: new Date().toISOString()
         },
         {
@@ -100,18 +119,20 @@ const db = {
             major: "SE",
             academicYear: "K2024",
             className: "DHKTPM24",
-            description: "Tổng hợp Use Case, Sequence Diagram và Class Diagram dự án Quản lý Thư viện Học liệu số.",
+            description: "Tổng hợp Sơ đồ Use Case, Sequence Diagram và Class Diagram mẫu dự án Thư viện Học liệu số.",
             fileUrl: "/uploads/sample-uml.docx",
             authorId: "user-1",
             authorName: "Nguyễn Chí Vỹ",
             authorRole: "STUDENT",
             likes: 89,
+            dislikes: 1,
             views: 856,
+            comments: [],
             createdAt: new Date().toISOString()
         },
         {
             id: 3,
-            title: "Bài báo NCKH: Ứng dụng Trí tuệ nhân tạo trong xử lý ảnh đô thị",
+            title: "Bài báo NCKH: Ứng dụng Trí tuệ nhân tạo trong xử lý ảnh đô thị tại ĐBSCL",
             category: "ARTICLE",
             subject: "Cơ sở dữ liệu",
             school: "MTU",
@@ -119,32 +140,34 @@ const db = {
             major: "SE",
             academicYear: "K2024",
             className: "DHKTPM24",
-            description: "Công trình nghiên cứu ứng dụng AI phân tích hình ảnh giao thông tại vùng ĐBSCL.",
+            description: "Công trình nghiên cứu cấp trường về mô hình AI phân tích lưu lượng giao thông tự động.",
             fileUrl: "/uploads/sample-article.pdf",
-            authorId: "user-2",
-            authorName: "Giảng viên MTU",
+            authorId: "user-teacher",
+            authorName: "Thầy Điền Việt Đức",
             authorRole: "TEACHER",
             likes: 62,
+            dislikes: 0,
             views: 1120,
+            comments: [],
             createdAt: new Date().toISOString()
         }
     ],
     groups: [
-        { id: "group-1", name: "KTPM K24 MTU", membersCount: 128, status: "JOINED", desc: "Nhóm học thuật thảo luận bài tập & đề thi MTU." },
-        { id: "group-2", name: "Nghiên cứu CNTT MTU", membersCount: 45, status: "PENDING", desc: "Cộng đồng nghiên cứu phát triển học thuật." },
-        { id: "group-3", name: "Đồ án Tốt nghiệp KTPM 2026", membersCount: 32, status: "SUGGESTED", desc: "Nhóm trao đổi kinh nghiệm làm đồ án tốt nghiệp." }
+        { id: "group-1", name: "KTPM K24 MTU", membersCount: 128, status: "JOINED", desc: "Cộng đồng trao đổi bài tập và đề thi MTU." },
+        { id: "group-2", name: "Nghiên cứu CNTT MTU", membersCount: 45, status: "PENDING", desc: "Nhóm nghiên cứu khoa học giảng viên & sinh viên." },
+        { id: "group-3", name: "Đồ án Tốt nghiệp KTPM 2026", membersCount: 32, status: "SUGGESTED", desc: "Nhóm hướng dẫn làm đồ án phần mềm chuẩn." }
     ],
     groupMessages: {
         "group-1": [
-            { sender: "Giảng viên MTU", text: "Chào các em, đã có lịch nộp bài tập lớn môn Hệ điều hành nhé!", time: "08:30" },
-            { sender: "Nguyễn Chí Vỹ", text: "Dạ thưa thầy, bọn em nộp tệp PDF lên EduShare đúng không ạ?", time: "08:32" }
+            { sender: "Thầy Điền Việt Đức", role: "TEACHER", text: "Chào các em, đã có lịch thi môn Hệ điều hành trên EduShare nhé!", time: "08:30" },
+            { sender: "Nguyễn Chí Vỹ", role: "STUDENT", text: "Dạ thưa thầy, bọn em nộp bài qua hệ thống luôn đúng không ạ?", time: "08:32" }
         ]
     }
 };
 
 const otpStore = new Map();
 
-// API Auth Register (Fix triệt để giữ nguyên vai trò TEACHER / ADMIN)
+// API Register (Giữ chính xác vai trò TEACHER / ADMIN / STUDENT)
 app.post('/api/auth/register', (req, res) => {
     try {
         const { fullName, gender, dob, email, phone, school, faculty, academicYear, major, className, password, confirmPassword, role } = req.body;
@@ -160,7 +183,7 @@ app.post('/api/auth/register', (req, res) => {
 
         const existed = db.users.find(u => u.email === email || u.phone === phone);
         if (existed) {
-            return res.status(400).json({ success: false, message: "Email hoặc Số điện thoại đã tồn tại trong hệ thống!" });
+            return res.status(400).json({ success: false, message: "Thông tin Email hoặc Số điện thoại đã được đăng ký trước đó!" });
         }
 
         const assignedRole = (role && ['STUDENT', 'TEACHER', 'ADMIN'].includes(role)) ? role : 'STUDENT';
@@ -169,7 +192,7 @@ app.post('/api/auth/register', (req, res) => {
             id: `user-${Date.now()}`,
             fullName,
             gender: gender || "Nam",
-            dob,
+            dob: dob || "2006-01-06",
             email,
             phone,
             school: school || "Trường Đại học Xây dựng Miền Tây",
@@ -189,9 +212,9 @@ app.post('/api/auth/register', (req, res) => {
     }
 });
 
-// API Auth Login
+// API Login
 app.post('/api/auth/login', (req, res) => {
-    const { identity } = req.body;
+    const { identity, password } = req.body;
     const user = db.users.find(u => u.email === identity || u.phone === identity || u.fullName === identity);
     if (!user) {
         return res.status(401).json({ success: false, message: "Đăng nhập thất bại. Vui lòng thử lại!" });
@@ -199,22 +222,54 @@ app.post('/api/auth/login', (req, res) => {
     return res.json({ success: true, message: "Đã đăng nhập thành công!", user });
 });
 
-// API Forgot Password OTP
-app.post('/api/auth/forgot-password/request-otp', (req, res) => {
+// API Social Login (Google / Facebook)
+app.post('/api/auth/social', (req, res) => {
+    const { provider } = req.body;
+    const socialUser = {
+        id: `user-social-${Date.now()}`,
+        fullName: provider === 'google' ? "Nguyễn Chí Vỹ (Google)" : "Nguyễn Chí Vỹ (Facebook)",
+        email: "nguyenchivy@mtu.edu.vn",
+        phone: "0862204069",
+        role: "STUDENT",
+        avatarUrl: "https://ui-avatars.com/api/?name=Nguyen+Chi+Vy&background=0284c7&color=fff",
+        status: "online"
+    };
+    return res.json({ success: true, message: `Đã đăng nhập thành công qua ${provider === 'google' ? 'Google' : 'Facebook'}!`, user: socialUser });
+});
+
+// API Request OTP Quên Mật Khẩu
+app.post('/api/auth/forgot-password/otp', (req, res) => {
     const { identity } = req.body;
     if (!identity) {
         return res.status(400).json({ success: false, message: "Sai cú pháp hoặc thông tin không tồn tại" });
     }
-    const user = db.users.find(u => u.email === identity || u.phone === identity);
+    const user = db.users.find(u => u.email === identity || u.phone === identity || u.fullName === identity);
     if (!user) {
         return res.status(404).json({ success: false, message: "Sai cú pháp hoặc thông tin không tồn tại" });
     }
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     otpStore.set(identity, { code: otpCode, expiresAt: Date.now() + 60000 });
-    return res.json({ success: true, message: "Mã OTP đã được gửi thành công!", otpDemo: otpCode, expiresSec: 60 });
+    return res.json({ success: true, message: "Mã OTP đã được gửi thành công!", otp: otpCode });
 });
 
-// API Documents Search (Fuzzy search không dấu)
+// API Reset Password OTP
+app.post('/api/auth/forgot-password/reset', (req, res) => {
+    const { identity, otp, newPassword, confirmPassword } = req.body;
+    const record = otpStore.get(identity);
+    if (!record || record.expiresAt < Date.now()) {
+        return res.status(400).json({ success: false, message: "Mã sai hoặc đã quá hạn, vui lòng nhập lại!" });
+    }
+    if (record.code !== otp) {
+        return res.status(400).json({ success: false, message: "Mã sai hoặc đã quá hạn, vui lòng nhập lại!" });
+    }
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ success: false, message: "Mật khẩu mới và xác nhận mật khẩu không trùng khớp!" });
+    }
+    otpStore.delete(identity);
+    return res.json({ success: true, message: "Đã cập nhật mật khẩu mới thành công!" });
+});
+
+// API Tìm kiếm Tài liệu Fuzzy không dấu
 app.get('/api/documents', (req, res) => {
     let { q, category, school, faculty, major, academicYear, className, subject } = req.query;
     let list = [...db.documents];
@@ -254,19 +309,21 @@ app.post('/api/documents', upload.array('files', 10), (req, res) => {
             id: db.documents.length + 1,
             title,
             category: category || "ACADEMIC",
-            subject: subject || "Chung",
+            subject: subject || "Hệ điều hành",
             school: school || "MTU",
             faculty: faculty || "KTPM",
             major: major || "SE",
             academicYear: academicYear || "K2024",
             className: className || "DHKTPM24",
             description: description || "",
-            fileUrl: fileUrls[0] || "",
+            fileUrl: fileUrls[0] || "/uploads/sample.pdf",
             authorId: authorId || "user-1",
             authorName: authorName || "Nguyễn Chí Vỹ",
             authorRole: authorRole || "STUDENT",
             likes: 0,
+            dislikes: 0,
             views: 1,
+            comments: [],
             createdAt: new Date().toISOString()
         };
 
@@ -286,7 +343,7 @@ app.delete('/api/documents/:id', (req, res) => {
     return res.json({ success: true, message: "Đã xóa Tệp tin!" });
 });
 
-// API AI Gemini Engine
+// API AI Gemini Assistant Engine
 app.post('/api/ai/chat', async (req, res) => {
     try {
         const { prompt } = req.body;
@@ -300,11 +357,11 @@ app.post('/api/ai/chat', async (req, res) => {
 
         let aiReply = "";
         if (matchedDocs.length > 0) {
-            aiReply = `[EduShare AI Engine] Tìm thấy ${matchedDocs.length} tài liệu phù hợp:\n` +
+            aiReply = `[Trợ lý AI EduShare] Tìm thấy ${matchedDocs.length} tài liệu phù hợp trong kho:\n` +
                 matchedDocs.map(d => `- **${d.title}** (Môn: ${d.subject} | Tác giả: ${d.authorName})`).join('\n');
         } else {
             if (GEMINI_API_KEY === "YOUR_GEMINI_API_KEY_HERE") {
-                aiReply = `[EduShare AI Engine] Xin chào! Tôi ghi nhận câu hỏi: "${prompt}". Bạn có thể tra cứu thêm các giáo trình Kiến trúc máy tính & Hệ điều hành Linux MTU.`;
+                aiReply = `[Trợ lý AI EduShare] Xin chào! Tôi đã nhận câu hỏi: "${prompt}". Bạn có thể tra cứu thêm bài giảng Linux, cơ sở dữ liệu UML hoặc đề thi mẫu MTU trong kho tài liệu số.`;
             } else {
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
                 const result = await model.generateContent(prompt);
@@ -323,9 +380,9 @@ app.get('/api/groups', (req, res) => res.json({ success: true, data: db.groups }
 app.post('/api/groups', (req, res) => {
     const { name, desc } = req.body;
     if (!name) return res.status(400).json({ success: false, message: "Tạo nhóm thất bại, vui lòng thử lại!" });
-    const newGroup = { id: `group-${Date.now()}`, name, membersCount: 1, status: "JOINED", desc: desc || "Nhóm mới tạo." };
+    const newGroup = { id: `group-${Date.now()}`, name, membersCount: 1, status: "JOINED", desc: desc || "Nhóm học thuật MTU mới." };
     db.groups.unshift(newGroup);
-    db.groupMessages[newGroup.id] = [{ sender: "Hệ thống", text: `Nhóm ${name} đã được khởi tạo.`, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
+    db.groupMessages[newGroup.id] = [{ sender: "Hệ thống", text: `Nhóm ${name} đã được tạo thành công.`, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
     return res.status(201).json({ success: true, message: "Đã tạo nhóm thành công!", data: newGroup });
 });
 
@@ -335,9 +392,9 @@ app.get('/api/groups/:id/messages', (req, res) => {
 });
 
 app.post('/api/groups/:id/messages', (req, res) => {
-    const { sender, text } = req.body;
+    const { sender, role, text } = req.body;
     if (!db.groupMessages[req.params.id]) db.groupMessages[req.params.id] = [];
-    const newMsg = { sender: sender || "Sinh viên", text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+    const newMsg = { sender: sender || "Sinh viên", role: role || "STUDENT", text, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
     db.groupMessages[req.params.id].push(newMsg);
     return res.json({ success: true, data: newMsg });
 });

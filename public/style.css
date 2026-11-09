@@ -1,44 +1,64 @@
+/* PHÔNG CHỮ & BIẾN GIAO DIỆN BẢO ĐẢM TƯƠNG PHẢN 100% KHI CHUYỂN SÁNG / TỐI */
 :root {
-  --bg-main: #0f172a;
-  --bg-card: #1e293b;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --border-color: #334155;
-  --primary-color: #4f46e5;
-  --bg-body: #f8fafc;
+  --bg-body: #f1f5f9;
   --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --border-color: #cbd5e1;
+  --primary-color: #4f46e5;
+  --brand-gradient: linear-gradient(135deg, #4f46e5, #0284c7);
 }
 
 [data-theme="dark"] {
   --bg-body: #0f172a;
   --card-bg: #1e293b;
   --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --text-muted: #cbd5e1;
   --border-color: #334155;
+  --primary-color: #6366f1;
+  --brand-gradient: linear-gradient(135deg, #6366f1, #38bdf8);
+}
+
+/* KHẮC PHỤC TRIỆT ĐỂ LỖI CHỮ MỜ/TÙ TRONG Ô NHẬP LIỆU VÀ MODAL */
+.form-control, .form-select {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25) !important;
 }
 
 body {
   background-color: var(--bg-body);
   color: var(--text-main);
   font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .brand-logo-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #4f46e5, #0284c7);
+  width: 42px;
+  height: 42px;
+  background: var(--brand-gradient);
   color: #fff;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
-.header-search-bar { max-width: 400px; width: 100%; }
+.brand-title {
+  color: var(--text-main);
+}
+
+.header-search-bar { max-width: 440px; width: 100%; }
 .cursor-pointer { cursor: pointer; }
 
-/* CHỐNG COPY VĂN BẢN KHI CHƯA ĐĂNG NHẬP */
+/* CHỐNG COPY VĂN BẢN KHI CHƯA ĐĂNG NHẬP (KHÁCH) */
 .unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -53,6 +73,29 @@ body {
   color: #fff;
   border-radius: 20px;
   padding: 3rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.hero-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.hero-title-highlight {
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .filter-panel {
@@ -64,10 +107,12 @@ body {
 
 .filter-label {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-muted);
   margin-bottom: 0.4rem;
 }
+
+.text-main { color: var(--text-main) !important; }
 
 .btn-floating-ai {
   position: fixed;
@@ -85,29 +130,39 @@ body {
   border: 2px solid #fff;
   z-index: 1040;
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
+.btn-floating-ai:hover {
+  transform: scale(1.08);
+}
+
+/* CUSTOM MODAL OVERLAY KHÔNG BỊ TREO */
 .custom-modal {
   display: none;
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(5px);
   z-index: 1060;
   align-items: center;
   justify-content: center;
 }
 .custom-modal.show { display: flex !important; }
+
 .custom-modal-dialog {
   background: var(--card-bg);
   color: var(--text-main);
   border-radius: 20px;
-  width: 100%; max-width: 600px;
+  width: 100%; max-width: 620px;
   overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
 }
+
 .custom-modal-header {
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
   display: flex; justify-content: space-between; align-items: center;
 }
+
 .custom-modal-body { padding: 1.5rem; max-height: 80vh; overflow-y: auto; }
