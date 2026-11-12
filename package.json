@@ -1,6 +1,6 @@
 {
   "name": "edushare-mtu",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Kho Tài Liệu Tri Thức - Thư Viện Học Liệu Số MTU",
   "main": "server.js",
   "scripts": {
