@@ -709,27 +709,6 @@ function bindEvents() {
         });
     });
 
-    // AI Chatbot Modal & Multi-file Input
-    document.getElementById('btnFloatingAi')?.addEventListener('click', () => openModal(document.getElementById('aiChatModal')));
-    document.getElementById('btnCloseAi')?.addEventListener('click', () => closeModal(document.getElementById('aiChatModal')));
-
-    document.getElementById('aiFileInput')?.addEventListener('change', (e) => {
-        const preview = document.getElementById('aiFilePreview');
-        if (!preview) return;
-        preview.innerHTML = '';
-        Array.from(e.target.files).forEach(f => {
-            preview.innerHTML += `<span class="badge bg-primary-subtle text-primary border"><i class="bi bi-file-earmark me-1"></i>${escapeHtml(f.name)}</span>`;
-        });
-    });
-
-    document.getElementById('btnSendAiPrompt')?.addEventListener('click', handleSendAiMessage);
-    document.getElementById('aiPromptInput')?.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleSendAiMessage();
-        }
-    });
-
     // Anti-copy protection for unauthenticated Guests
     document.addEventListener('copy', (e) => {
         if (!state.currentUser) {
@@ -1856,49 +1835,4 @@ function appendChatMessage(sender, text, files = [], time = '', isSelf = false) 
 
     chatBox.appendChild(div);
     chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// ---------- AI Chatbot Handler ----------
-
-async function handleSendAiMessage() {
-    const input = document.getElementById('aiPromptInput');
-    const fileInput = document.getElementById('aiFileInput');
-    const prompt = input?.value.trim() || '';
-    const files = fileInput?.files || [];
-
-    if (!prompt && files.length === 0) return;
-
-    const box = document.getElementById('aiMessageContainer');
-    if (box) {
-        const fileNote = files.length > 0 ? ` <span class="badge bg-secondary">+${files.length} tệp</span>` : '';
-        box.innerHTML += `<div class="mb-2 text-end text-primary"><strong>Bạn:</strong> ${escapeHtml(prompt)}${fileNote}</div>`;
-        box.scrollTop = box.scrollHeight;
-    }
-
-    const formData = new FormData();
-    formData.append('prompt', prompt);
-    for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
-    }
-
-    if (input) input.value = '';
-    if (fileInput) fileInput.value = '';
-    const preview = document.getElementById('aiFilePreview');
-    if (preview) preview.innerHTML = '';
-
-    try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/ai/chat`, {
-            method: 'POST',
-            body: formData
-        });
-        const result = await res.json();
-        if (box) {
-            box.innerHTML += `<div class="mb-3 p-2 rounded-3 border" style="background-color: var(--card-bg);"><strong>AI EduShare:</strong><div class="mt-1 small">${result.reply || result.message}</div></div>`;
-            box.scrollTop = box.scrollHeight;
-        }
-    } catch (_) {
-        if (box) {
-            box.innerHTML += `<div class="mb-2 text-danger"><strong>AI EduShare:</strong> Không thể kết nối máy chủ AI.</div>`;
-        }
-    }
 }

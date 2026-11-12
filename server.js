@@ -10,7 +10,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -38,9 +37,6 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage: storage, limits: { fileSize: 100 * 1024 * 1024 } });
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "YOUR_GEMINI_API_KEY_HERE";
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // ---------- Helpers ----------
 
@@ -1028,85 +1024,6 @@ app.post('/api/groups/:id/messages', upload.array('attachments', 10), (req, res)
     };
     db.groupMessages[req.params.id].push(newMsg);
     return res.json({ success: true, data: newMsg });
-});
-
-// ==================== AI GEMINI ASSISTANT API (Multi-file + Smart Search) ====================
-
-app.post('/api/ai/chat', upload.array('files', 10), async (req, res) => {
-    try {
-        const prompt = (req.body && req.body.prompt) ? String(req.body.prompt).trim() : '';
-        const attachedFiles = req.files || [];
-
-        if (!prompt && attachedFiles.length === 0) {
-            return res.status(400).json({ success: false, message: "Vui lòng nhập câu hỏi hoặc đính kèm tệp!" });
-        }
-
-        const normPrompt = removeVietnameseTones(prompt);
-        const keywords = normPrompt.split(/\s+/).filter(kw => kw.length >= 2);
-
-        const matchedDocs = keywords.length > 0 ? db.documents.filter(d => {
-            const fullText = removeVietnameseTones(`${d.title} ${d.description} ${d.subject} ${d.authorName} ${d.category}`);
-            return keywords.some(kw => fullText.includes(kw));
-        }) : [];
-
-        let aiReply = "";
-
-        // If real Gemini API key is configured, call Gemini multimodal model
-        if (GEMINI_API_KEY && GEMINI_API_KEY !== "YOUR_GEMINI_API_KEY_HERE") {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const systemContext = `Bạn là Trợ lý Học thuật AI của Thư viện Học liệu số EduShare - Trường Đại học Xây dựng Miền Tây (MTU).
-Danh sách tài liệu nội bộ liên quan tìm được: ${matchedDocs.map(d => `[ID:${d.id}] ${d.title} (${d.subject} - ${d.authorName})`).join('; ') || 'Không có tài liệu trùng khớp trực tiếp'}.
-Hãy trả lời rõ ràng, chính xác, trích dẫn tài liệu nội bộ nếu có và bổ sung kiến thức học thuật mở bên ngoài khi cần.`;
-
-            const parts = [{ text: `${systemContext}\n\nCâu hỏi người dùng: ${prompt || 'Hãy phân tích các tệp đính kèm sau.'}` }];
-            for (const f of attachedFiles) {
-                try {
-                    const fileBytes = fs.readFileSync(f.path);
-                    parts.push({
-                        inlineData: {
-                            data: fileBytes.toString('base64'),
-                            mimeType: f.mimetype || 'application/octet-stream'
-                        }
-                    });
-                } catch (_) {}
-            }
-            const result = await model.generateContent(parts);
-            aiReply = result.response.text();
-        } else {
-            // Smart built-in fallback engine (Internal Search + Multi-file Analysis + External Academic Guidance)
-            const segments = [];
-            if (attachedFiles.length > 0) {
-                const fileListStr = attachedFiles.map(f => `• <strong>${f.originalname}</strong> (${(f.size / 1024).toFixed(1)} KB)`).join('<br>');
-                segments.push(`📎 <strong>Đã tiếp nhận ${attachedFiles.length} tệp đính kèm:</strong><br>${fileListStr}<br><em>AI đã phân tích cấu trúc dữ liệu tệp và sẵn sàng tóm tắt, trích xuất ý chính hoặc giải bài tập theo nội dung tệp của bạn.</em>`);
-            }
-
-            if (matchedDocs.length > 0) {
-                const docLinks = matchedDocs.map(d =>
-                    `• <a href="#" onclick="handleViewDocument(${d.id}); return false;" class="fw-bold text-primary">${d.title}</a> <span class="badge bg-secondary-subtle text-dark">${d.subject}</span> — Tác giả: <strong>${d.authorName}</strong>`
-                ).join('<br>');
-                segments.push(`📚 <strong>Tìm thấy ${matchedDocs.length} học liệu phù hợp trong kho MTU:</strong><br>${docLinks}`);
-            } else if (prompt) {
-                const encodedQ = encodeURIComponent(prompt);
-                segments.push(
-                    `🌐 <strong>Tra cứu kiến thức mở & Nguồn học thuật ngoài hệ thống cho "${prompt}":</strong><br>` +
-                    `Hiện chưa có tài liệu trùng khớp 100% trong kho nội bộ MTU, tuy nhiên bạn có thể tham khảo ngay:<br>` +
-                    `1. <strong>Phân tích chuyên môn:</strong> Với chủ đề <em>"${prompt}"</em>, bạn nên hệ thống hóa theo 3 phần: Khái niệm nền tảng $\\rightarrow$ Mô hình/Thuật toán áp dụng $\\rightarrow$ Ví dụ thực tiễn & Bài tập kiểm thử.<br>` +
-                    `2. <strong>Nguồn học thuật mở gợi ý:</strong> ` +
-                    `<a href="https://scholar.google.com/scholar?q=${encodedQ}" target="_blank" class="text-primary fw-bold">Google Scholar</a> • ` +
-                    `<a href="https://www.google.com/search?q=${encodedQ}+tai+lieu+hoc+thuat+pdf" target="_blank" class="text-primary fw-bold">Tài liệu PDF học thuật</a>`
-                );
-            }
-            aiReply = segments.join('<hr class="my-2">');
-        }
-
-        return res.json({
-            success: true,
-            reply: aiReply,
-            matchedDocuments: matchedDocs.map(d => ({ id: d.id, title: d.title, subject: d.subject }))
-        });
-    } catch (e) {
-        return res.status(500).json({ success: false, message: "AI Engine gặp sự cố!", error: e.message });
-    }
 });
 
 // ==================== START SERVER ====================

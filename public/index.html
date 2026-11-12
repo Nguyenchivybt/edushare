@@ -439,11 +439,6 @@
 
     </main>
 
-    <!-- NÚT CHATBOT AI NỔI -->
-    <button type="button" class="btn-floating-ai" id="btnFloatingAi" title="Trợ Lý AI EduShare">
-        <i class="bi bi-robot"></i>
-    </button>
-
     <!-- ==================== MODAL 1: XEM TÀI LIỆU + BÌNH CHỌN + BÌNH LUẬN ==================== -->
     <div class="custom-modal" id="documentViewModal">
         <div class="custom-modal-dialog modal-lg">
@@ -842,30 +837,6 @@
                     </div>
                     <button type="submit" class="btn btn-primary w-100 fw-bold">Lưu Chỉnh Sửa</button>
                 </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- ==================== MODAL 6: CHATBOT AI EDUSHARE ==================== -->
-    <div class="custom-modal" id="aiChatModal">
-        <div class="custom-modal-dialog">
-            <div class="custom-modal-header" style="background: var(--brand-gradient); color: #fff;">
-                <h5 class="fw-bold mb-0 text-white"><i class="bi bi-robot me-2"></i>Trợ Lý AI EduShare (Gemini Engine)</h5>
-                <button type="button" class="btn-close btn-close-white" id="btnCloseAi"></button>
-            </div>
-            <div class="custom-modal-body">
-                <div class="p-3 rounded-3 border mb-3" id="aiMessageContainer" style="height: 310px; overflow-y: auto; background-color: var(--chat-bg);">
-                    <div class="mb-2"><strong>Trợ lý AI:</strong> Xin chào! Tôi hỗ trợ tra cứu học liệu nội bộ MTU theo từ khóa thông minh, phân tích đa tệp (PDF, Word, Slide, Ảnh, Audio, Video) và giải đáp kiến thức học thuật mở.</div>
-                </div>
-                <div id="aiFilePreview" class="d-flex flex-wrap gap-1 mb-2"></div>
-                <div class="input-group">
-                    <label for="aiFileInput" class="btn btn-outline-secondary" title="Đính kèm đa tệp cho AI phân tích">
-                        <i class="bi bi-paperclip"></i>
-                    </label>
-                    <input type="file" id="aiFileInput" multiple class="d-none">
-                    <input type="text" id="aiPromptInput" class="form-control fw-medium" placeholder="Nhập câu hỏi hoặc từ khóa cần tìm...">
-                    <button type="button" class="btn btn-primary fw-bold px-3" id="btnSendAiPrompt"><i class="bi bi-send-fill"></i></button>
-                </div>
             </div>
         </div>
     </div>
